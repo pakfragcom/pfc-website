@@ -2,12 +2,21 @@ import Image from "next/image";
 
 export default function Home() {
   return (
+<<<<<<< HEAD
     <main className="bg-black text-white font-sans">
       {/* Header */}
       <header className="fixed top-0 left-0 w-full px-6 py-4 flex justify-between items-center z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800">
         <div className="flex items-center space-x-3">
           <Image src="/logo.png" alt="PFC Logo" width={36} height={36} />
           <span className="text-lg font-semibold">PFC</span>
+=======
+    <main className="min-h-screen bg-black text-white font-sans">
+      {/* Header */}
+      <header className="p-6 flex justify-between items-center border-b border-gray-700">
+        <div className="flex items-center space-x-3">
+          <Image src="/logo.png" alt="PFC Logo" width={40} height={40} />
+          <h1 className="text-xl font-bold">Pakistan Fragrance Community</h1>
+>>>>>>> f0ab36f5416bf64e002d52e9d03f191137191c91
         </div>
         <nav className="space-x-6 text-sm">
           <a href="/" className="hover:underline">Home</a>
@@ -16,6 +25,7 @@ export default function Home() {
         </nav>
       </header>
 
+<<<<<<< HEAD
       {/* Hero */}
       <section className="h-screen w-full bg-cover bg-center flex items-center justify-center text-center relative" style={{ backgroundImage: 'url(/hero.jpg)' }}>
         <div className="bg-black bg-opacity-60 p-8 rounded-lg">
@@ -53,6 +63,30 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="text-center p-6 border-t border-gray-800 text-sm text-gray-500 bg-black">
+=======
+      {/* Hero Section */}
+      <section className="py-20 px-6 text-center max-w-3xl mx-auto">
+        <h2 className="text-4xl font-bold mb-4">Welcome to PFC</h2>
+        <p className="text-lg text-gray-300">
+          Pakistan’s first and most vibrant perfume community. Discover new fragrances, share reviews, and buy/sell genuine perfumes with fellow enthusiasts across Pakistan.
+        </p>
+      </section>
+
+      {/* Placeholder Blog Section */}
+      <section className="py-12 px-6 border-t border-gray-800 text-center">
+        <h3 className="text-2xl font-semibold mb-4">Latest Blog Posts</h3>
+        <p className="text-gray-400">Coming soon...</p>
+      </section>
+
+      {/* Placeholder Reviews Section */}
+      <section className="py-12 px-6 border-t border-gray-800 text-center">
+        <h3 className="text-2xl font-semibold mb-4">Latest Perfume Reviews</h3>
+        <p className="text-gray-400">Coming soon...</p>
+      </section>
+
+      {/* Footer */}
+      <footer className="text-center p-4 border-t border-gray-700 text-sm text-gray-500 mt-10">
+>>>>>>> f0ab36f5416bf64e002d52e9d03f191137191c91
         &copy; {new Date().getFullYear()} Pakistan Fragrance Community. All rights reserved.
       </footer>
     </main>
