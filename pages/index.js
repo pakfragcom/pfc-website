@@ -16,13 +16,21 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-6 text-center max-w-3xl mx-auto">
-        <h2 className="text-4xl font-bold mb-4">Welcome to PFC</h2>
-        <p className="text-lg text-gray-300">
-          Pakistan’s first and most vibrant perfume community. Discover new fragrances, share reviews, and buy/sell genuine perfumes with fellow enthusiasts across Pakistan.
-        </p>
-      </section>
+      
+    {/* Hero Section */}
+<section
+  className="relative h-[80vh] flex items-center justify-center text-center"
+  style={{ backgroundImage: "url('/hero.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
+>
+  <div className="absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm" />
+  <div className="relative z-10 px-6">
+    <h2 className="text-5xl font-bold mb-4">Welcome to PFC</h2>
+    <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+      Pakistan’s first and most vibrant fragrance community. Discover new scents, read and write reviews, and connect with passionate perfume lovers.
+    </p>
+  </div>
+</section>
+
 
       {/* Placeholder Blog Section */}
       <section className="py-12 px-6 border-t border-gray-800 text-center">
