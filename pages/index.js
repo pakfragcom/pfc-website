@@ -7,7 +7,7 @@ export default function Home() {
   {/* Left: Logo only */}
   <div className="flex-shrink-0">
 <Image
-  src="/logo.png"
+  src="/pfc-round.png"
   alt="PFC Logo"
   width={100}
   height={60}
