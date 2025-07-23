@@ -1,3 +1,3 @@
-# Pakistan Fragrance Community Website
+# Apple-Style PFC Website
 
-Fully bootstrapped with Next.js and Tailwind CSS.
+Inspired by Apple.com — built with Next.js and TailwindCSS.
