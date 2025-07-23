@@ -3,35 +3,26 @@ import Image from 'next/image';
 export default function Home() {
   return (
     <div className="bg-black text-white font-sans">
-    <header className="fixed top-0 left-0 w-full z-50 px-10 py-2 flex justify-between items-center bg-black/50 backdrop-blur-md border-b border-gray-800 h-[80px]">
-  {/* Larger Logo */}
-  <div className="flex items-center">
-    <Image
-      src="/logo.png"
-      alt="PFC Logo"
-      width={120}
-      height={60}
-      className="object-contain"
-    />
-  </div>
+      {/* Header */}
+      <header className="fixed top-0 left-0 w-full z-50 px-10 py-2 flex justify-between items-center bg-black/50 backdrop-blur-md border-b border-gray-800 h-[80px]">
+        {/* Larger Logo */}
+        <div className="flex items-center">
+          <Image
+            src="/logo.png"
+            alt="PFC Logo"
+            width={120}
+            height={60}
+            className="object-contain"
+          />
+        </div>
 
-  {/* Clean Navigation */}
-  <nav className="space-x-8 text-sm uppercase tracking-wide">
-    <a href="/" className="hover:text-gray-300 transition">Home</a>
-    <a href="/blog" className="hover:text-gray-300 transition">Blog</a>
-    <a href="/reviews" className="hover:text-gray-300 transition">Reviews</a>
-  </nav>
-</header>
-
-
-  {/* Refined nav */}
-  <nav className="space-x-8 text-sm uppercase tracking-wide">
-    <a href="/" className="hover:text-gray-300 transition">Home</a>
-    <a href="/blog" className="hover:text-gray-300 transition">Blog</a>
-    <a href="/reviews" className="hover:text-gray-300 transition">Reviews</a>
-  </nav>
-</header>
-
+        {/* Clean Navigation */}
+        <nav className="space-x-8 text-sm uppercase tracking-wide">
+          <a href="/" className="hover:text-gray-300 transition">Home</a>
+          <a href="/blog" className="hover:text-gray-300 transition">Blog</a>
+          <a href="/reviews" className="hover:text-gray-300 transition">Reviews</a>
+        </nav>
+      </header>
 
       {/* Hero */}
       <section className="relative h-screen w-full flex items-center justify-center">
