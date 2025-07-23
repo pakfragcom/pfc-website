@@ -6,13 +6,14 @@ export default function Home() {
     <header className="fixed top-0 left-0 w-full z-50 px-10 py-3 flex items-center justify-between bg-black/50 backdrop-blur-md border-b border-gray-800 h-[80px]">
   {/* Left: Logo only */}
   <div className="flex-shrink-0">
-    <Image
-      src="/logo.png"
-      alt="PFC Logo"
-      width={100}
-      height={60}
-      className="object-contain"
-    />
+<Image
+  src="/logo.png"
+  alt="PFC Logo"
+  width={100}
+  height={60}
+  className="object-contain"
+/>
+
   </div>
 
   {/* Center: Navigation links */}
