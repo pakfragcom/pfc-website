@@ -4,17 +4,27 @@ export default function Home() {
   return (
     <div className="bg-black text-white font-sans">
       {/* Header */}
-      <header className="fixed top-0 left-0 w-full z-50 px-8 py-4 flex justify-between items-center bg-black bg-opacity-80 backdrop-blur-sm border-b border-gray-800">
-        <div className="flex items-center space-x-3">
-          <Image src="/logo.png" alt="PFC Logo" width={48} height={48} />
-          <span className="text-lg font-semibold tracking-wide uppercase">PFC</span>
-        </div>
-        <nav className="space-x-6 text-sm uppercase tracking-wide">
-          <a href="/" className="hover:text-gray-300">Home</a>
-          <a href="/blog" className="hover:text-gray-300">Blog</a>
-          <a href="/reviews" className="hover:text-gray-300">Reviews</a>
-        </nav>
-      </header>
+   
+<header className="fixed top-0 left-0 w-full z-50 px-10 py-4 flex justify-between items-center bg-black bg-opacity-80 backdrop-blur-sm border-b border-gray-800">
+  {/* Bigger logo with no text */}
+  <div className="flex items-center">
+    <Image
+      src="/logo.png"
+      alt="PFC Logo"
+      width={80}  // you can adjust to 96 or 100 if you want even bolder
+      height={80}
+      className="object-contain"
+    />
+  </div>
+
+  {/* Refined nav */}
+  <nav className="space-x-8 text-sm uppercase tracking-wide">
+    <a href="/" className="hover:text-gray-300 transition">Home</a>
+    <a href="/blog" className="hover:text-gray-300 transition">Blog</a>
+    <a href="/reviews" className="hover:text-gray-300 transition">Reviews</a>
+  </nav>
+</header>
+
 
       {/* Hero */}
       <section className="relative h-screen w-full flex items-center justify-center">
