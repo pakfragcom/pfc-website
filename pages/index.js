@@ -9,7 +9,7 @@ export default function Home() {
 <Image
   src="/logo.png"
   alt="PFC Logo"
-  width={100}
+  width={180}
   height={60}
   className="object-contain"
 />
