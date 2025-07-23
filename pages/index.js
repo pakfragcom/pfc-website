@@ -3,44 +3,40 @@ import Image from 'next/image';
 export default function Home() {
   return (
     <div className="bg-black text-white font-sans">
-      {/* Header */}
-     <header className="fixed top-0 left-0 w-full z-50 px-6 md:px-10 h-[80px] flex items-center justify-between bg-black/50 backdrop-blur-md border-b border-gray-800">
-  {/* Left: Logo */}
-  <div className="flex items-center">
+    <header className="fixed top-0 left-0 w-full z-50 px-10 py-3 flex items-center justify-between bg-black/50 backdrop-blur-md border-b border-gray-800 h-[80px]">
+  {/* Left: Logo only */}
+  <div className="flex-shrink-0">
     <Image
       src="/logo.png"
       alt="PFC Logo"
-      width={110}
+      width={100}
       height={60}
       className="object-contain"
     />
   </div>
 
-  {/* Center: Nav */}
-  <nav className="hidden md:flex space-x-8 text-sm uppercase tracking-wide">
+  {/* Center: Navigation links */}
+  <nav className="hidden md:flex space-x-10 text-sm uppercase tracking-wide">
     <a href="/" className="hover:text-gray-300 transition">Home</a>
     <a href="/blog" className="hover:text-gray-300 transition">Blog</a>
     <a href="/reviews" className="hover:text-gray-300 transition">Reviews</a>
   </nav>
 
-  {/* Right: Social Icons */}
-  <div className="flex items-center space-x-4">
-    <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" className="w-5 h-5 hover:opacity-80 transition">
-        <path d="M22.675 0h-21.35C.592 0 0 .593 0 1.326v21.348C0 23.407.592 24 1.325 24h11.483V14.708h-3.13v-3.622h3.13V8.413c0-3.1 1.893-4.788 4.658-4.788 1.325 0 2.464.099 2.794.143v3.24l-1.918.001c-1.504 0-1.796.715-1.796 1.763v2.313h3.59l-.467 3.622h-3.123V24h6.116C23.408 24 24 23.407 24 22.674V1.326C24 .593 23.408 0 22.675 0z" />
+  {/* Right: Social icons */}
+  <div className="flex space-x-4 items-center">
+    <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+      <svg className="w-5 h-5 text-gray-400 hover:text-white transition" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M22 12.07C22 6.48 17.52 2 12 2S2 6.48 2 12.07C2 17.1 5.66 21.3 10.44 22v-7.02H7.9v-2.91h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22C18.34 21.3 22 17.1 22 12.07z"/>
       </svg>
     </a>
-    <a href="https://www.instagram.com/pakfragcom/" target="_blank" rel="noopener noreferrer">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" className="w-5 h-5 hover:opacity-80 transition">
-        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.97.24 2.423.403a4.92 4.92 0 011.675 1.09 4.92 4.92 0 011.09 1.675c.163.453.35 1.253.403 2.423.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.054 1.17-.24 1.97-.403 2.423a4.92 4.92 0 01-1.09 1.675 4.92 4.92 0 01-1.675 1.09c-.453.163-1.253.35-2.423.403-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.054-1.97-.24-2.423-.403a4.92 4.92 0 01-1.675-1.09 4.92 4.92 0 01-1.09-1.675c-.163-.453-.35-1.253-.403-2.423-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.054-1.17.24-1.97.403-2.423a4.92 4.92 0 011.09-1.675 4.92 4.92 0 011.675-1.09c.453-.163 1.253-.35 2.423-.403 1.266-.058 1.646-.07 4.85-.07zM12 0C8.741 0 8.332.013 7.053.07 5.773.127 4.755.308 3.95.558a7.017 7.017 0 00-2.548 1.64A7.017 7.017 0 00.558 4.828c-.25.805-.431 1.823-.488 3.103C.013 8.332 0 8.741 0 12c0 3.259.013 3.668.07 4.947.057 1.28.238 2.298.488 3.103a7.017 7.017 0 001.64 2.548 7.017 7.017 0 002.548 1.64c.805.25 1.823.431 3.103.488 1.279.057 1.688.07 4.947.07s3.668-.013 4.947-.07c1.28-.057 2.
+    <a href="https://www.instagram.com/pakfragcom/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+      <svg className="w-5 h-5 text-gray-400 hover:text-white transition" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5a5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 0 0 0-7.5zm5-1.25a.75.75 0 1 1 0 1.5a.75.75 0 0 1 0-1.5z"/>
+      </svg>
+    </a>
+  </div>
+</header>
 
-        {/* Clean Navigation */}
-        <nav className="space-x-8 text-sm uppercase tracking-wide">
-          <a href="/" className="hover:text-gray-300 transition">Home</a>
-          <a href="/blog" className="hover:text-gray-300 transition">Blog</a>
-          <a href="/reviews" className="hover:text-gray-300 transition">Reviews</a>
-        </nav>
-      </header>
 
       {/* Hero */}
       <section className="relative h-screen w-full flex items-center justify-center">
