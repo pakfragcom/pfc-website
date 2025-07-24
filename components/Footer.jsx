@@ -29,8 +29,16 @@ export default function Footer() {
             <div>
               <h4 className="mb-4 font-semibold text-white">Community</h4>
               <ul className="space-y-2">
-                <li><a href="https://www.facebook.com/groups/pkfragcom" target="_blank" className="hover:text-white">Facebook Group</a></li>
-                <li><a href="https://www.instagram.com/pakfragcom/" target="_blank" className="hover:text-white">Instagram</a></li>
+                <li>
+                  <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                    Facebook Group
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.instagram.com/pakfragcom/" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                    Instagram
+                  </a>
+                </li>
               </ul>
             </div>
 
@@ -48,14 +56,14 @@ export default function Footer() {
         <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
           <p>&copy; {new Date().getFullYear()} Pakistan Fragrance Community. All rights reserved.</p>
           <div className="mt-4 md:mt-0 flex space-x-5">
-            <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" aria-label="Facebook">
+            <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg className="w-5 h-5 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22 12.07C22 6.48 17.52 2..." />
+                <path d="M22 12.07C22 6.48 17.52 2 12 2S2 6.48 2 12.07c0 4.9 3.66 8.96 8.44 9.83v-6.95h-2.54v-2.88h2.54V9.79c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.88h-2.34v6.95C18.34 21.03 22 16.97 22 12.07z" />
               </svg>
             </a>
-            <a href="https://www.instagram.com/pakfragcom/" target="_blank" aria-label="Instagram">
+            <a href="https://www.instagram.com/pakfragcom/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <svg className="w-5 h-5 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M7.75 2h8.5A5.75..." />
+                <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 1.5A4.25 4.25 0 003.5 7.75v8.5A4.25 4.25 0 007.75 20.5h8.5a4.25 4.25 0 004.25-4.25v-8.5A4.25 4.25 0 0016.25 3.5h-8.5zm4.25 3a5.75 5.75 0 11-.001 11.501A5.75 5.75 0 0112 6.5zm0 1.5a4.25 4.25 0 100 8.5 4.25 4.25 0 000-8.5zm5-1.2a.8.8 0 110 1.6.8.8 0 010-1.6z" />
               </svg>
             </a>
           </div>
