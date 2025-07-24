@@ -4,8 +4,8 @@ export default function Footer() {
   return (
     <footer className="bg-black/80 text-gray-400 border-t border-gray-700 mt-20">
       <div className="max-w-screen-xl mx-auto px-6 py-12 space-y-12">
-
-        {/* Top: Logo + Description + CTA */}
+        
+        {/* Top: Logo + Description */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10">
           {/* Logo and About */}
           <div className="max-w-md">
@@ -13,14 +13,6 @@ export default function Footer() {
             <p className="text-sm leading-relaxed text-gray-400">
               Pakistan Fragrance Community is the nation’s first and most trusted platform for fragrance lovers, collectors, and reviewers — enabling buying, selling, decanting and sharing scents.
             </p>
-            <a
-              href="https://www.facebook.com/groups/pkfragcom"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-6 px-5 py-2 rounded-full text-sm font-semibold bg-white/10 hover:bg-white/20 text-offwhite transition"
-            >
-              Join our community
-            </a>
           </div>
 
           {/* Navigation Links */}
@@ -71,4 +63,4 @@ export default function Footer() {
             </a>
             <a href="https://www.instagram.com/pakfragcom/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <svg className="w-5 h-5 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 1.5A4.25 4.25 0 003.5 7.75v8.5A4.25 4.25 0 007.75 20.5h8.5a4.25 4.25 0 004.25-4
+                <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 1.5A4.25 4.25 0 003.5 7.75v8.5A4.25 4.25 0 007.75 20.5h8.5a4.25 4.25 0 004.25-4.25v-8.5A4.25 4.25 0 0016.25 3.5h-8.5zm4.25 3a5.75 5.75 0 11-.001 11.501A5.75 5.75 0 0112 6.5zm0 1.5a4.25 4.25 0 10
