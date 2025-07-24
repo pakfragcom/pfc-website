@@ -2,14 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+html {
+  scroll-behavior: smooth;
+}
 
+body {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+@layer base {
   body {
     @apply bg-black text-white tracking-wide antialiased;
-    font-family: 'Space Grotesk', sans-serif;
   }
 
   a {
