@@ -2,43 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-black text-white tracking-wide antialiased;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  a {
+    @apply text-white hover:text-gray-300 transition-colors duration-200;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
 }
 
-/* Base styles */
-body {
-  font-family: 'Space Grotesk', sans-serif;
-  background-color: black;
-  color: white;
-  letter-spacing: 0.025em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Links */
-a {
-  color: white;
-  transition: color 0.2s;
-}
-
-a:hover {
-  color: #d1d5db; /* Tailwind gray-300 */
-}
-
-/* Headings */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-}
-
-/* Reusable button style */
-.btn {
-  display: inline-block;
-  padding: 0.5rem 1.5rem;
-  border-radius: 9999px;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
-  transition: all 0.2s;
+@layer components {
+  .btn {
+    @apply inline-block px-6 py-2 rounded-full uppercase tracking-wide text-sm transition;
+  }
 }
