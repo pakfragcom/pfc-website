@@ -2,15 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fonts and layout inside Tailwind layer */
 @layer base {
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    font-family: 'Space Grotesk', sans-serif;
-    @apply bg-black text-white tracking-wide antialiased;
+    @apply bg-black text-white tracking-wide antialiased font-sans;
   }
 
   a {
@@ -22,7 +20,6 @@
   }
 }
 
-/* Utility styles */
 @layer components {
   .btn {
     @apply inline-block px-6 py-2 rounded-full uppercase tracking-wide text-sm transition;
