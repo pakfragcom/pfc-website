@@ -1,4 +1,6 @@
+'use client'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 
 export default function Hero() {
   return (
@@ -16,12 +18,17 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
       {/* Content */}
-      <div className="relative z-10 px-6 text-center max-w-2xl">
-        <h1 className="text-4xl md:text-6xl font-semibold tracking-tight leading-tight uppercase text-white mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.1, ease: 'easeOut' }}
+        className="relative z-10 px-6 text-center max-w-2xl"
+      >
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight uppercase text-white mb-6">
           The Home of Fragrance Enthusiasts
         </h1>
 
-        <p className="text-gray-300 text-base md:text-lg mb-8 leading-relaxed">
+        <p className="text-gray-300 text-sm sm:text-base md:text-lg mb-8 leading-relaxed">
           Pakistan Fragrance Community is where collectors, reviewers, and perfume lovers unite.
         </p>
 
@@ -33,7 +40,7 @@ export default function Hero() {
         >
           Join the Community
         </a>
-      </div>
+      </motion.div>
     </section>
   )
 }
