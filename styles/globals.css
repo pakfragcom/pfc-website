@@ -2,15 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-}
-
+/* ✅ Apply font-family outside of layer */
 body {
   font-family: 'Space Grotesk', sans-serif;
 }
 
+/* Tailwind base layer customization */
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-black text-white tracking-wide antialiased;
   }
