@@ -1,3 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Base font and layout improvements */
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  @apply bg-black text-white tracking-wide antialiased;
+}
+
+/* Link styles */
+a {
+  @apply text-white hover:text-gray-300 transition-colors duration-200;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Button base class if reused */
+.btn {
+  @apply inline-block px-6 py-2 rounded-full uppercase tracking-wide text-sm transition;
+}
