@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import Navbar from './Navbar'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -33,13 +34,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <nav aria-label="Main Navigation">
-              <ul className="flex items-center gap-6 text-sm uppercase tracking-wide">
-                <li><Link href="/" className="text-gray-300 hover:text-white transition">Home</Link></li>
-                <li><Link href="/blog" className="text-gray-300 hover:text-white transition">Blog</Link></li>
-                <li><Link href="/reviews" className="text-gray-300 hover:text-white transition">Reviews</Link></li>
-              </ul>
-            </nav>
+            <Navbar onLinkClick={handleLinkClick} />
           </div>
 
           {/* Right Side Icons */}
