@@ -12,7 +12,7 @@ export default function Header() {
               <Image
                 src="/logo.png"
                 alt="PFC Logo"
-                width={180}
+                width={220}
                 height={50}
                 className="object-contain"
                 priority
