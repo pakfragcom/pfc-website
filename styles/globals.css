@@ -2,26 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-black text-white tracking-wide antialiased font-sans;
-  }
-
-  a {
-    @apply text-white hover:text-gray-300 transition-colors duration-200;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
-  }
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }
 
-@layer components {
-  .btn {
-    @apply inline-block px-6 py-2 rounded-full uppercase tracking-wide text-sm transition;
-  }
+/* Base body styles using Tailwind utility classes */
+body {
+  @apply bg-black text-white tracking-wide antialiased font-sans;
+}
+
+/* Links */
+a {
+  @apply text-white hover:text-gray-300 transition-colors duration-200;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold;
+}
+
+/* Reusable button style */
+.btn {
+  @apply inline-block px-6 py-2 rounded-full uppercase tracking-wide text-sm transition;
 }
