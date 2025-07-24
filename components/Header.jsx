@@ -5,6 +5,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 w-full z-50 bg-black/50 backdrop-blur-md border-b border-gray-800">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
+          
           {/* Left: Logo */}
           <div className="md:flex md:items-center md:gap-12">
             <a href="/" className="block">
@@ -36,9 +37,9 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Right: Social icons and hamburger menu */}
+          {/* Right: Social icons & mobile menu */}
           <div className="flex items-center gap-4">
-            {/* Socials (only show on sm and up) */}
+            {/* Social icons (show on sm and up) */}
             <div className="hidden sm:flex items-center space-x-4">
               <a
                 href="https://www.facebook.com/groups/pkfragcom"
@@ -57,14 +58,26 @@ export default function Header() {
                 aria-label="Instagram"
               >
                 <svg className="w-5 h-5 text-gray-400 hover:text-white transition" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M7.75 2h8.5A5.75..." />
+                  <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5a5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 0 0 0-7.5zm5-1.25a.75.75 0 1 1 0 1.5a.75.75 0 0 1 0-1.5z" />
                 </svg>
               </a>
             </div>
 
-            {/* Hamburger menu (only on mobile) */}
+            {/* Mobile menu button */}
             <div className="block md:hidden">
               <button
                 className="rounded-sm bg-black/20 p-2 text-gray-400 transition hover:text-white"
                 aria-label="Open Menu"
               >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+}
