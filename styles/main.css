@@ -1,32 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ✅ Set global font-family OUTSIDE the @layer block */
-body {
-  font-family: 'Space Grotesk', sans-serif;
-}
-
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-black text-white tracking-wide antialiased;
-  }
-
-  a {
-    @apply text-white hover:text-gray-300 transition-colors duration-200;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
-  }
-}
-
-@layer components {
-  .btn {
-    @apply inline-block px-6 py-2 rounded-full uppercase tracking-wide text-sm transition;
-  }
-}
