@@ -1,8 +1,9 @@
-import Header from '../components/Header'
+import Header from '../components/layout/Header'
+import Footer from '../components/layout/Footer'
 import Hero from '../components/Hero'
 import Intro from '../components/Intro'
 import SplitBlock from '../components/SplitBlock'
-import Footer from '../components/Footer'
+
 
 
 export default function Home() {
