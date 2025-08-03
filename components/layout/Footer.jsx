@@ -31,8 +31,7 @@ export default function Footer() {
               <h4 className="mb-4 font-semibold text-[#F5F5F7]">Explore</h4>
               <ul className="space-y-2">
                 <li><a href="/" className="hover:text-white">Home</a></li>
-                <li><a href="/blog" className="hover:text-white">Blog</a></li>
-                <li><a href="/reviews" className="hover:text-white">Reviews</a></li>
+                <li><a href="https://forum.pakfrag.com" target="_blank" rel="noopener noreferrer" className="hover:text-white">Forum</a></li>
               </ul>
             </div>
 
