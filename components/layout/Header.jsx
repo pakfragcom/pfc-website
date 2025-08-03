@@ -4,8 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Navbar from './Navbar'
 
-
-
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -76,8 +74,7 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-black/90 backdrop-blur-md px-6 py-6 space-y-4 text-white text-center text-sm uppercase tracking-wide">
           <Link href="/" onClick={handleLinkClick} className="block hover:text-gray-300">Home</Link>
-          <Link href="/blog" onClick={handleLinkClick} className="block hover:text-gray-300">Blog</Link>
-          <Link href="/reviews" onClick={handleLinkClick} className="block hover:text-gray-300">Reviews</Link>
+          <a href="https://forum.pakfrag.com" onClick={handleLinkClick} className="block hover:text-gray-300">Forum</a>
           <div className="flex justify-center gap-6 pt-4">
             <a href="https://facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg className="w-5 h-5 text-white hover:text-teal-400" fill="currentColor" viewBox="0 0 24 24">
