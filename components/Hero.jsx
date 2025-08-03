@@ -32,15 +32,27 @@ export default function Hero() {
           Pakistan Fragrance Community is where collectors, reviewers, and perfume lovers unite.
         </p>
 
-        <a
-          href="https://www.facebook.com/groups/pkfragcom"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block px-8 py-3 border border-gray-500 rounded-full text-sm uppercase tracking-wide text-white bg-white/10 hover:bg-white/20 transition font-medium"
-        >
-          Join the Community
-        </a>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <a
+            href="https://www.facebook.com/groups/pkfragcom"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-8 py-3 border border-gray-500 rounded-full text-sm uppercase tracking-wide text-white bg-white/10 hover:bg-white/20 transition font-medium"
+          >
+            Join the Community
+          </a>
+
+          <a
+            href="https://forum.pakfrag.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-8 py-3 border border-gray-500 rounded-full text-sm uppercase tracking-wide text-white bg-white/10 hover:bg-white/20 transition font-medium"
+          >
+            Join the Forum
+          </a>
+        </div>
       </motion.div>
     </section>
   )
 }
+
