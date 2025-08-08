@@ -8,7 +8,7 @@ export default function Hero() {
   return (
     <section
       className="
-        relative flex min-h-[100svh] w-[100svw] items-center justify-center
+        relative flex min-h-[100svh] w-full items-center justify-center
         overflow-hidden
       "
     >
@@ -39,10 +39,10 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05),transparent_65%)] md:bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.07),transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 hidden md:block opacity-[0.07] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.12),transparent_75%)]" />
 
-      {/* Clip the halos so their blur can’t create horizontal overflow */}
+      {/* Clip halos so blur can’t create horizontal overflow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-[#2a5c4f]/18 blur-2xl" />
-        <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-[#94aea7]/18 blur-2xl" />
+        <div className="absolute -top-32 left-0 h-80 w-80 rounded-full bg-[#2a5c4f]/18 blur-2xl -translate-x-1/2 sm:translate-x-0" />
+        <div className="absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-[#94aea7]/18 blur-2xl translate-x-1/2 sm:translate-x-0" />
       </div>
 
       {/* Content */}
