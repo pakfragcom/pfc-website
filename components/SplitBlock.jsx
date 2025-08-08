@@ -5,26 +5,34 @@ export default function SplitBlock() {
   return (
     <section
       // Set brand hues once; matches your Hero gradient
-      style={{
-        ['--brand-1']: '#2a5c4f',
-        ['--brand-2']: '#557d72',
-        ['--brand-3']: '#94aea7',
-      }}
-      className="relative isolate mx-auto max-w-7xl px-6 py-16 md:py-24"
+      style={
+        {
+          ['--brand-1' as any]: '#2a5c4f',
+          ['--brand-2' as any]: '#557d72',
+          ['--brand-3' as any]: '#94aea7',
+        } as React.CSSProperties
+      }
+      className="relative isolate mx-auto max-w-7xl px-6 py-16 md:py-24 overflow-hidden"
       aria-labelledby="splitblock-title"
     >
       {/* Background: subtle texture + halos (same language as Hero) */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         {/* soft radial texture */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05),transparent_65%)]" />
-        {/* gradient halos */}
-        <div className="absolute -top-28 -left-24 h-72 w-72 rounded-full blur-3xl opacity-25"
-             style={{ background: 'radial-gradient(closest-side, var(--brand-1), transparent)' }} />
-        <div className="absolute -bottom-24 -right-16 h-72 w-72 rounded-full blur-3xl opacity-20"
-             style={{ background: 'radial-gradient(closest-side, var(--brand-3), transparent)' }} />
+        {/* gradient halos (kept inside clipping container) */}
+        <div
+          className="absolute -top-28 left-0 h-72 w-72 rounded-full blur-3xl opacity-25 -translate-x-1/3 sm:translate-x-0"
+          style={{ background: 'radial-gradient(closest-side, var(--brand-1), transparent)' }}
+        />
+        <div
+          className="absolute -bottom-24 right-0 h-72 w-72 rounded-full blur-3xl opacity-20 translate-x-1/3 sm:translate-x-0"
+          style={{ background: 'radial-gradient(closest-side, var(--brand-3), transparent)' }}
+        />
         {/* hairline top separator to blend from hero */}
-        <div className="absolute -top-px left-0 right-0 h-px"
-             style={{ background: 'linear-gradient(90deg, var(--brand-1), transparent 40%, transparent 60%, var(--brand-3))' }} />
+        <div
+          className="absolute -top-px left-0 right-0 h-px"
+          style={{ background: 'linear-gradient(90deg, var(--brand-1), transparent 40%, transparent 60%, var(--brand-3))' }}
+        />
       </div>
 
       <div className="flex flex-col items-center gap-10 md:flex-row md:gap-12">
@@ -41,8 +49,10 @@ export default function SplitBlock() {
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
             <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-[11px] uppercase tracking-wider text-white/80 backdrop-blur">
-              <span className="inline-block h-1.5 w-1.5 rounded-full"
-                    style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-3))' }} />
+              <span
+                className="inline-block h-1.5 w-1.5 rounded-full"
+                style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-3))' }}
+              />
               Trusted Community
             </div>
           </div>
@@ -87,7 +97,7 @@ export default function SplitBlock() {
               <Bullet>Marketplace (coming soon) with dispute support</Bullet>
             </ul>
 
-            {/* CTAs: match Hero styling */}
+            {/* CTAs */}
             <div className="flex flex-col gap-3 sm:flex-row">
               <a
                 href="https://www.facebook.com/groups/pkfragcom"
@@ -127,7 +137,7 @@ export default function SplitBlock() {
 }
 
 /* Small helpers (no extra deps) */
-function Stat({ label, value }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-4">
       <dt className="text-[10px] uppercase tracking-wider text-white/60">{label}</dt>
@@ -136,7 +146,7 @@ function Stat({ label, value }) {
   )
 }
 
-function Bullet({ children }) {
+function Bullet({ children }: { children: React.ReactNode }) {
   return (
     <li className="flex items-start gap-3">
       <svg className="mt-0.5 h-5 w-5 flex-none" viewBox="0 0 24 24" fill="none" aria-hidden="true">
