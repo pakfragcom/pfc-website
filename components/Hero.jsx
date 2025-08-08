@@ -1,48 +1,93 @@
 'use client'
 import Image from 'next/image'
+import { motion, useReducedMotion } from 'framer-motion'
 
 export default function Hero() {
+  const reduce = useReducedMotion()
+
   return (
     <section className="relative flex h-screen w-full items-center justify-center overflow-hidden">
-      {/* Background (CSS zoom for smoothness) */}
-      <div className="absolute inset-0 will-change-transform">
+      {/* Background with cinematic zoom (kept) */}
+      <motion.div
+        initial={{ scale: 1.08 }}
+        animate={{ scale: 1 }}
+        transition={{
+          duration: reduce ? 0 : 7.5,
+          ease: [0.16, 1, 0.3, 1], // sleek ease
+        }}
+        className="absolute inset-0 will-change-transform"
+        style={{ transform: 'translateZ(0)' }}
+      >
         <Image
           src="/hero.jpg"
           alt="Fragrance background"
           fill
           priority
           sizes="100vw"
-          className="hero-zoom object-cover object-center"
+          quality={85}
+          className="object-cover object-center select-none"
         />
-      </div>
+      </motion.div>
 
-      {/* Simple depth overlays (no mix-blend) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04),transparent_65%)]" />
+      {/* Depth overlays (keep the look, cheaper to render) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/55 to-black/85" />
+      {/* Light radial texture (mobile-safe); heavier blend only on md+ */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05),transparent_65%)] md:bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.07),transparent_70%)]" />
+      {/* Desktop-only mix overlay flavor without using mix-blend on mobile */}
+      <div className="pointer-events-none absolute inset-0 hidden md:block opacity-[0.07] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.12),transparent_75%)]" />
 
-      {/* Accent glows (lighter) */}
-      <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-[#2a5c4f]/20 blur-2xl" />
-      <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-[#94aea7]/20 blur-2xl" />
+      {/* Accent glows (slightly lighter blur for perf) */}
+      <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-[#2a5c4f]/18 blur-2xl" />
+      <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-[#94aea7]/18 blur-2xl" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl px-6 text-center">
-        <span className="mb-5 inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.25em] text-gray-300 backdrop-blur">
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduce ? 0 : 0.9, ease: 'easeOut', delay: 0.15 }}
+        className="relative z-10 max-w-4xl px-6 text-center"
+      >
+        {/* Brand label */}
+        <motion.span
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduce ? 0 : 0.7, ease: 'easeOut', delay: 0.3 }}
+          className="mb-5 inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.25em] text-gray-300 backdrop-blur"
+        >
           Pakistan Fragrance Community
-        </span>
+        </motion.span>
 
-        <h1 className="text-4xl font-extrabold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl">
+        {/* Main heading (unchanged style, polished easing) */}
+        <motion.h1
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduce ? 0 : 0.9, ease: [0.2, 0.8, 0.2, 1], delay: 0.45 }}
+          className="text-4xl font-extrabold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl"
+        >
           The Home of{' '}
           <span className="bg-gradient-to-r from-[#2a5c4f] via-[#557d72] to-[#94aea7] bg-clip-text text-transparent">
             Fragrance Enthusiasts
           </span>
-        </h1>
+        </motion.h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg">
+        {/* Subtext */}
+        <motion.p
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduce ? 0 : 0.8, ease: 'easeOut', delay: 0.7 }}
+          className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
+        >
           Where collectors, reviewers, and perfume lovers unite to share passion, discover rare scents,
           and celebrate the timeless art of fragrance.
-        </p>
+        </motion.p>
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        {/* Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduce ? 0 : 0.8, ease: 'easeOut', delay: 0.95 }}
+          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+        >
           <a
             href="https://www.facebook.com/groups/pkfragcom"
             target="_blank"
@@ -67,26 +112,8 @@ export default function Hero() {
           >
             Join the Forum
           </a>
-        </div>
-      </div>
-
-      {/* Component-scoped CSS for smooth zoom + reduced motion */}
-      <style jsx>{`
-        .hero-zoom {
-          transform: scale(1.08);
-          animation: heroZoom 14s ease-out forwards;
-          will-change: transform;
-          backface-visibility: hidden;
-          perspective: 1000px;
-        }
-        @keyframes heroZoom {
-          0% { transform: scale(1.08); }
-          100% { transform: scale(1); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .hero-zoom { animation: none; transform: none; }
-        }
-      `}</style>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }
