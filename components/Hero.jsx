@@ -6,14 +6,19 @@ export default function Hero() {
   const reduce = useReducedMotion()
 
   return (
-    <section className="relative flex h-screen w-full items-center justify-center overflow-hidden">
-      {/* Background with cinematic zoom (kept) */}
+    <section
+      className="
+        relative flex min-h-[100svh] w-[100svw] items-center justify-center
+        overflow-hidden
+      "
+    >
+      {/* Background with cinematic zoom */}
       <motion.div
         initial={{ scale: 1.08 }}
         animate={{ scale: 1 }}
         transition={{
           duration: reduce ? 0 : 7.5,
-          ease: [0.16, 1, 0.3, 1], // sleek ease
+          ease: [0.16, 1, 0.3, 1],
         }}
         className="absolute inset-0 will-change-transform"
         style={{ transform: 'translateZ(0)' }}
@@ -25,20 +30,20 @@ export default function Hero() {
           priority
           sizes="100vw"
           quality={85}
-          className="object-cover object-center select-none"
+          className="select-none object-cover object-center"
         />
       </motion.div>
 
-      {/* Depth overlays (keep the look, cheaper to render) */}
+      {/* Depth overlays */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/55 to-black/85" />
-      {/* Light radial texture (mobile-safe); heavier blend only on md+ */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05),transparent_65%)] md:bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.07),transparent_70%)]" />
-      {/* Desktop-only mix overlay flavor without using mix-blend on mobile */}
       <div className="pointer-events-none absolute inset-0 hidden md:block opacity-[0.07] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.12),transparent_75%)]" />
 
-      {/* Accent glows (slightly lighter blur for perf) */}
-      <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-[#2a5c4f]/18 blur-2xl" />
-      <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-[#94aea7]/18 blur-2xl" />
+      {/* Clip the halos so their blur can’t create horizontal overflow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-[#2a5c4f]/18 blur-2xl" />
+        <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-[#94aea7]/18 blur-2xl" />
+      </div>
 
       {/* Content */}
       <motion.div
@@ -47,7 +52,6 @@ export default function Hero() {
         transition={{ duration: reduce ? 0 : 0.9, ease: 'easeOut', delay: 0.15 }}
         className="relative z-10 max-w-4xl px-6 text-center"
       >
-        {/* Brand label */}
         <motion.span
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -57,7 +61,6 @@ export default function Hero() {
           Pakistan Fragrance Community
         </motion.span>
 
-        {/* Main heading (unchanged style, polished easing) */}
         <motion.h1
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -70,7 +73,6 @@ export default function Hero() {
           </span>
         </motion.h1>
 
-        {/* Subtext */}
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -81,7 +83,6 @@ export default function Hero() {
           and celebrate the timeless art of fragrance.
         </motion.p>
 
-        {/* Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -95,11 +96,7 @@ export default function Hero() {
             className="group inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#2a5c4f] via-[#557d72] to-[#94aea7] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg transition-all duration-300 hover:from-[#244e43] hover:via-[#75958d] hover:to-[#b6c6c2] hover:shadow-xl"
           >
             Join the Community
-            <svg
-              className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
+            <svg className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" fill="currentColor" viewBox="0 0 20 20">
               <path d="M12.293 3.293a1 1 0 011.414 0l4.999 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" />
             </svg>
           </a>
