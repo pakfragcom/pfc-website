@@ -5,6 +5,7 @@
 /* ✅ Set global font-family OUTSIDE the @layer block */
 body {
   font-family: 'Space Grotesk', sans-serif;
+  overflow-x: hidden; /* 🔹 Prevent horizontal scroll from blurs, svw, etc. */
 }
 
 @layer base {
