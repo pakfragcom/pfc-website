@@ -1,6 +1,8 @@
+import React from 'react'
+
 export default function Intro() {
   return (
-    <section className="relative mx-auto max-w-5xl px-6 py-24 text-center">
+    <section className="relative mx-auto max-w-5xl px-6 py-24 text-center overflow-hidden">
       {/* Subtle background accent */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent" />
       <div className="absolute left-1/2 top-0 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#2a5c4f]/10 blur-3xl" />
