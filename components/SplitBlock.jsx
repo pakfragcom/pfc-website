@@ -84,4 +84,74 @@ export default function SplitBlock() {
             {/* Trust stats */}
             <dl className="mb-8 grid grid-cols-3 gap-3 text-center">
               <Stat label="Members" value="25k+" />
-              <Stat label="Verified Sellers" value="150+
+              <Stat label="Verified Sellers" value="150+" />
+              <Stat label="Reviews" value="5,000+" />
+            </dl>
+
+            {/* Feature bullets */}
+            <ul className="mb-8 space-y-3 text-sm text-white/85">
+              <Bullet>Curated discussions & real‑world wear tests</Bullet>
+              <Bullet>Seller verification & safer trading guidelines</Bullet>
+              <Bullet>Marketplace (coming soon) with dispute support</Bullet>
+            </ul>
+
+            {/* CTAs */}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <a
+                href="https://www.facebook.com/groups/pkfragcom"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black shadow-lg transition-all
+                           bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]
+                           hover:brightness-110"
+              >
+                Join the Community
+              </a>
+              <Link
+                href="/reviews"
+                className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white
+                           transition hover:border-white/60 hover:bg-white/10"
+              >
+                Read Reviews
+              </Link>
+              <Link
+                href="/sell"
+                className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white
+                           transition hover:border-white/60 hover:bg-white/10"
+              >
+                Become a Seller
+              </Link>
+            </div>
+
+            {/* tiny hint */}
+            <p className="mt-4 text-[11px] text-white/45">
+              Tip: Press <kbd className="rounded border border-white/20 bg-black/40 px-1.5">/</kbd> to search fragrances.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* Small helpers (no extra deps) */
+function Stat({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-4">
+      <dt className="text-[10px] uppercase tracking-wider text-white/60">{label}</dt>
+      <dd className="mt-1 text-lg font-semibold text-white">{value}</dd>
+    </div>
+  )
+}
+
+function Bullet({ children }) {
+  return (
+    <li className="flex items-start gap-3">
+      <svg className="mt-0.5 h-5 w-5 flex-none" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M20 7L10 17l-6-6" stroke="currentColor" strokeWidth="2" className="text-white/75" />
+        <circle cx="12" cy="12" r="11" className="text-white/15" stroke="currentColor" strokeWidth="0.5" fill="none" />
+      </svg>
+      <span>{children}</span>
+    </li>
+  )
+}
