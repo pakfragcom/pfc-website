@@ -81,16 +81,9 @@ export default function SplitBlock() {
               Join our community, read real reviews, and get ready for our upcoming marketplace.
             </p>
 
-            {/* Trust stats */}
-            <dl className="mb-8 grid grid-cols-3 gap-3 text-center">
-              <Stat label="Members" value="25k+" />
-              <Stat label="Verified Sellers" value="150+" />
-              <Stat label="Reviews" value="5,000+" />
-            </dl>
-
             {/* Feature bullets */}
             <ul className="mb-8 space-y-3 text-sm text-white/85">
-              <Bullet>Curated discussions & real‑world wear tests</Bullet>
+              <Bullet>Curated discussions & real-world wear tests</Bullet>
               <Bullet>Seller verification & safer trading guidelines</Bullet>
               <Bullet>Marketplace (coming soon) with dispute support</Bullet>
             </ul>
@@ -114,19 +107,7 @@ export default function SplitBlock() {
               >
                 Read Reviews
               </Link>
-              <Link
-                href="/sell"
-                className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white
-                           transition hover:border-white/60 hover:bg-white/10"
-              >
-                Become a Seller
-              </Link>
             </div>
-
-            {/* tiny hint */}
-            <p className="mt-4 text-[11px] text-white/45">
-              Tip: Press <kbd className="rounded border border-white/20 bg-black/40 px-1.5">/</kbd> to search fragrances.
-            </p>
           </div>
         </div>
       </div>
@@ -135,15 +116,6 @@ export default function SplitBlock() {
 }
 
 /* Small helpers (no extra deps) */
-function Stat({ label, value }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-4">
-      <dt className="text-[10px] uppercase tracking-wider text-white/60">{label}</dt>
-      <dd className="mt-1 text-lg font-semibold text-white">{value}</dd>
-    </div>
-  )
-}
-
 function Bullet({ children }) {
   return (
     <li className="flex items-start gap-3">
