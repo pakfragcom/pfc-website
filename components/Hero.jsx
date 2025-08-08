@@ -1,82 +1,48 @@
 'use client'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 
 export default function Hero() {
   return (
     <section className="relative flex h-screen w-full items-center justify-center overflow-hidden">
-      {/* Background with cinematic zoom */}
-      <motion.div
-        initial={{ scale: 1.1 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 6, ease: 'easeOut' }}
-        className="absolute inset-0"
-      >
+      {/* Background (CSS zoom for smoothness) */}
+      <div className="absolute inset-0 will-change-transform">
         <Image
           src="/hero.jpg"
           alt="Fragrance background"
           fill
           priority
-          className="object-cover object-center"
+          sizes="100vw"
+          className="hero-zoom object-cover object-center"
         />
-      </motion.div>
+      </div>
 
-      {/* Depth overlays */}
+      {/* Simple depth overlays (no mix-blend) */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80" />
-      <div className="absolute inset-0 mix-blend-overlay bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04),transparent_65%)]" />
 
-      {/* Accent glows */}
-      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[#2a5c4f]/20 blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-[#94aea7]/20 blur-3xl" />
+      {/* Accent glows (lighter) */}
+      <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-[#2a5c4f]/20 blur-2xl" />
+      <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-[#94aea7]/20 blur-2xl" />
 
       {/* Content */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
-        className="relative z-10 max-w-4xl px-6 text-center"
-      >
-        {/* Brand label */}
-        <motion.span
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mb-5 inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.25em] text-gray-300 backdrop-blur"
-        >
+      <div className="relative z-10 max-w-4xl px-6 text-center">
+        <span className="mb-5 inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.25em] text-gray-300 backdrop-blur">
           Pakistan Fragrance Community
-        </motion.span>
+        </span>
 
-        {/* Main heading */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="text-4xl font-extrabold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl"
-        >
+        <h1 className="text-4xl font-extrabold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl">
           The Home of{' '}
           <span className="bg-gradient-to-r from-[#2a5c4f] via-[#557d72] to-[#94aea7] bg-clip-text text-transparent">
             Fragrance Enthusiasts
           </span>
-        </motion.h1>
+        </h1>
 
-        {/* Subtext */}
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.9 }}
-          className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
-        >
+        <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg">
           Where collectors, reviewers, and perfume lovers unite to share passion, discover rare scents,
           and celebrate the timeless art of fragrance.
-        </motion.p>
+        </p>
 
-        {/* Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 1.2 }}
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
-        >
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
             href="https://www.facebook.com/groups/pkfragcom"
             target="_blank"
@@ -101,8 +67,26 @@ export default function Hero() {
           >
             Join the Forum
           </a>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
+
+      {/* Component-scoped CSS for smooth zoom + reduced motion */}
+      <style jsx>{`
+        .hero-zoom {
+          transform: scale(1.08);
+          animation: heroZoom 14s ease-out forwards;
+          will-change: transform;
+          backface-visibility: hidden;
+          perspective: 1000px;
+        }
+        @keyframes heroZoom {
+          0% { transform: scale(1.08); }
+          100% { transform: scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-zoom { animation: none; transform: none; }
+        }
+      `}</style>
     </section>
   )
 }
