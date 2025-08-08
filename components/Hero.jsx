@@ -4,10 +4,10 @@ import { motion } from 'framer-motion'
 
 export default function Hero() {
   return (
-    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[92vh] w-full flex items-center justify-center overflow-hidden">
       {/* Background with subtle zoom */}
       <motion.div
-        initial={{ scale: 1.05 }}
+        initial={{ scale: 1.06 }}
         animate={{ scale: 1 }}
         transition={{ duration: 4, ease: 'easeOut' }}
         className="absolute inset-0"
@@ -16,31 +16,26 @@ export default function Hero() {
           src="/hero.jpg"
           alt="Fragrance background"
           fill
-          className="object-cover object-center"
           priority
+          className="object-cover object-center"
         />
       </motion.div>
 
-      {/* Depth: dark + brand tint */}
-      <div className="absolute inset-0">
-        {/* dark vignette for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/80" />
-        {/* subtle brand glow */}
-        <div
-          className="absolute -inset-24"
-          style={{
-            background:
-              `radial-gradient(60% 40% at 50% 20%, color-mix(in oklab, var(--brand-500) 25%, transparent) 0%, transparent 60%)`
-          }}
-        />
-      </div>
+      {/* Depth overlays */}
+      {/* Dark readability gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/80" />
+      {/* Subtle brand tint glow */}
+      <div className="pointer-events-none absolute -inset-24 opacity-30"
+           style={{
+             background: 'radial-gradient(60% 40% at 50% 20%, rgba(42,92,79,0.35) 0%, transparent 60%)'
+           }} />
 
       {/* Content */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
-        className="relative z-10 px-6 text-center max-w-3xl"
+        className="relative z-10 px-6 text-center max-w-3xl drop-shadow-hero"
       >
         {/* Eyebrow */}
         <motion.span
@@ -52,20 +47,15 @@ export default function Hero() {
           Pakistan Fragrance Community
         </motion.span>
 
-        {/* Heading with brand accent */}
+        {/* Heading with brand gradient */}
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.6 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-white drop-shadow-lg"
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-white"
         >
           The Home of{' '}
-          <span
-            className="bg-clip-text text-transparent"
-            style={{
-              backgroundImage: `linear-gradient(90deg, var(--brand-300), var(--brand-200))`
-            }}
-          >
+          <span className="bg-gradient-to-r from-brand-300 to-brand-200 bg-clip-text text-transparent">
             Fragrance Enthusiasts
           </span>
         </motion.h1>
@@ -88,29 +78,22 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 1.1 }}
           className="flex flex-col sm:flex-row justify-center gap-4"
         >
+          {/* Primary */}
           <a
             href="https://www.facebook.com/groups/pkfragcom"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center justify-center px-8 py-3 rounded-full text-sm font-semibold uppercase tracking-wide text-white transition-all duration-300 shadow-lg hover:shadow-xl"
-            style={{
-              backgroundImage: `linear-gradient(90deg, var(--brand-500), var(--brand-300))`
-            }}
+            className="inline-flex items-center justify-center px-8 py-3 rounded-full text-sm font-semibold uppercase tracking-wide text-white shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-brand-500 to-brand-300 hover:from-brand-400 hover:to-brand-200"
           >
             Join the Community
           </a>
 
+          {/* Secondary */}
           <a
             href="https://forum.pakfrag.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center justify-center px-8 py-3 rounded-full text-sm font-semibold uppercase tracking-wide text-white transition-all duration-300"
-            style={{
-              border: `1px solid color-mix(in oklab, var(--brand-400), white 10%)`,
-              background: `color-mix(in oklab, var(--brand-700) 15%, transparent)`
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = `color-mix(in oklab, var(--brand-700) 25%, transparent)`)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = `color-mix(in oklab, var(--brand-700) 15%, transparent)`)}
+            className="inline-flex items-center justify-center px-8 py-3 rounded-full text-sm font-semibold uppercase tracking-wide text-white border border-white/40 hover:border-white/70 bg-white/5 hover:bg-white/10 transition-all duration-300"
           >
             Join the Forum
           </a>
