@@ -3,14 +3,12 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import Head from "next/head";
 
 /**
- * VERIFIED SELLER PORTAL CHECK
+ * VERIFIED SELLER PORTAL CHECK (Search-Only)
  * - BNIB pass includes decant selling (explicitly shown in UI)
- * - Search by name or code (fuzzy). Also pick from a dropdown list.
- * - Separate sections: BNIB (includes Decanting) and Decanters/Vial Sellers
- * - Big verified badge for matches, subtle "not found" state with suggestions
- * - Mobile-first dark UI with TailwindCSS
- *
- * Assumes Tailwind is already configured in your project.
+ * - Search by name OR verification code (fuzzy)
+ * - Shows suggestions ONLY when typing; no full list rendering
+ * - After selecting, shows a verified card
+ * - Dark, mobile-first UI (TailwindCSS assumed)
  */
 
 // ----------------------------- DATA -----------------------------
@@ -72,7 +70,7 @@ const BNIB = [
   { name: "Qadeer Ahmad Adv", code: "QA-24K5" },
   { name: "Qamyar Khan", code: "QK-3J6T" },
   { name: "Raja Usman", code: "RU-5GPQ" },
-  { name: "Rayan Sid", code: "RS-882K" }, // normalized spacing around hyphen
+  { name: "Rayan Sid", code: "RS-882K" }, // normalized spacing
   { name: "Saad Chawla", code: "SC-33OH" },
   { name: "Saad Imran Khan", code: "SIK-6HK1" },
   { name: "Saad Saleem", code: "SS-VRPB" },
@@ -128,7 +126,7 @@ const normalize = (s) =>
     .trim()
     .toLowerCase()
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "") // strip diacritics (latin)
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, " ");
 
 function levenshtein(a, b) {
@@ -138,9 +136,7 @@ function levenshtein(a, b) {
     n = b.length;
   if (!m) return n;
   if (!n) return m;
-  const dp = Array.from({ length: m + 1 }, (_, i) =>
-    Array(n + 1).fill(0)
-  );
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
   for (let i = 0; i <= m; i++) dp[i][0] = i;
   for (let j = 0; j <= n; j++) dp[0][j] = j;
   for (let i = 1; i <= m; i++) {
@@ -162,28 +158,21 @@ function fuzzyRank(query, item) {
   const code = normalize(item.code);
 
   if (!q) return 9999;
-
-  // Strong direct matches
   if (name.includes(q) || code.includes(q)) return 0;
 
-  // Partial token match bonus
   const tokens = q.split(" ").filter(Boolean);
   const tokenHits = tokens.reduce(
     (acc, t) => acc + (name.includes(t) || code.includes(t) ? 1 : 0),
     0
   );
   const tokenScore = tokens.length ? (tokens.length - tokenHits) * 0.75 : 2;
-
-  // Edit distance
   const editScore = Math.min(
     levenshtein(q, name.slice(0, q.length)),
     levenshtein(q, code)
   );
-
-  return tokenScore + editScore / 3; // weighted blend
+  return tokenScore + editScore / 3;
 }
 
-// Copy helper
 function copyToClipboard(text) {
   try {
     navigator.clipboard.writeText(text);
@@ -198,13 +187,7 @@ const VerifiedBadge = ({ size = 22 }) => (
     aria-label="Verified"
     title="Verified"
   >
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      width={size * 0.7}
-      height={size * 0.7}
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 24 24" fill="none" width={size * 0.7} height={size * 0.7}>
       <path
         d="M12 2l2.4 2.2 3.2-.6.6 3.2L20.8 9 23 12l-2.2 3 .4 3.4-3.4.4L14.4 22 12 19.8 9.6 22l-3.4-.4L6.6 15 4 12l2.2-3L5.8 5.6l3.2.6L12 2z"
         fill="currentColor"
@@ -235,17 +218,6 @@ const Pill = ({ active, children, onClick }) => (
   </button>
 );
 
-const SectionHeader = ({ title, subtitle }) => (
-  <div className="mb-4">
-    <h3 className="text-base sm:text-lg font-semibold text-white/90">
-      {title}
-    </h3>
-    {subtitle ? (
-      <p className="text-xs sm:text-sm text-gray-300/80 mt-1">{subtitle}</p>
-    ) : null}
-  </div>
-);
-
 // --------------------------- PAGE -------------------------------
 export default function VerifySellerPage() {
   const [query, setQuery] = useState("");
@@ -256,21 +228,15 @@ export default function VerifySellerPage() {
 
   const filteredDirectory = useMemo(() => {
     const pool =
-      activeType === "ALL"
-        ? DIRECTORY
-        : activeType === "BNIB"
-        ? BNIB
-        : DECANTERS;
+      activeType === "ALL" ? DIRECTORY : activeType === "BNIB" ? BNIB : DECANTERS;
 
-    if (!query) return pool.slice(0, 50); // default list
-    const ranked = pool
+    if (!query) return []; // 👈 No list when empty
+    return pool
       .map((item) => ({ item, score: fuzzyRank(query, item) }))
       .filter((x) => x.score < 6.5)
       .sort((a, b) => a.score - b.score)
       .slice(0, 25)
       .map((x) => x.item);
-
-    return ranked;
   }, [query, activeType]);
 
   useEffect(() => {
@@ -282,7 +248,7 @@ export default function VerifySellerPage() {
 
   const handlePick = (item) => {
     setSelected(item);
-    setQuery(item.name);
+    setQuery(item.name); // keep the query filled with chosen name
   };
 
   const handleCopy = (text) => {
@@ -312,28 +278,21 @@ export default function VerifySellerPage() {
               Verify a Registered Seller
             </h1>
             <p className="mt-3 text-sm sm:text-base text-gray-300/90">
-              Quickly confirm if a seller is registered with PFC.
+              Type a <span className="font-semibold">name</span> or{" "}
+              <span className="font-semibold">verification code</span> to check.
               <br className="hidden sm:block" />
-              <span className="text-emerald-300/90">
-                {bnibNotice}
-              </span>
+              <span className="text-emerald-300/90">{bnibNotice}</span>
             </p>
           </div>
 
-          {/* Search + Filters Card */}
+          {/* Search Card */}
           <div className="bg-white/5 backdrop-blur-sm ring-1 ring-white/10 rounded-2xl p-4 sm:p-6 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex gap-2">
-                <Pill
-                  active={activeType === "ALL"}
-                  onClick={() => setActiveType("ALL")}
-                >
+                <Pill active={activeType === "ALL"} onClick={() => setActiveType("ALL")}>
                   All
                 </Pill>
-                <Pill
-                  active={activeType === "BNIB"}
-                  onClick={() => setActiveType("BNIB")}
-                >
+                <Pill active={activeType === "BNIB"} onClick={() => setActiveType("BNIB")}>
                   BNIB (incl. Decant)
                 </Pill>
                 <Pill
@@ -362,13 +321,7 @@ export default function VerifySellerPage() {
                 Search by name or code
               </label>
               <div className="flex items-center gap-2 bg-black/30 ring-1 ring-white/10 rounded-xl px-3 py-2">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-gray-300/80"
-                >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0 text-gray-300/80">
                   <path
                     d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z"
                     stroke="currentColor"
@@ -379,7 +332,7 @@ export default function VerifySellerPage() {
                 <input
                   ref={inputRef}
                   id="sellerSearch"
-                  placeholder="Type a name or code (e.g., 'Jazib', 'SM-222')"
+                  placeholder="Type a name or code (e.g., 'SM-222', 'Zakir')"
                   className="w-full bg-transparent placeholder:text-gray-400/70 focus:outline-none text-base sm:text-lg"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -387,24 +340,19 @@ export default function VerifySellerPage() {
                 />
               </div>
 
-              {/* Suggestions */}
-              {filteredDirectory.length > 0 && (
+              {/* Suggestions: only when typing */}
+              {query && filteredDirectory.length > 0 && (
                 <div className="mt-3 grid gap-2 max-h-64 overflow-auto rounded-xl bg-black/40 ring-1 ring-white/10 p-2">
                   {filteredDirectory.map((item) => (
                     <button
                       key={item.type + item.code}
                       onClick={() => handlePick(item)}
-                      className={[
-                        "flex items-center justify-between w-full text-left px-3 py-2 rounded-lg",
-                        "hover:bg-white/10 transition group",
-                      ].join(" ")}
+                      className="flex items-center justify-between w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition group"
                     >
                       <div className="flex items-center gap-2">
                         <VerifiedBadge />
                         <div>
-                          <div className="font-medium">
-                            {item.name}
-                          </div>
+                          <div className="font-medium">{item.name}</div>
                           <div className="text-xs text-gray-300/80">
                             {item.type === "BNIB"
                               ? "BNIB (includes Decanting)"
@@ -420,23 +368,23 @@ export default function VerifySellerPage() {
                 </div>
               )}
 
-              {/* No results */}
+              {/* No results state */}
               {query && filteredDirectory.length === 0 && (
                 <div className="mt-3 p-4 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/30 text-amber-200">
                   <div className="font-semibold">Not found</div>
                   <div className="text-sm opacity-90 mt-1">
-                    This name/code isn’t in our registered list. Check
-                    spelling, try a shorter part of the name, or search by
-                    code format like <span className="font-mono">AA-123X</span>.
+                    This name/code isn’t in our registered list. Check spelling,
+                    try a shorter part of the name, or search by code like{" "}
+                    <span className="font-mono">AA-123X</span>.
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Result Card */}
+          {/* Selected result card */}
           {selected && (
-            <div className="bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded-2xl p-5 sm:p-6 mb-8">
+            <div className="bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded-2xl p-5 sm:p-6">
               <div className="flex items-start gap-3">
                 <VerifiedBadge size={28} />
                 <div className="flex-1">
@@ -450,35 +398,16 @@ export default function VerifySellerPage() {
                     <span className="inline-flex items-center gap-2 text-xs sm:text-sm px-2.5 py-1.5 rounded-full bg-white/10 ring-1 ring-white/20">
                       <span className="font-mono">{selected.code}</span>
                       <button
-                        onClick={() => handleCopy(selected.code)}
+                        onClick={() => {
+                          copyToClipboard(selected.code);
+                          setCopied(selected.code);
+                        }}
                         className="opacity-80 hover:opacity-100"
                         title="Copy code"
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                        >
-                          <rect
-                            x="9"
-                            y="9"
-                            width="10"
-                            height="10"
-                            rx="2"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          />
-                          <rect
-                            x="5"
-                            y="5"
-                            width="10"
-                            height="10"
-                            rx="2"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            opacity="0.7"
-                          />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
+                          <rect x="5" y="5" width="10" height="10" rx="2" stroke="currentColor" strokeWidth="2" opacity="0.7" />
                         </svg>
                       </button>
                     </span>
@@ -497,86 +426,14 @@ export default function VerifySellerPage() {
                 </div>
               </div>
               {copied === selected.code && (
-                <div className="mt-3 text-xs text-emerald-200">
-                  Code copied to clipboard.
-                </div>
+                <div className="mt-3 text-xs text-emerald-200">Code copied to clipboard.</div>
               )}
             </div>
           )}
 
-          {/* Directory Sections */}
-          <div className="grid gap-6">
-            <div className="bg-white/5 ring-1 ring-white/10 rounded-2xl p-4 sm:p-6">
-              <SectionHeader
-                title="BNIB (includes Decanting)"
-                subtitle="Sellers approved for BNIB are also permitted to sell decants."
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {BNIB.map((s) => (
-                  <div
-                    key={s.code}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg bg-black/30 ring-1 ring-white/10 hover:ring-white/20 transition"
-                  >
-                    <div className="flex items-center gap-2">
-                      <VerifiedBadge />
-                      <div>
-                        <div className="font-medium">{s.name}</div>
-                        <div className="text-xs text-gray-300/80">
-                          BNIB (includes Decanting)
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handlePick(s)}
-                      className="text-xs font-mono bg-white/10 px-2 py-1 rounded hover:bg-white/15"
-                      title="Select"
-                    >
-                      {s.code}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white/5 ring-1 ring-white/10 rounded-2xl p-4 sm:p-6">
-              <SectionHeader
-                title="Verified Decanters / Vial Sellers"
-                subtitle="Sellers verified for decant or vial sales."
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {DECANTERS.map((s) => (
-                  <div
-                    key={s.code}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg bg-black/30 ring-1 ring-white/10 hover:ring-white/20 transition"
-                  >
-                    <div className="flex items-center gap-2">
-                      <VerifiedBadge />
-                      <div>
-                        <div className="font-medium break-words">
-                          {s.name}
-                        </div>
-                        <div className="text-xs text-gray-300/80">
-                          Decanter / Vial Seller
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handlePick(s)}
-                      className="text-xs font-mono bg-white/10 px-2 py-1 rounded hover:bg-white/15"
-                      title="Select"
-                    >
-                      {s.code}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
           {/* Footer note */}
           <div className="text-center text-xs text-gray-400 mt-8">
-            Last updated: {new Date().toLocaleDateString()} • For
-            corrections, contact PFC admins.
+            Last updated: {new Date().toLocaleDateString()} • For corrections, contact PFC admins.
           </div>
         </div>
       </div>
