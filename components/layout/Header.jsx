@@ -11,7 +11,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [desktopToolsOpen, setDesktopToolsOpen] = useState(false)
   const pathname = usePathname()
-  const toolsRef = useRef<HTMLDivElement | null>(null)
+  const toolsRef = useRef(null)
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -34,8 +34,8 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close on Escape
-  const onKeyDown = useCallback((e: KeyboardEvent) => {
+  // Close on Escape (JS, no TS annotation)
+  const onKeyDown = useCallback((e) => {
     if (e.key === 'Escape') {
       setMobileMenuOpen(false)
       setMobileToolsOpen(false)
@@ -50,9 +50,9 @@ export default function Header() {
 
   // Click outside (desktop tools)
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e) {
       if (!desktopToolsOpen) return
-      if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) {
+      if (toolsRef.current && !toolsRef.current.contains(e.target)) {
         setDesktopToolsOpen(false)
       }
     }
@@ -140,7 +140,7 @@ export default function Header() {
                 role="menu"
               >
                 <div className="py-2">
-                  {/* NEW: Verify Seller Check */}
+                  {/* Verify Seller Check */}
                   <DropdownItem
                     href="/tools/verify-seller"
                     onClick={handleLinkClick}
@@ -256,7 +256,7 @@ export default function Header() {
               >
                 <ul className="p-2 text-left text-xs normal-case">
                   <li>
-                    {/* NEW: Verify Seller Check */}
+                    {/* Verify Seller Check */}
                     <Link
                       href="/tools/verify-seller"
                       onClick={handleLinkClick}
@@ -325,22 +325,12 @@ export default function Header() {
 }
 
 /* ===== Reusable pieces ===== */
-function DropdownItem({
-  href,
-  onClick,
-  label,
-  title,
-}: {
-  href: string
-  onClick?: () => void
-  label: string
-  title?: string
-}) {
+function DropdownItem({ href, onClick, label, title }) {
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-3 px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:bg:white/15 focus:outline-none"
+      className="flex items-center gap-3 px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:bg-white/15 focus:outline-none"
       role="menuitem"
       title={title || label}
       itemProp="url"
@@ -358,7 +348,7 @@ function ChevronDown({ className = 'h-4 w-4' }) {
   )
 }
 
-function SocialLink({ href, label, svg, title }: { href: string; label: string; svg: React.ReactNode; title?: string }) {
+function SocialLink({ href, label, svg, title }) {
   return (
     <a
       href={href}
@@ -366,7 +356,7 @@ function SocialLink({ href, label, svg, title }: { href: string; label: string; 
       rel="noopener noreferrer"
       aria-label={label}
       title={title || label}
-      className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text:white hover:bg:white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+      className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
       itemProp="url"
     >
       {svg}
