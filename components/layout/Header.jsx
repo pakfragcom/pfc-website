@@ -130,6 +130,7 @@ export default function Header() {
               >
                 <div className="py-2">
                   <DropdownItem href="/tools/decant" onClick={handleLinkClick} label="Decant Calculator" />
+                  <DropdownItem href="/tools/bottle-level" onClick={handleLinkClick} label="Bottle Level Estimator" />
                 </div>
               </div>
             </div>
@@ -225,6 +226,15 @@ export default function Header() {
                       Decant Calculator
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      href="/tools/bottle-level"
+                      onClick={handleLinkClick}
+                      className="block rounded-md px-3 py-2 hover:bg-white/10"
+                    >
+                      Bottle Level Estimator
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -261,7 +271,6 @@ export default function Header() {
 }
 
 /* ===== Reusable pieces ===== */
-
 function DropdownItem({ href, onClick, label }) {
   return (
     <Link
