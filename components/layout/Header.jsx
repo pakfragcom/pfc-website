@@ -129,9 +129,7 @@ export default function Header() {
                 role="menu"
               >
                 <div className="py-2">
-                  <DropdownItem href="/tools/decants" onClick={handleLinkClick} label="Decant Calculator" />
-                  {/* Add more tool links here as you create them */}
-                  {/* <DropdownItem href="/tools/notes" onClick={handleLinkClick} label="Note & Accord Explorer" /> */}
+                  <DropdownItem href="/tools/decant" onClick={handleLinkClick} label="Decant Calculator" />
                 </div>
               </div>
             </div>
@@ -220,14 +218,13 @@ export default function Header() {
                 <ul className="p-2 text-left text-xs normal-case">
                   <li>
                     <Link
-                      href="/tools/decants"
+                      href="/tools/decant"
                       onClick={handleLinkClick}
                       className="block rounded-md px-3 py-2 hover:bg-white/10"
                     >
                       Decant Calculator
                     </Link>
                   </li>
-                  {/* Add more <li> items for future tools */}
                 </ul>
               </div>
             </div>
