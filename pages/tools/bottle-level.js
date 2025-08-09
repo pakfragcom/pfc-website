@@ -1,5 +1,5 @@
-import Head from 'next/head'
 import { useEffect, useMemo, useRef, useState } from 'react';
+import SEO from '../../components/SEO'; // ✅ Import SEO
 
 const STORAGE_KEY = 'pfc-bottle-level-calib-v1';
 
@@ -120,13 +120,10 @@ export default function BottleLevelEstimator() {
 
   return (
     <>
-      <Head>
-        <title>PFC Bottle Level Estimator</title>
-        <meta
-          name="description"
-          content="Estimate the remaining perfume in your bottle with the PFC Bottle Level Estimator. Calibrate top, bottom, and liquid level for an accurate mL reading."
-        />
-      </Head>
+      <SEO
+        title="PFC Bottle Level Estimator"
+        description="Estimate the remaining perfume in your bottle with the PFC Bottle Level Estimator. Calibrate top, bottom, and liquid level for an accurate mL reading."
+      />
 
       <div className="mx-auto max-w-5xl px-4 py-6 text-white">
         <h1 className="text-2xl font-bold mb-2">PFC Bottle Level Estimator</h1>
@@ -159,7 +156,7 @@ export default function BottleLevelEstimator() {
           {/* Calibration surface */}
           <div
             ref={containerRef}
-            className="relative h-[60vh] min-h-[420px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20 touch-none"
+            className="relative h-[75vh] md:h-[60vh] min-h-[420px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20 touch-none"
           >
             <div className="pointer-events-none absolute inset-x-12 top-6 bottom-6 rounded-[40px] border border-white/5 bg-white/2" />
 
@@ -247,12 +244,12 @@ function Guide({ y, onPointerDown, color, label }) {
       aria-valuemax={100}
     >
       <div className="mx-2 flex items-center justify-between">
-        <span className="rounded-md bg-white/10 px-2 py-1 text-xs">{label}</span>
-        <span className="rounded-md bg-white/10 px-2 py-1 text-[10px]">Drag</span>
+        <span className="rounded-md bg-white/10 px-2 py-1 text-xs md:text-xs lg:text-sm">{label}</span>
+        <span className="rounded-md bg-white/10 px-2 py-1 text-[10px] md:text-xs">Drag</span>
       </div>
-      <div className={`h-[2px] w-full bg-gradient-to-r ${color} from-10% to-90%`} />
-      <div className="absolute -left-1 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-white/20" />
-      <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-white/20" />
+      <div className={`h-[3px] md:h-[2px] w-full bg-gradient-to-r ${color} from-10% to-90%`} />
+      <div className="absolute -left-1 top-1/2 -translate-y-1/2 h-5 w-5 md:h-4 md:w-4 rounded-full bg-white/20" />
+      <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-5 w-5 md:h-4 md:w-4 rounded-full bg-white/20" />
     </div>
   );
 }
