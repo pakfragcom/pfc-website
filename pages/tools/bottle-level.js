@@ -9,10 +9,10 @@ function clamp(n, min, max) {
 export default function BottleLevelEstimator() {
   const containerRef = useRef(null);
   const [bottleSize, setBottleSize] = useState(100); // mL
-  const [topY, setTopY] = useState(null);     // px inside container
+  const [topY, setTopY] = useState(null);
   const [bottomY, setBottomY] = useState(null);
   const [levelY, setLevelY] = useState(null);
-  const [drag, setDrag] = useState(null);     // 'top' | 'bottom' | 'level' | null
+  const [drag, setDrag] = useState(null);
   const [pxHeight, setPxHeight] = useState(0);
 
   // Load saved state
@@ -37,7 +37,6 @@ export default function BottleLevelEstimator() {
       const rect = el.getBoundingClientRect();
       const h = rect.height;
       setPxHeight(h);
-      // If no calibration yet, set defaults at 10% / 90% / 50%
       if (topY == null || bottomY == null || levelY == null) {
         const t = Math.round(h * 0.1);
         const b = Math.round(h * 0.9);
@@ -52,7 +51,7 @@ export default function BottleLevelEstimator() {
     return () => window.removeEventListener('resize', measure);
   }, [topY, bottomY, levelY]);
 
-  // Save
+  // Save state
   useEffect(() => {
     if (pxHeight === 0) return;
     const state = { bottleSize, topY, bottomY, levelY };
@@ -66,18 +65,16 @@ export default function BottleLevelEstimator() {
   }
   function onPointerMove(e) {
     if (!drag) return;
+    e.preventDefault(); // Prevents mobile scroll during drag
     const el = containerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const y = clamp(e.clientY - rect.top, 0, rect.height);
     if (drag === 'top') {
-      // keep top strictly above bottom
       const ny = Math.min(y, bottomY - 4);
       setTopY(ny);
-      // clamp level between top and bottom
       setLevelY((lv) => clamp(lv, ny + 2, bottomY - 2));
     } else if (drag === 'bottom') {
-      // keep bottom strictly below top
       const ny = Math.max(y, topY + 4);
       setBottomY(ny);
       setLevelY((lv) => clamp(lv, topY + 2, ny - 2));
@@ -92,20 +89,19 @@ export default function BottleLevelEstimator() {
 
   useEffect(() => {
     if (!drag) return;
-    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
     window.addEventListener('pointerup', onPointerUp, { once: true });
     return () => {
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drag, topY, bottomY]);
 
   // Calculations
   const fractionFull = useMemo(() => {
     if (pxHeight === 0 || topY == null || bottomY == null || levelY == null) return 0;
     const span = Math.max(bottomY - topY, 1);
-    const filled = bottomY - levelY; // liquid from level to bottom
+    const filled = bottomY - levelY;
     return clamp(filled / span, 0, 1);
   }, [pxHeight, topY, bottomY, levelY]);
 
@@ -153,12 +149,10 @@ export default function BottleLevelEstimator() {
         {/* Calibration surface */}
         <div
           ref={containerRef}
-          className="relative h-[60vh] min-h-[420px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20"
+          className="relative h-[60vh] min-h-[420px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20 touch-none"
         >
-          {/* Bottle shadow area (visual aid) */}
           <div className="pointer-events-none absolute inset-x-12 top-6 bottom-6 rounded-[40px] border border-white/5 bg-white/2" />
 
-          {/* Top guide */}
           {topY != null && (
             <Guide
               y={topY}
@@ -168,7 +162,6 @@ export default function BottleLevelEstimator() {
             />
           )}
 
-          {/* Level guide */}
           {levelY != null && (
             <Guide
               y={levelY}
@@ -178,7 +171,6 @@ export default function BottleLevelEstimator() {
             />
           )}
 
-          {/* Bottom guide */}
           {bottomY != null && (
             <Guide
               y={bottomY}
@@ -235,7 +227,7 @@ function StatRow({ label, value }) {
 function Guide({ y, onPointerDown, color, label }) {
   return (
     <div
-      className="absolute left-0 right-0 cursor-row-resize select-none"
+      className="absolute left-0 right-0 cursor-row-resize select-none touch-none"
       style={{ top: y - 1 }}
       onPointerDown={onPointerDown}
       role="slider"
@@ -248,7 +240,6 @@ function Guide({ y, onPointerDown, color, label }) {
         <span className="rounded-md bg-white/10 px-2 py-1 text-[10px]">Drag</span>
       </div>
       <div className={`h-[2px] w-full bg-gradient-to-r ${color} from-10% to-90%`} />
-      {/* side grabbers */}
       <div className="absolute -left-1 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-white/20" />
       <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-white/20" />
     </div>
