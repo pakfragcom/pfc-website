@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -7,8 +7,11 @@ import Navbar from './Navbar'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileToolsOpen, setMobileToolsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [desktopToolsOpen, setDesktopToolsOpen] = useState(false)
   const pathname = usePathname()
+  const toolsRef = useRef(null)
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -16,9 +19,11 @@ export default function Header() {
     return () => { document.body.style.overflow = '' }
   }, [mobileMenuOpen])
 
-  // Close on route change
+  // Close menus on route change
   useEffect(() => {
     setMobileMenuOpen(false)
+    setMobileToolsOpen(false)
+    setDesktopToolsOpen(false)
   }, [pathname])
 
   // Solidify header after scrolling a bit
@@ -31,22 +36,42 @@ export default function Header() {
 
   // Close on Escape
   const onKeyDown = useCallback((e) => {
-    if (e.key === 'Escape') setMobileMenuOpen(false)
+    if (e.key === 'Escape') {
+      setMobileMenuOpen(false)
+      setMobileToolsOpen(false)
+      setDesktopToolsOpen(false)
+    }
   }, [])
   useEffect(() => {
-    if (!mobileMenuOpen) return
+    if (!mobileMenuOpen && !desktopToolsOpen) return
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [mobileMenuOpen, onKeyDown])
+  }, [mobileMenuOpen, desktopToolsOpen, onKeyDown])
 
-  const handleLinkClick = () => setMobileMenuOpen(false)
+  // Click outside (desktop tools)
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (!desktopToolsOpen) return
+      if (toolsRef.current && !toolsRef.current.contains(e.target)) {
+        setDesktopToolsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [desktopToolsOpen])
+
+  const handleLinkClick = () => {
+    setMobileMenuOpen(false)
+    setMobileToolsOpen(false)
+    setDesktopToolsOpen(false)
+  }
 
   return (
     <header
       className={[
         'fixed top-0 left-0 w-full z-50 transition-all',
         'backdrop-blur-md border-b',
-        isScrolled ? 'bg-black/70 border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.35)]' : 'bg-black/40 border-white/5'
+        isScrolled ? 'bg-black/70 border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.35)]' : 'bg-black/40 border-white/5'
       ].join(' ')}
       role="banner"
     >
@@ -75,8 +100,41 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:block" aria-label="Primary">
+          <nav className="hidden md:flex items-center gap-6" aria-label="Primary">
             <Navbar onLinkClick={handleLinkClick} />
+
+            {/* Tools dropdown (desktop) */}
+            <div className="relative" ref={toolsRef}>
+              <button
+                type="button"
+                onClick={() => setDesktopToolsOpen(v => !v)}
+                onMouseEnter={() => setDesktopToolsOpen(true)}
+                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+                aria-haspopup="menu"
+                aria-expanded={desktopToolsOpen}
+                aria-controls="tools-menu-desktop"
+              >
+                Tools
+                <ChevronDown className={`h-4 w-4 transition-transform ${desktopToolsOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <div
+                id="tools-menu-desktop"
+                onMouseLeave={() => setDesktopToolsOpen(false)}
+                className={[
+                  'absolute right-0 mt-2 w-56 rounded-xl border border-white/10 bg-black/90 backdrop-blur-md shadow-xl',
+                  'transition-all duration-150 ease-out origin-top-right',
+                  desktopToolsOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
+                ].join(' ')}
+                role="menu"
+              >
+                <div className="py-2">
+                  <DropdownItem href="/tools/decants" onClick={handleLinkClick} label="Decant Calculator" />
+                  {/* Add more tool links here as you create them */}
+                  {/* <DropdownItem href="/tools/notes" onClick={handleLinkClick} label="Note & Accord Explorer" /> */}
+                </div>
+              </div>
+            </div>
           </nav>
 
           {/* Right Side */}
@@ -137,6 +195,42 @@ export default function Header() {
             >
               Forum
             </a>
+
+            {/* Tools (mobile) */}
+            <div className="pt-2">
+              <button
+                onClick={() => setMobileToolsOpen(v => !v)}
+                className="mx-auto flex items-center justify-center gap-2 rounded-md px-4 py-2 text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+                aria-expanded={mobileToolsOpen}
+                aria-controls="tools-menu-mobile"
+                aria-haspopup="true"
+              >
+                Tools
+                <ChevronDown className={`h-4 w-4 transition-transform ${mobileToolsOpen ? 'rotate-180' : ''}`} />
+              </button>
+              <div
+                id="tools-menu-mobile"
+                className={[
+                  'mx-auto mt-2 w-full max-w-xs overflow-hidden rounded-lg border border-white/10 bg-black/70',
+                  'transition-[max-height,opacity] duration-300 ease-out',
+                  mobileToolsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                ].join(' ')}
+                role="menu"
+              >
+                <ul className="p-2 text-left text-xs normal-case">
+                  <li>
+                    <Link
+                      href="/tools/decants"
+                      onClick={handleLinkClick}
+                      className="block rounded-md px-3 py-2 hover:bg-white/10"
+                    >
+                      Decant Calculator
+                    </Link>
+                  </li>
+                  {/* Add more <li> items for future tools */}
+                </ul>
+              </div>
+            </div>
           </div>
 
           <div className="mt-6 pt-6 border-t border-white/10">
@@ -166,6 +260,29 @@ export default function Header() {
         </div>
       </div>
     </header>
+  )
+}
+
+/* ===== Reusable pieces ===== */
+
+function DropdownItem({ href, onClick, label }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="flex items-center gap-3 px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:bg-white/15 focus:outline-none"
+      role="menuitem"
+    >
+      <span>{label}</span>
+    </Link>
+  )
+}
+
+function ChevronDown({ className = 'h-4 w-4' }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.168l3.71-2.94a.75.75 0 111.04 1.08l-4.24 3.36a.75.75 0 01-.94 0l-4.24-3.36a.75.75 0 01-.02-1.06z" clipRule="evenodd" />
+    </svg>
   )
 }
 

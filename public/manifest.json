@@ -1,0 +1,21 @@
+{
+  "name": "Pakistan Fragrance Community",
+  "short_name": "PFC",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#111111",
+  "description": "Pakistan’s first and most trusted platform for perfume lovers.",
+  "icons": [
+    {
+      "src": "/pfc-round.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/pfc-round.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
