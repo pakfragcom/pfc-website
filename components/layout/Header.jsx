@@ -11,7 +11,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [desktopToolsOpen, setDesktopToolsOpen] = useState(false)
   const pathname = usePathname()
-  const toolsRef = useRef(null)
+  const toolsRef = useRef<HTMLDivElement | null>(null)
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Header() {
   }, [])
 
   // Close on Escape
-  const onKeyDown = useCallback((e) => {
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       setMobileMenuOpen(false)
       setMobileToolsOpen(false)
@@ -50,9 +50,9 @@ export default function Header() {
 
   // Click outside (desktop tools)
   useEffect(() => {
-    function handleClickOutside(e) {
+    function handleClickOutside(e: MouseEvent) {
       if (!desktopToolsOpen) return
-      if (toolsRef.current && !toolsRef.current.contains(e.target)) {
+      if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) {
         setDesktopToolsOpen(false)
       }
     }
@@ -87,10 +87,15 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="md:flex md:items-center md:gap-12">
-            <Link href="/" className="block focus:outline-none focus:ring-2 focus:ring-white/40 rounded">
+            <Link
+              href="/"
+              aria-label="Pakistan Fragrance Community — Home"
+              title="Pakistan Fragrance Community"
+              className="block focus:outline-none focus:ring-2 focus:ring-white/40 rounded"
+            >
               <Image
                 src="/logo.png"
-                alt="Pakistan Fragrance Community"
+                alt="Pakistan Fragrance Community logo"
                 width={220}
                 height={50}
                 className="object-contain"
@@ -100,7 +105,12 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6" aria-label="Primary">
+          <nav
+            className="hidden md:flex items-center gap-6"
+            aria-label="Primary"
+            itemScope
+            itemType="https://schema.org/SiteNavigationElement"
+          >
             <Navbar onLinkClick={handleLinkClick} />
 
             {/* Tools dropdown (desktop) */}
@@ -113,6 +123,7 @@ export default function Header() {
                 aria-haspopup="menu"
                 aria-expanded={desktopToolsOpen}
                 aria-controls="tools-menu-desktop"
+                title="Open tools"
               >
                 Tools
                 <ChevronDown className={`h-4 w-4 transition-transform ${desktopToolsOpen ? 'rotate-180' : ''}`} />
@@ -129,8 +140,25 @@ export default function Header() {
                 role="menu"
               >
                 <div className="py-2">
-                  <DropdownItem href="/tools/decant" onClick={handleLinkClick} label="Decant Calculator" />
-                  <DropdownItem href="/tools/bottle-level" onClick={handleLinkClick} label="Bottle Level Estimator" />
+                  {/* NEW: Verify Seller Check */}
+                  <DropdownItem
+                    href="/tools/verify-seller"
+                    onClick={handleLinkClick}
+                    label="Verify Seller Check"
+                    title="Verify Seller Check — Registered & Decanter verification"
+                  />
+                  <DropdownItem
+                    href="/tools/decant"
+                    onClick={handleLinkClick}
+                    label="Decant Calculator"
+                    title="Decant Calculator"
+                  />
+                  <DropdownItem
+                    href="/tools/bottle-level"
+                    onClick={handleLinkClick}
+                    label="Bottle Level Estimator"
+                    title="Bottle Level Estimator"
+                  />
                 </div>
               </div>
             </div>
@@ -144,11 +172,13 @@ export default function Header() {
                 href="https://www.facebook.com/groups/pkfragcom"
                 label="Facebook"
                 svg={<FacebookIcon />}
+                title="Join our Facebook Group"
               />
               <SocialLink
                 href="https://www.instagram.com/pakfragcom/"
                 label="Instagram"
                 svg={<InstagramIcon />}
+                title="Follow us on Instagram"
               />
             </div>
 
@@ -160,6 +190,7 @@ export default function Header() {
                 aria-label="Toggle menu"
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"
+                title="Open menu"
               >
                 <MenuIcon />
               </button>
@@ -182,7 +213,12 @@ export default function Header() {
           aria-modal="true"
         >
           <div className="space-y-4 text-center text-sm uppercase tracking-wide">
-            <Link href="/" onClick={handleLinkClick} className="block hover:text-gray-300 focus:text-gray-200">
+            <Link
+              href="/"
+              onClick={handleLinkClick}
+              className="block hover:text-gray-300 focus:text-gray-200"
+              title="Home"
+            >
               Home
             </Link>
             <a
@@ -191,6 +227,7 @@ export default function Header() {
               className="block hover:text-gray-300 focus:text-gray-200"
               target="_blank"
               rel="noopener noreferrer"
+              title="Forum (opens in new tab)"
             >
               Forum
             </a>
@@ -203,6 +240,7 @@ export default function Header() {
                 aria-expanded={mobileToolsOpen}
                 aria-controls="tools-menu-mobile"
                 aria-haspopup="true"
+                title="Open tools"
               >
                 Tools
                 <ChevronDown className={`h-4 w-4 transition-transform ${mobileToolsOpen ? 'rotate-180' : ''}`} />
@@ -218,10 +256,22 @@ export default function Header() {
               >
                 <ul className="p-2 text-left text-xs normal-case">
                   <li>
+                    {/* NEW: Verify Seller Check */}
+                    <Link
+                      href="/tools/verify-seller"
+                      onClick={handleLinkClick}
+                      className="block rounded-md px-3 py-2 hover:bg-white/10"
+                      title="Verify Seller Check — Registered & Decanter verification"
+                    >
+                      Verify Seller Check
+                    </Link>
+                  </li>
+                  <li>
                     <Link
                       href="/tools/decant"
                       onClick={handleLinkClick}
                       className="block rounded-md px-3 py-2 hover:bg-white/10"
+                      title="Decant Calculator"
                     >
                       Decant Calculator
                     </Link>
@@ -231,6 +281,7 @@ export default function Header() {
                       href="/tools/bottle-level"
                       onClick={handleLinkClick}
                       className="block rounded-md px-3 py-2 hover:bg-white/10"
+                      title="Bottle Level Estimator"
                     >
                       Bottle Level Estimator
                     </Link>
@@ -246,11 +297,13 @@ export default function Header() {
                 href="https://www.facebook.com/groups/pkfragcom"
                 label="Facebook"
                 svg={<FacebookIcon className="w-6 h-6" />}
+                title="Join our Facebook Group"
               />
               <SocialLink
                 href="https://www.instagram.com/pakfragcom/"
                 label="Instagram"
                 svg={<InstagramIcon className="w-6 h-6" />}
+                title="Follow us on Instagram"
               />
             </div>
           </div>
@@ -260,6 +313,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-md px-4 py-2 text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
               aria-label="Close menu"
+              title="Close menu"
             >
               Close
             </button>
@@ -271,15 +325,27 @@ export default function Header() {
 }
 
 /* ===== Reusable pieces ===== */
-function DropdownItem({ href, onClick, label }) {
+function DropdownItem({
+  href,
+  onClick,
+  label,
+  title,
+}: {
+  href: string
+  onClick?: () => void
+  label: string
+  title?: string
+}) {
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-3 px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:bg-white/15 focus:outline-none"
+      className="flex items-center gap-3 px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:bg:white/15 focus:outline-none"
       role="menuitem"
+      title={title || label}
+      itemProp="url"
     >
-      <span>{label}</span>
+      <span itemProp="name">{label}</span>
     </Link>
   )
 }
@@ -292,14 +358,16 @@ function ChevronDown({ className = 'h-4 w-4' }) {
   )
 }
 
-function SocialLink({ href, label, svg }) {
+function SocialLink({ href, label, svg, title }: { href: string; label: string; svg: React.ReactNode; title?: string }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+      title={title || label}
+      className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text:white hover:bg:white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+      itemProp="url"
     >
       {svg}
       <span className="sr-only">{label}</span>
