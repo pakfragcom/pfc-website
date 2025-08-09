@@ -1,11 +1,15 @@
-import Head from 'next/head'
-import Script from 'next/script'
-import '../styles/main.css'
-import ScrollToTop from '../components/ScrollToTop'
+import Head from 'next/head';
+import Script from 'next/script';
+import '../styles/main.css';
+import ScrollToTop from '../components/ScrollToTop';
+import SEO from '../components/SEO'; // ✅ SEO automation
 
 export default function App({ Component, pageProps }) {
   return (
     <>
+      {/* ✅ Automatic SEO Title & Description */}
+      <SEO />
+
       <Head>
         {/* Fonts */}
         <link
@@ -21,11 +25,11 @@ export default function App({ Component, pageProps }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "Pakistan Fragrance Community",
-              url: "https://pakfrag.com",
-              logo: "https://pakfrag.com/pfc-round.png",
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'Pakistan Fragrance Community',
+              url: 'https://pakfrag.com',
+              logo: 'https://pakfrag.com/pfc-round.png',
             }),
           }}
         />
@@ -48,5 +52,5 @@ export default function App({ Component, pageProps }) {
       <Component {...pageProps} />
       <ScrollToTop />
     </>
-  )
+  );
 }
