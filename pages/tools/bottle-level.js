@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const STORAGE_KEY = 'pfc-bottle-level-calib-v1';
@@ -118,96 +119,106 @@ export default function BottleLevelEstimator() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 text-white">
-      <h1 className="text-2xl font-bold mb-2">Bottle Level Estimator</h1>
-      <p className="text-white/70 mb-4">
-        Place your bottle against the screen. Drag the <b>Top</b> guide to the bottle head start, the <b>Bottom</b> guide to the bottle base end,
-        and the <b>Level</b> guide to the current liquid line. Enter your bottle size to estimate remaining mL.
-      </p>
+    <>
+      <Head>
+        <title>PFC Bottle Level Estimator</title>
+        <meta
+          name="description"
+          content="Estimate the remaining perfume in your bottle with the PFC Bottle Level Estimator. Calibrate top, bottom, and liquid level for an accurate mL reading."
+        />
+      </Head>
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2">
-          <span className="text-white/80">Bottle size (mL)</span>
-          <input
-            type="number"
-            min={1}
-            value={bottleSize}
-            onChange={(e) => setBottleSize(Number(e.target.value))}
-            className="w-28 rounded-md bg-white/10 px-3 py-2"
-          />
-        </label>
+      <div className="mx-auto max-w-5xl px-4 py-6 text-white">
+        <h1 className="text-2xl font-bold mb-2">PFC Bottle Level Estimator</h1>
+        <p className="text-white/70 mb-4">
+          Place your bottle against the screen. Drag the <b>Top</b> guide to the bottle head start, the <b>Bottom</b> guide to the bottle base end,
+          and the <b>Level</b> guide to the current liquid line. Enter your bottle size to estimate remaining mL.
+        </p>
 
-        <button
-          onClick={resetGuides}
-          className="rounded-md bg-white/10 px-3 py-2 hover:bg-white/15 transition"
-        >
-          Reset guides
-        </button>
-      </div>
-
-      <div className="grid md:grid-cols-[2fr_1fr] gap-6">
-        {/* Calibration surface */}
-        <div
-          ref={containerRef}
-          className="relative h-[60vh] min-h-[420px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20 touch-none"
-        >
-          <div className="pointer-events-none absolute inset-x-12 top-6 bottom-6 rounded-[40px] border border-white/5 bg-white/2" />
-
-          {topY != null && (
-            <Guide
-              y={topY}
-              color="from-emerald-400/80 to-emerald-300/80"
-              label="Top"
-              onPointerDown={(e) => onPointerDown('top', e)}
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2">
+            <span className="text-white/80">Bottle size (mL)</span>
+            <input
+              type="number"
+              min={1}
+              value={bottleSize}
+              onChange={(e) => setBottleSize(Number(e.target.value))}
+              className="w-28 rounded-md bg-white/10 px-3 py-2"
             />
-          )}
+          </label>
 
-          {levelY != null && (
-            <Guide
-              y={levelY}
-              color="from-sky-400/80 to-sky-300/80"
-              label="Level"
-              onPointerDown={(e) => onPointerDown('level', e)}
-            />
-          )}
-
-          {bottomY != null && (
-            <Guide
-              y={bottomY}
-              color="from-rose-400/80 to-rose-300/80"
-              label="Bottom"
-              onPointerDown={(e) => onPointerDown('bottom', e)}
-            />
-          )}
+          <button
+            onClick={resetGuides}
+            className="rounded-md bg-white/10 px-3 py-2 hover:bg-white/15 transition"
+          >
+            Reset guides
+          </button>
         </div>
 
-        {/* Readout */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <h2 className="text-lg font-semibold mb-3">Estimates</h2>
-          <StatRow label="Estimated % full" value={`${pct}%`} />
-          <StatRow label="Estimated mL remaining" value={`${round2(mlRemaining)} mL`} />
-          <StatRow label="Estimated mL used" value={`${round2(mlUsed)} mL`} />
+        <div className="grid md:grid-cols-[2fr_1fr] gap-6">
+          {/* Calibration surface */}
+          <div
+            ref={containerRef}
+            className="relative h-[60vh] min-h-[420px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20 touch-none"
+          >
+            <div className="pointer-events-none absolute inset-x-12 top-6 bottom-6 rounded-[40px] border border-white/5 bg-white/2" />
 
-          <div className="mt-4">
-            <div className="h-3 w-full rounded-full bg-white/10 overflow-hidden">
-              <div
-                className="h-3 rounded-full bg-white/60"
-                style={{ width: `${pct}%` }}
+            {topY != null && (
+              <Guide
+                y={topY}
+                color="from-emerald-400/80 to-emerald-300/80"
+                label="Top"
+                onPointerDown={(e) => onPointerDown('top', e)}
               />
-            </div>
-            <div className="mt-2 text-xs text-white/60">
-              Calibrated from your Top/Bottom guides; accuracy depends on placement and the bottle’s
-              vertical interior. Curved bottles may introduce error.
+            )}
+
+            {levelY != null && (
+              <Guide
+                y={levelY}
+                color="from-sky-400/80 to-sky-300/80"
+                label="Level"
+                onPointerDown={(e) => onPointerDown('level', e)}
+              />
+            )}
+
+            {bottomY != null && (
+              <Guide
+                y={bottomY}
+                color="from-rose-400/80 to-rose-300/80"
+                label="Bottom"
+                onPointerDown={(e) => onPointerDown('bottom', e)}
+              />
+            )}
+          </div>
+
+          {/* Readout */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <h2 className="text-lg font-semibold mb-3">Estimates</h2>
+            <StatRow label="Estimated % full" value={`${pct}%`} />
+            <StatRow label="Estimated mL remaining" value={`${round2(mlRemaining)} mL`} />
+            <StatRow label="Estimated mL used" value={`${round2(mlUsed)} mL`} />
+
+            <div className="mt-4">
+              <div className="h-3 w-full rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className="h-3 rounded-full bg-white/60"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <div className="mt-2 text-xs text-white/60">
+                Calibrated from your Top/Bottom guides; accuracy depends on placement and the bottle’s
+                vertical interior. Curved bottles may introduce error.
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-6 text-xs text-white/50">
-        Tips: For better accuracy, align the phone/monitor perpendicular to the bottle; avoid curved glass and thick bases.
-        You can fine-tune by zooming browser (Ctrl/Cmd + +/-) to match bottle height.
+        <div className="mt-6 text-xs text-white/50">
+          Tips: For better accuracy, align the phone/monitor perpendicular to the bottle; avoid curved glass and thick bases.
+          You can fine-tune by zooming browser (Ctrl/Cmd + +/-) to match bottle height.
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -235,7 +246,7 @@ function Guide({ y, onPointerDown, color, label }) {
       aria-valuemin={0}
       aria-valuemax={100}
     >
-      <div className={`mx-2 flex items-center justify-between`}>
+      <div className="mx-2 flex items-center justify-between">
         <span className="rounded-md bg-white/10 px-2 py-1 text-xs">{label}</span>
         <span className="rounded-md bg-white/10 px-2 py-1 text-[10px]">Drag</span>
       </div>
