@@ -5,22 +5,37 @@ import seoConfig from '../seoConfig';
 
 export default function SEO() {
   const router = useRouter();
-  const currentPath = router.pathname;
+  const path = router?.pathname || '/';
 
-  // Fallback title/description if not defined in seoConfig
-  const defaultTitle = 'Pakistan Fragrance Community - PFC';
-  const defaultDescription =
-    'Pakistan’s first official perfume and fragrance community. Reviews, discussions, marketplace, and more.';
-
-  const { title, description } = seoConfig[currentPath] || {
-    title: defaultTitle,
-    description: defaultDescription,
+  const defaults = {
+    title: 'Pakistan Fragrance Community - PFC',
+    description:
+      'Pakistan’s first official perfume and fragrance community. Reviews, discussions, marketplace, and more.',
+    url: 'https://pakfrag.com',
   };
+
+  const meta = { ...defaults, ...(seoConfig[path] || {}) };
 
   return (
     <Head>
-      <title>{title}</title>
-      <meta name="description" content={description} />
+      {/* Basic */}
+      <title>{meta.title}</title>
+      <meta name="description" content={meta.description} />
+
+      {/* Canonical */}
+      {meta.url && <link rel="canonical" href={meta.url} />}
+
+      {/* Open Graph */}
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={meta.title} />
+      <meta property="og:description" content={meta.description} />
+      {meta.url && <meta property="og:url" content={meta.url} />}
+      <meta property="og:site_name" content="Pakistan Fragrance Community - PFC" />
+
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:title" content={meta.title} />
+      <meta name="twitter:description" content={meta.description} />
     </Head>
   );
 }
