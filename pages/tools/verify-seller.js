@@ -89,6 +89,7 @@ const BNIB = [
   { name: "Xohayb Hasan", code: "ZH-789G" },
   { name: "Zaib Ali", code: "ZA-B777" },
   { name: "Zakir Swati", code: "ZS-KW72" },
+  { name: "Murtaza Wasim", code: "MW-4FG" },
 ].map((x) => ({ ...x, type: "BNIB" }));
 
 const DECANTERS = [
@@ -115,7 +116,6 @@ const DECANTERS = [
   { name: "Tayyab Tariq", code: "TT-4FZ7" },
   { name: "Umar Zulfiqar", code: "UZ-G58K" },
   { name: "Zaryab Amir", code: "ZA-A8X6" },
-  { name: "Murtaza Wasim", code: "MW-4FG" },
 ].map((x) => ({ ...x, type: "DECANT" }));
 
 const DIRECTORY = [...BNIB, ...DECANTERS];
