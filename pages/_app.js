@@ -1,17 +1,15 @@
+// pages/_app.js
 import Head from 'next/head';
 import Script from 'next/script';
-import { useRouter } from 'next/router';
 import '../styles/main.css';
 import ScrollToTop from '../components/ScrollToTop';
 import SEO from '../components/SEO';
 
 export default function App({ Component, pageProps }) {
-  const router = useRouter();
-
   return (
     <>
-      {/* ✅ Automatic SEO Title & Description */}
-      <SEO path={router.pathname} />
+      {/* ✅ Automatic SEO for every page */}
+      <SEO />
 
       <Head>
         {/* Fonts */}
