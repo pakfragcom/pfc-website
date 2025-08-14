@@ -1,3 +1,2 @@
-# Apple-Style PFC Website
+# PFC Website
 
-Inspired by Apple.com — built with Next.js and TailwindCSS.
