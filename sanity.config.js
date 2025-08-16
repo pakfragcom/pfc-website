@@ -1,7 +1,8 @@
-import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure'
-import {visionTool} from '@sanity/vision'
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
+import { visionTool } from '@sanity/vision'
 
+// Schema imports (JS files living in /sanity/schemas)
 import brand from './sanity/schemas/brand'
 import perfume from './sanity/schemas/perfume'
 import review from './sanity/schemas/review'
@@ -12,7 +13,7 @@ import faq from './sanity/schemas/faq'
 export default defineConfig({
   name: 'default',
   title: 'PFC Content',
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,     // set in Vercel envs
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   plugins: [structureTool(), visionTool()],
   schema: { types: [brand, perfume, review, comparison, vendorProfile, faq] },
