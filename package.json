@@ -21,7 +21,7 @@
 
     "sanity": "^4.4.1",
     "@sanity/vision": "^4.4.1",
-    "next-sanity": "^10.0.12",
+    "next-sanity": "9.4.3",
     "@sanity/image-url": "^1.1.0"
   }
 }
