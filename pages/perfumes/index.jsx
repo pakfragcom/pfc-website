@@ -3,12 +3,12 @@ import { groq } from 'next-sanity'
 import { client } from '../../lib/sanity.client'
 import { urlFor } from '../../lib/image'
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const data = await client.fetch(groq`
     *[_type=="perfume"]|order(name asc){
       name, slug, brand-> {name}, hero
     }`)
-  return { props: { data }, revalidate: 60 }
+  return { props: { data } }
 }
 
 export default function PerfumesIndex({ data }) {

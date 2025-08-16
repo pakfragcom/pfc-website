@@ -13,6 +13,7 @@
   "dependencies": {
     "@sanity/icons": "2.11.3",
     "@sanity/image-url": "^1.1.0",
+    "@sanity/structure": "^2.36.2",
     "@sanity/vision": "^4.4.1",
     "autoprefixer": "^10.4.2",
     "framer-motion": "^12.23.9",
