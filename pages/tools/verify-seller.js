@@ -52,7 +52,7 @@ const BNIB = [
   { name: "Muhammad Ahmad Jan", code: "MAJ-LHFX" },
   { name: "M. Amir", code: "MA-KGKF" },
   { name: "Malik Mohammad", code: "MM-DQK2" },
-  { name: "Mohammad Abu Torab", code: "MAT-01F0" },
+  { name: "Mohammad Abu Turab", code: "MAT-01F0" },
   { name: "Mohammad Khan", code: "MK-AAK9" },
   { name: "Mohsin Malik", code: "MM-K0R4" },
   { name: "Moiz Ullah", code: "MU-29W7" },
