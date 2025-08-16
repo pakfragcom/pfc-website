@@ -29,8 +29,12 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const perfume = await client.fetch(PERFUME_BY_SLUG, { slug: params.slug })
   if (!perfume) return { notFound: true }
+
+  // We fetch a review referencing this perfume (optional)
   const review = await client.fetch(REVIEW_FOR_PERFUME, { _id: perfume._id })
-  return { props: { perfume, review }, revalidate: 60 }
+
+  // Revalidate so new Studio publishes show up quickly
+  return { props: { perfume, review: review || null }, revalidate: 60 }
 }
 
 export default function PerfumePage({ perfume, review }) {
@@ -91,7 +95,7 @@ export default function PerfumePage({ perfume, review }) {
   )
 }
 
-/* Helpers (local) */
+/* Local helpers */
 function Bar({ label, value, max }) {
   const pct = Math.min(100, (Number(value) / Number(max)) * 100)
   return (
