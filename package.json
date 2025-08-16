@@ -2,27 +2,29 @@
   "name": "pfc-apple-style",
   "version": "1.0.0",
   "private": true,
-  "engines": { "node": "22.x" },
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
+    "@sanity/icons": "2.11.3",
+    "@sanity/image-url": "^1.1.0",
+    "@sanity/vision": "^4.4.1",
     "autoprefixer": "^10.4.2",
     "framer-motion": "^12.23.9",
     "lucide-react": "^0.525.0",
     "next": "13.4.10",
+    "next-sanity": "9.4.3",
     "pg": "^8.16.3",
     "postcss": "^8.4.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tailwindcss": "^3.2.7",
-
     "sanity": "^4.4.1",
-    "@sanity/vision": "^4.4.1",
-    "next-sanity": "9.4.3",
-    "@sanity/image-url": "^1.1.0",
-    "@sanity/icons": "2.11.3"
+    "styled-components": "^6.1.19",
+    "tailwindcss": "^3.2.7"
   }
 }
