@@ -11,6 +11,7 @@ import vendorProfile from './sanity/schemas/vendorProfile'
 import faq from './sanity/schemas/faq'
 
 export default defineConfig({
+  basePath: '/studio',
   name: 'default',
   title: 'PFC Content',
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,     // set in Vercel envs
