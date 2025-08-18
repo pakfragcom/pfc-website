@@ -29,3 +29,4 @@ export default function PerfumesIndex({ data }) {
     </main>
   )
 }
+verc
