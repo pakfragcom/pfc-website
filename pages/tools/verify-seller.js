@@ -118,6 +118,7 @@ const DECANTERS = [
   { name: "Umar Zulfiqar", code: "UZ-G58K" },
   { name: "Zaryab Amir", code: "ZA-A8X6" },
   { name: "Muhammad Ebaad Ur Rehman", code: "MEUR-D2L" },
+  { name: "Muhammad Umar", code: "MU-56JS" },
 ].map((x) => ({ ...x, type: "DECANT" }));
 
 const DIRECTORY = [...BNIB, ...DECANTERS];
