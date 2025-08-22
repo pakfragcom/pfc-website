@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import SEO from '../../components/SEO';
 
-const STORAGE_KEY = 'pfc-bottle-level-calib-v2';
+const STORAGE_KEY = 'pfc-bottle-level-calib-v3';
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
@@ -22,14 +22,17 @@ export default function BottleLevelEstimator() {
   const [drag, setDrag] = useState(null);
   const [pxHeight, setPxHeight] = useState(0);
 
+  // UX state
+  const [showPro, setShowPro] = useState(false);
+
   // Advanced modeling
   const [neckTopPct, setNeckTopPct] = useState(0);        // fraction of total span to exclude at top (0..0.4)
   const [deadBottomPct, setDeadBottomPct] = useState(0);  // fraction to exclude at bottom (0..0.3)
 
   const [shapeMode, setShapeMode] = useState('linear'); // 'linear' | 'power' | 'auto'
-  const [alpha, setAlpha] = useState(1); // power-law exponent for 'power' mode
+  const [alpha, setAlpha] = useState(1);                // exponent for 'power'
   const [calibType, setCalibType] = useState('percent'); // 'percent' | 'ml'
-  const [calibValue, setCalibValue] = useState(50); // used when shapeMode === 'auto'
+  const [calibValue, setCalibValue] = useState(50);      // for auto-fit
 
   // Load saved state
   useEffect(() => {
@@ -47,6 +50,7 @@ export default function BottleLevelEstimator() {
         if (typeof s.shapeMode === 'string') setShapeMode(s.shapeMode);
         if (typeof s.calibType === 'string') setCalibType(s.calibType);
         if (typeof s.calibValue === 'number') setCalibValue(s.calibValue);
+        if (typeof s.showPro === 'boolean') setShowPro(s.showPro);
       }
     } catch {}
   }, []);
@@ -81,11 +85,12 @@ export default function BottleLevelEstimator() {
     const state = {
       bottleSize, topY, bottomY, levelY, calibY, pxHeight,
       neckTopPct, deadBottomPct, alpha, shapeMode, calibType, calibValue,
+      showPro,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [bottleSize, topY, bottomY, levelY, calibY, pxHeight, neckTopPct, deadBottomPct, alpha, shapeMode, calibType, calibValue]);
+  }, [bottleSize, topY, bottomY, levelY, calibY, pxHeight, neckTopPct, deadBottomPct, alpha, shapeMode, calibType, calibValue, showPro]);
 
-  // Common drag helpers
+  // Drag helpers
   const onPointerDown = useCallback((type, e) => {
     e.preventDefault();
     setDrag(type);
@@ -93,7 +98,7 @@ export default function BottleLevelEstimator() {
   }, []);
   const onPointerMove = useCallback((e) => {
     if (!drag) return;
-    e.preventDefault(); // prevent mobile scroll
+    e.preventDefault();
     const el = containerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -129,7 +134,7 @@ export default function BottleLevelEstimator() {
     };
   }, [drag, onPointerMove, onPointerUp]);
 
-  // Keyboard nudging for focused guide
+  // Keyboard nudging
   const nudge = (setter) => (delta) => setter(y => (y == null ? y : y + delta));
   const onGuideKeyDown = (setter) => (e) => {
     const step = e.shiftKey ? 5 : 1;
@@ -137,63 +142,53 @@ export default function BottleLevelEstimator() {
     if (e.key === 'ArrowDown') { e.preventDefault(); nudge(setter)(step); }
   };
 
-  // Compute normalized fractions
+  // Geometry math
   const span = useMemo(() => {
     if (topY == null || bottomY == null) return 1;
     return Math.max(bottomY - topY, 1);
   }, [topY, bottomY]);
 
-  // Exclusion windows (neck & dead base) within the calibrated span
   const usableWindow = useMemo(() => {
     const exclTop = clamp(neckTopPct, 0, 0.4);
     const exclBottom = clamp(deadBottomPct, 0, 0.3);
-    const totalExcl = Math.min(exclTop + exclBottom, 0.9); // keep at most 90% excluded
+    const totalExcl = Math.min(exclTop + exclBottom, 0.9);
     return { exclTop, exclBottom, totalExcl };
   }, [neckTopPct, deadBottomPct]);
 
-  // Convert a Y to "usable height fraction filled" 0..1
   const fracFromY = useCallback((y) => {
     if (topY == null || bottomY == null || y == null) return 0;
     const raw = clamp((bottomY - y) / span, 0, 1); // 0 at top, 1 at bottom
-    const { exclTop, exclBottom, totalExcl } = usableWindow;
+    const { exclBottom, totalExcl } = usableWindow;
     const denom = 1 - totalExcl;
     if (denom <= 0.0001) return 0;
-    // Remove excluded bands and renormalize to 0..1 usable fraction
-    // raw in [0..1] => shift down by bottom exclusion, cap by top exclusion
     const shifted = clamp(raw - exclBottom, 0, 1 - exclBottom);
-    const trimmed = clamp(shifted / denom, 0, 1);
-    return trimmed;
+    return clamp(shifted / denom, 0, 1);
   }, [topY, bottomY, span, usableWindow]);
 
-  // --- Auto-fit alpha from checkpoint (if enabled) ---
   const autoAlpha = useMemo(() => {
     if (shapeMode !== 'auto') return alpha;
     const f = fracFromY(calibY);
-    let r; // remaining fraction
+    let r; // remaining fraction at calibY
     if (calibType === 'percent') r = clamp((calibValue || 0) / 100, 0.0001, 0.9999);
     else r = clamp((calibValue || 0) / Math.max(bottleSize, 0.0001), 0.0001, 0.9999);
-
     if (f <= 0.0001 || f >= 0.9999) return alpha;
     const a = Math.log(r) / Math.log(f);
-    return clamp(a, 0.3, 3.0); // sane limits for physical-ish bottles
+    return clamp(a, 0.3, 3.0);
   }, [shapeMode, calibY, calibType, calibValue, bottleSize, fracFromY, alpha]);
 
-  // --- Fraction -> Volume mapping ---
   const fractionFull = useMemo(() => {
     if (pxHeight === 0 || topY == null || bottomY == null || levelY == null) return 0;
-
     const f = clamp(fracFromY(levelY), 0, 1);
-
     if (shapeMode === 'linear') return f;
     if (shapeMode === 'power') return Math.pow(f, clamp(alpha, 0.3, 3.0));
-    // auto (power with computed alpha)
-    return Math.pow(f, autoAlpha);
+    return Math.pow(f, autoAlpha); // auto-fit
   }, [pxHeight, topY, bottomY, levelY, shapeMode, alpha, autoAlpha, fracFromY]);
 
   const mlRemaining = useMemo(() => bottleSize * fractionFull, [bottleSize, fractionFull]);
   const mlUsed = useMemo(() => bottleSize - mlRemaining, [bottleSize, mlRemaining]);
   const pct = Math.round(fractionFull * 100);
 
+  // UX helpers
   function resetGuides() {
     if (!containerRef.current) return;
     const h = containerRef.current.getBoundingClientRect().height;
@@ -202,9 +197,8 @@ export default function BottleLevelEstimator() {
     setLevelY(Math.round(h * 0.5));
     setCalibY(Math.round(h * 0.7));
   }
-
-  // Quick shape presets that map to alpha
   function applyPreset(preset) {
+    // Friendly presets that set shape + α behind the scenes
     if (preset === 'taperedTop') { setShapeMode('power'); setAlpha(0.65); }
     if (preset === 'uniform')    { setShapeMode('linear'); setAlpha(1); }
     if (preset === 'bulgedBase') { setShapeMode('power'); setAlpha(1.4); }
@@ -214,70 +208,48 @@ export default function BottleLevelEstimator() {
     <>
       <SEO
         title="PFC Bottle Level Estimator"
-        description="Calibrate top, bottom, and liquid level to estimate remaining mL. Advanced shape modeling for tapered/bulged perfume bottles, with neck and base offsets."
+        description="Drag three guides and get an instant estimate of how much fragrance is left. Friendly presets for bottle shapes and an optional Pro panel for precision."
       />
 
-      <div className="mx-auto max-w-5xl px-4 py-6 text-white">
-        <h1 className="text-2xl font-bold mb-2">PFC Bottle Level Estimator</h1>
-        <p className="text-white/70 mb-4">
-          Drag <b>Top</b>, <b>Bottom</b>, and <b>Level</b> guides to match your bottle.
-          For non-straight bottles, adjust <b>Shape</b> and <b>Offsets</b> to improve accuracy.
-        </p>
-
-        {/* Controls */}
-        <div className="mb-4 flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2">
-            <span className="text-white/80">Bottle size (mL)</span>
-            <input
-              type="number"
-              min={1}
-              value={bottleSize}
-              onChange={(e) => setBottleSize(Number(e.target.value) || 0)}
-              className="w-28 rounded-md bg-white/10 px-3 py-2"
-            />
-          </label>
-
-          <button
-            onClick={resetGuides}
-            className="rounded-md bg-white/10 px-3 py-2 hover:bg-white/15 transition"
-          >
-            Reset guides
-          </button>
+      <div className="mx-auto max-w-6xl px-4 py-6 text-white">
+        {/* Header */}
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">PFC Bottle Level Estimator</h1>
+            <p className="text-white/70">
+              Drag <b>Top</b>, <b>Bottom</b>, and <b>Level</b> to match your bottle. Pick a shape preset if it isn’t straight‑sided.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2">
+              <span className="text-white/80">Bottle size</span>
+              <input
+                type="number"
+                min={1}
+                value={bottleSize}
+                onChange={(e) => setBottleSize(Number(e.target.value) || 0)}
+                className="w-28 rounded-md bg-white/10 px-3 py-2"
+              />
+              <span className="text-white/60">mL</span>
+            </label>
+            <button
+              onClick={resetGuides}
+              className="rounded-md bg-white/10 px-3 py-2 hover:bg-white/15 transition"
+              title="Reset guides to defaults"
+            >
+              Reset
+            </button>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-[2fr_1fr] gap-6">
-          {/* Calibration surface */}
+        <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
+          {/* Canvas */}
           <div
             ref={containerRef}
-            className="relative h-[75vh] md:h-[60vh] min-h-[460px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20 touch-none"
+            className="relative h-[74vh] md:h-[60vh] min-h-[460px] rounded-2xl border border-white/10 bg-gradient-to-b from-black/40 to-black/20 touch-none"
           >
-            <div className="pointer-events-none absolute inset-x-12 top-6 bottom-6 rounded-[40px] border border-white/5 bg-white/2" />
-
-            {/* Exclusion bands visual */}
-            {topY != null && bottomY != null && (
-              <>
-                {/* Top neck exclusion */}
-                <div
-                  className="absolute left-0 right-0 pointer-events-none"
-                  style={{
-                    top: topY,
-                    height: span * neckTopPct,
-                    background:
-                      'repeating-linear-gradient(45deg, rgba(255,255,255,0.06), rgba(255,255,255,0.06) 6px, rgba(255,255,255,0.03) 6px, rgba(255,255,255,0.03) 12px)'
-                  }}
-                />
-                {/* Bottom dead volume */}
-                <div
-                  className="absolute left-0 right-0 pointer-events-none"
-                  style={{
-                    top: bottomY - span * deadBottomPct,
-                    height: span * deadBottomPct,
-                    background:
-                      'repeating-linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.06) 6px, rgba(255,255,255,0.03) 6px, rgba(255,255,255,0.03) 12px)'
-                  }}
-                />
-              </>
-            )}
+            {/* Soft bottle silhouette */}
+            <div className="pointer-events-none absolute inset-x-12 top-6 bottom-6 rounded-[40px] border border-white/5 bg-white/[0.02]" />
 
             {/* Guides */}
             {topY != null && (
@@ -289,7 +261,6 @@ export default function BottleLevelEstimator() {
                 onKeyDown={onGuideKeyDown(setTopY)}
               />
             )}
-
             {levelY != null && (
               <Guide
                 y={levelY}
@@ -299,8 +270,7 @@ export default function BottleLevelEstimator() {
                 onKeyDown={onGuideKeyDown(setLevelY)}
               />
             )}
-
-            {calibY != null && (
+            {calibY != null && showPro && (
               <Guide
                 y={calibY}
                 color="from-amber-400/80 to-amber-300/80"
@@ -310,7 +280,6 @@ export default function BottleLevelEstimator() {
                 subtle
               />
             )}
-
             {bottomY != null && (
               <Guide
                 y={bottomY}
@@ -322,139 +291,188 @@ export default function BottleLevelEstimator() {
             )}
           </div>
 
-          {/* Right panel */}
+          {/* Right column */}
           <div className="space-y-4">
-            {/* Estimates */}
+            {/* Big result card */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="text-sm text-white/70">Estimated remaining</div>
+                <div className="rounded-full bg-white/10 px-2 py-1 text-xs">{pct}% full</div>
+              </div>
+              <div className="text-4xl font-semibold leading-none">{round2(mlRemaining)} mL</div>
+              <div className="mt-1 text-sm text-white/70">Used: {round2(mlUsed)} mL</div>
+              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                <div className="h-2 rounded-full bg-white/70 transition-[width] duration-300" style={{ width: `${pct}%` }} />
+              </div>
+              <p className="mt-3 text-xs text-white/60">
+                Tip: align your screen straight with the bottle. If the bottle narrows at the top or bulges at the base, choose a preset below.
+              </p>
+            </div>
+
+            {/* Shape presets (simple) */}
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h2 className="text-lg font-semibold mb-3">Estimates</h2>
-              <StatRow label="Estimated % full" value={`${pct}%`} />
-              <StatRow label="Estimated mL remaining" value={`${round2(mlRemaining)} mL`} />
-              <StatRow label="Estimated mL used" value={`${round2(mlUsed)} mL`} />
-              <div className="mt-4">
-                <div className="h-3 w-full rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-3 rounded-full bg-white/60" style={{ width: `${pct}%` }} />
-                </div>
-                <div className="mt-2 text-xs text-white/60">
-                  Accuracy depends on guide placement and interior geometry. Use the <b>Shape</b> & <b>Offsets</b> below to match your bottle.
-                </div>
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="font-semibold">Bottle shape</h3>
+                <button
+                  className="text-xs text-white/70 hover:text-white"
+                  onClick={() => setShowPro(v => !v)}
+                >
+                  {showPro ? 'Hide Pro' : 'Improve accuracy'}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <PresetButton
+                  icon="🍾"
+                  label="Tapered"
+                  active={shapeMode !== 'linear' && alpha < 1}
+                  onClick={() => applyPreset('taperedTop')}
+                />
+                <PresetButton
+                  icon="▮"
+                  label="Uniform"
+                  active={shapeMode === 'linear'}
+                  onClick={() => applyPreset('uniform')}
+                />
+                <PresetButton
+                  icon="🔶"
+                  label="Bulged"
+                  active={shapeMode !== 'linear' && alpha > 1}
+                  onClick={() => applyPreset('bulgedBase')}
+                />
+              </div>
+              <div className="mt-2 text-xs text-white/60">
+                Not sure? Start with <b>Uniform</b>. Change if the estimate looks off.
               </div>
             </div>
 
-            {/* Shape modeling */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h3 className="font-semibold mb-3">Shape</h3>
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <button onClick={() => applyPreset('taperedTop')} className="px-3 py-1 rounded-md bg-white/10 hover:bg-white/15">
-                  Tapers toward neck
-                </button>
-                <button onClick={() => applyPreset('uniform')} className="px-3 py-1 rounded-md bg-white/10 hover:bg-white/15">
-                  Uniform (Linear)
-                </button>
-                <button onClick={() => applyPreset('bulgedBase')} className="px-3 py-1 rounded-md bg-white/10 hover:bg-white/15">
-                  Bulged / wide base
-                </button>
-              </div>
+            {/* Pro panel (accordion style) */}
+            {showPro && (
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                <div className="border-b border-white/10 p-4">
+                  <h3 className="font-semibold">Pro calibration</h3>
+                  <p className="mt-1 text-xs text-white/60">
+                    For tricky bottles: auto-fit a curve from a known checkpoint, or fine-tune offsets for neck/headspace and thick bases.
+                  </p>
+                </div>
 
-              <div className="grid gap-3">
-                <label className="flex items-center gap-2">
-                  <span className="w-28 text-white/80">Mode</span>
-                  <select
-                    value={shapeMode}
-                    onChange={(e) => setShapeMode(e.target.value)}
-                    className="flex-1 rounded-md bg-white/10 px-3 py-2"
-                  >
-                    <option value="linear">Linear</option>
-                    <option value="power">Power curve</option>
-                    <option value="auto">Auto-fit from checkpoint</option>
-                  </select>
-                </label>
+                {/* Mode selector */}
+                <div className="p-4">
+                  <label className="mb-2 flex items-center gap-2">
+                    <span className="w-28 text-white/80">Mode</span>
+                    <select
+                      value={shapeMode}
+                      onChange={(e) => setShapeMode(e.target.value)}
+                      className="flex-1 rounded-md bg-white/10 px-3 py-2"
+                    >
+                      <option value="linear">Linear</option>
+                      <option value="power">Power curve</option>
+                      <option value="auto">Auto‑fit from checkpoint</option>
+                    </select>
+                  </label>
 
-                {shapeMode === 'power' && (
-                  <label className="flex items-center gap-2">
-                    <span className="w-28 text-white/80">Shape α</span>
+                  {shapeMode === 'power' && (
+                    <label className="mt-2 flex items-center gap-2">
+                      <span className="w-28 text-white/80">Shape (α)</span>
+                      <input
+                        type="range"
+                        min={0.3}
+                        max={3}
+                        step={0.01}
+                        value={alpha}
+                        onChange={(e) => setAlpha(Number(e.target.value))}
+                        className="flex-1"
+                      />
+                      <span className="w-14 text-right">{alpha.toFixed(2)}</span>
+                    </label>
+                  )}
+
+                  {shapeMode === 'auto' && (
+                    <div className="mt-3 space-y-2">
+                      <div className="text-xs text-white/60">
+                        Drag the <b>Calib</b> guide to a height you trust (e.g., after adding a known amount). Enter how full it is here — we’ll compute the curve.
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={calibType}
+                          onChange={(e) => setCalibType(e.target.value)}
+                          className="rounded-md bg-white/10 px-3 py-2"
+                        >
+                          <option value="percent">% full</option>
+                          <option value="ml">mL remaining</option>
+                        </select>
+                        <input
+                          type="number"
+                          min={0}
+                          value={calibValue}
+                          onChange={(e) => setCalibValue(Number(e.target.value))}
+                          className="w-28 rounded-md bg-white/10 px-3 py-2"
+                        />
+                        <div className="text-xs text-white/50 ml-1">α ≈ {autoAlpha.toFixed(2)}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Offsets */}
+                <div className="border-t border-white/10 p-4">
+                  <h4 className="mb-2 font-medium">Offsets (exclude non‑usable height)</h4>
+                  <label className="mb-2 flex items-center gap-2">
+                    <span className="w-44 text-white/80">Top neck / headspace</span>
                     <input
                       type="range"
-                      min={0.3}
-                      max={3}
-                      step={0.01}
-                      value={alpha}
-                      onChange={(e) => setAlpha(Number(e.target.value))}
+                      min={0}
+                      max={0.4}
+                      step={0.005}
+                      value={neckTopPct}
+                      onChange={(e) => setNeckTopPct(Number(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="w-14 text-right">{alpha.toFixed(2)}</span>
+                    <span className="w-12 text-right">{Math.round(neckTopPct * 100)}%</span>
                   </label>
-                )}
+                  <label className="flex items-center gap-2">
+                    <span className="w-44 text-white/80">Bottom dead volume</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={0.3}
+                      step={0.005}
+                      value={deadBottomPct}
+                      onChange={(e) => setDeadBottomPct(Number(e.target.value))}
+                      className="flex-1"
+                    />
+                    <span className="w-12 text-right">{Math.round(deadBottomPct * 100)}%</span>
+                  </label>
+                </div>
 
-                {shapeMode === 'auto' && (
-                  <>
-                    <div className="text-xs text-white/60 -mt-1">
-                      Put the <b>Calib</b> guide at a height where you know how full the bottle is, then enter the value below. We compute the best‑fit curve.
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={calibType}
-                        onChange={(e) => setCalibType(e.target.value)}
-                        className="rounded-md bg-white/10 px-3 py-2"
-                      >
-                        <option value="percent">% full</option>
-                        <option value="ml">mL remaining</option>
-                      </select>
-                      <input
-                        type="number"
-                        min={0}
-                        value={calibValue}
-                        onChange={(e) => setCalibValue(Number(e.target.value))}
-                        className="w-28 rounded-md bg-white/10 px-3 py-2"
-                      />
-                      <div className="text-xs text-white/50 ml-1">α ≈ {autoAlpha.toFixed(2)}</div>
-                    </div>
-                  </>
-                )}
+                <div className="border-t border-white/10 p-4 text-xs text-white/55">
+                  Pro tips: Use Shift + Arrow keys for fine nudging. If you see big errors at the top or bottom,
+                  try small offsets (2–5%) and re‑check.
+                </div>
               </div>
-            </div>
-
-            {/* Offsets */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <h3 className="font-semibold mb-3">Offsets (exclude non‑usable height)</h3>
-              <label className="flex items-center gap-2 mb-2">
-                <span className="w-40 text-white/80">Top neck (headspace)</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={0.4}
-                  step={0.005}
-                  value={neckTopPct}
-                  onChange={(e) => setNeckTopPct(Number(e.target.value))}
-                  className="flex-1"
-                />
-                <span className="w-14 text-right">{Math.round(neckTopPct * 100)}%</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <span className="w-40 text-white/80">Bottom dead volume</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={0.3}
-                  step={0.005}
-                  value={deadBottomPct}
-                  onChange={(e) => setDeadBottomPct(Number(e.target.value))}
-                  className="flex-1"
-                />
-                <span className="w-14 text-right">{Math.round(deadBottomPct * 100)}%</span>
-              </label>
-              <div className="mt-2 text-xs text-white/60">
-                These exclude decorative necks and thick glass bases from the measurement span.
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        <div className="mt-6 text-xs text-white/50">
-          Tips: Align screen perpendicular to bottle; avoid curved glass distortion. For high precision, use <b>Auto‑fit</b> with a known checkpoint (e.g., after filling with a measured amount).
-          Use Arrow keys to nudge guides (Shift for ×5).
+        <div className="mt-6 text-xs text-white/55">
+          Heads‑up: estimates depend on placement and glass shape. You can zoom the page (Ctrl/Cmd + +/–) so the silhouette matches your bottle height.
         </div>
       </div>
     </>
+  );
+}
+
+function PresetButton({ icon, label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2 transition
+        ${active ? 'bg-white/20 ring-1 ring-white/30' : 'bg-white/8 hover:bg-white/12'}`}
+      title={label}
+    >
+      <span className="text-base leading-none">{icon}</span>
+      <span className="text-sm">{label}</span>
+    </button>
   );
 }
 
