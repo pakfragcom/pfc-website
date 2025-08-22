@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useId } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -11,22 +11,40 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [desktopToolsOpen, setDesktopToolsOpen] = useState(false)
   const pathname = usePathname()
-  const toolsRef = useRef(null)
 
-  // Lock body scroll when mobile menu is open
+  // stable ids for ARIA wiring
+  const toolsDesktopBtnId = useId()
+  const toolsDesktopMenuId = useId()
+  const toolsMobileBtnId = useId()
+  const toolsMobileMenuId = useId()
+
+  const toolsRef = useRef(null)
+  const mobileDrawerRef = useRef(null)
+  const lastFocusRef = useRef(null)
+
+  const TOOL_LINKS = [
+    { href: '/tools/verify-seller', label: 'Verify Seller Check', title: 'Verify Seller Check — Registered & Decanter verification' },
+    { href: '/tools/decant',        label: 'Decant Calculator',   title: 'Decant Calculator' },
+    { href: '/tools/bottle-level',  label: 'Bottle Level Estimator', title: 'Bottle Level Estimator' },
+  ]
+
+  /* ===== Body scroll lock for mobile drawer ===== */
   useEffect(() => {
-    document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    const { style } = document.body
+    const prev = style.overflow
+    if (mobileMenuOpen) style.overflow = 'hidden'
+    else style.overflow = prev || ''
+    return () => { style.overflow = prev || '' }
   }, [mobileMenuOpen])
 
-  // Close menus on route change
+  /* ===== Close popovers on route change ===== */
   useEffect(() => {
     setMobileMenuOpen(false)
     setMobileToolsOpen(false)
     setDesktopToolsOpen(false)
   }, [pathname])
 
-  // Solidify header after scrolling a bit
+  /* ===== Solidify header after small scroll ===== */
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8)
     onScroll()
@@ -34,21 +52,23 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close on Escape (JS, no TS annotation)
+  /* ===== Global Escape handler (only when something is open) ===== */
   const onKeyDown = useCallback((e) => {
     if (e.key === 'Escape') {
       setMobileMenuOpen(false)
       setMobileToolsOpen(false)
       setDesktopToolsOpen(false)
+      // return focus to the last trigger if we have it
+      lastFocusRef.current?.focus?.()
     }
   }, [])
   useEffect(() => {
-    if (!mobileMenuOpen && !desktopToolsOpen) return
+    if (!(mobileMenuOpen || desktopToolsOpen)) return
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [mobileMenuOpen, desktopToolsOpen, onKeyDown])
 
-  // Click outside (desktop tools)
+  /* ===== Desktop tools: click outside & blur close ===== */
   useEffect(() => {
     function handleClickOutside(e) {
       if (!desktopToolsOpen) return
@@ -60,17 +80,61 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [desktopToolsOpen])
 
+  /* ===== Mobile drawer: simple focus trap ===== */
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+
+    const root = mobileDrawerRef.current
+    if (!root) return
+
+    const focusable = root.querySelectorAll(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+
+    function trap(e) {
+      if (e.key !== 'Tab') return
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus()
+      }
+    }
+
+    root.addEventListener('keydown', trap)
+    // focus first actionable control
+    first?.focus()
+    return () => root.removeEventListener('keydown', trap)
+  }, [mobileMenuOpen])
+
   const handleLinkClick = () => {
     setMobileMenuOpen(false)
     setMobileToolsOpen(false)
     setDesktopToolsOpen(false)
   }
 
+  const openDesktopTools = () => setDesktopToolsOpen(true)
+  const toggleDesktopTools = (ev) => {
+    setDesktopToolsOpen(v => !v)
+    // remember trigger to restore focus on escape
+    lastFocusRef.current = ev?.currentTarget ?? lastFocusRef.current
+  }
+
+  const toggleMobileMenu = (ev) => {
+    setMobileMenuOpen(v => !v)
+    lastFocusRef.current = ev?.currentTarget ?? lastFocusRef.current
+  }
+
+  const toggleMobileTools = () => setMobileToolsOpen(v => !v)
+
   return (
     <header
       className={[
         'fixed top-0 left-0 w-full z-50 transition-all',
         'backdrop-blur-md border-b',
+        // motion-safe: smooth when allowed, instant when reduced motion
+        'motion-safe:duration-300 motion-safe:ease-out',
         isScrolled ? 'bg-black/70 border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.35)]' : 'bg-black/40 border-white/5'
       ].join(' ')}
       role="banner"
@@ -98,9 +162,12 @@ export default function Header() {
                 alt="Pakistan Fragrance Community logo"
                 width={220}
                 height={50}
+                // tell the browser how we intend to render it responsively
+                sizes="(max-width: 768px) 160px, (max-width: 1024px) 200px, 220px"
                 className="object-contain"
                 priority
               />
+              <span className="sr-only">Pakistan Fragrance Community</span>
             </Link>
           </div>
 
@@ -110,56 +177,59 @@ export default function Header() {
             aria-label="Primary"
             itemScope
             itemType="https://schema.org/SiteNavigationElement"
+            role="navigation"
           >
             <Navbar onLinkClick={handleLinkClick} />
 
             {/* Tools dropdown (desktop) */}
             <div className="relative" ref={toolsRef}>
               <button
+                id={toolsDesktopBtnId}
                 type="button"
-                onClick={() => setDesktopToolsOpen(v => !v)}
-                onMouseEnter={() => setDesktopToolsOpen(true)}
+                onClick={(e) => toggleDesktopTools(e)}
+                onMouseEnter={openDesktopTools}
+                onFocus={openDesktopTools}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDesktopTools(e) }
+                  if (e.key === 'ArrowDown') { e.preventDefault(); setDesktopToolsOpen(true) }
+                }}
                 className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                 aria-haspopup="menu"
                 aria-expanded={desktopToolsOpen}
-                aria-controls="tools-menu-desktop"
+                aria-controls={toolsDesktopMenuId}
                 title="Open tools"
               >
                 Tools
-                <ChevronDown className={`h-4 w-4 transition-transform ${desktopToolsOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform motion-safe:duration-200 ${desktopToolsOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <div
-                id="tools-menu-desktop"
+                id={toolsDesktopMenuId}
+                role="menu"
+                aria-labelledby={toolsDesktopBtnId}
                 onMouseLeave={() => setDesktopToolsOpen(false)}
+                onBlur={(e) => {
+                  // close when focus leaves the menu container
+                  if (!e.currentTarget.contains(e.relatedTarget)) setDesktopToolsOpen(false)
+                }}
                 className={[
                   'absolute right-0 mt-2 w-56 rounded-xl border border-white/10 bg-black/90 backdrop-blur-md shadow-xl',
-                  'transition-all duration-150 ease-out origin-top-right',
+                  'transition-all motion-safe:duration-150 ease-out origin-top-right',
                   desktopToolsOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
                 ].join(' ')}
-                role="menu"
               >
-                <div className="py-2">
-                  {/* Verify Seller Check */}
-                  <DropdownItem
-                    href="/tools/verify-seller"
-                    onClick={handleLinkClick}
-                    label="Verify Seller Check"
-                    title="Verify Seller Check — Registered & Decanter verification"
-                  />
-                  <DropdownItem
-                    href="/tools/decant"
-                    onClick={handleLinkClick}
-                    label="Decant Calculator"
-                    title="Decant Calculator"
-                  />
-                  <DropdownItem
-                    href="/tools/bottle-level"
-                    onClick={handleLinkClick}
-                    label="Bottle Level Estimator"
-                    title="Bottle Level Estimator"
-                  />
-                </div>
+                <ul className="py-2">
+                  {TOOL_LINKS.map((item) => (
+                    <li key={item.href} role="none">
+                      <DropdownItem
+                        href={item.href}
+                        onClick={handleLinkClick}
+                        label={item.label}
+                        title={item.title}
+                      />
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </nav>
@@ -185,7 +255,8 @@ export default function Header() {
             {/* Mobile Menu Toggle */}
             <div className="md:hidden">
               <button
-                onClick={() => setMobileMenuOpen((v) => !v)}
+                onClick={(e) => toggleMobileMenu(e)}
+                ref={(el) => { if (el && mobileMenuOpen) lastFocusRef.current = el }}
                 className="rounded-sm bg-white/5 p-2 text-gray-300 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                 aria-label="Toggle menu"
                 aria-expanded={mobileMenuOpen}
@@ -202,16 +273,16 @@ export default function Header() {
       {/* Mobile Drawer */}
       <div
         id="mobile-menu"
+        ref={mobileDrawerRef}
         className={[
-          'md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out',
+          'md:hidden overflow-hidden transition-[max-height,opacity] motion-safe:duration-300 ease-out',
           mobileMenuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'
         ].join(' ')}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={toolsMobileBtnId}
       >
-        <div
-          className="bg-black/90 backdrop-blur-md px-6 py-6 text-white"
-          role="dialog"
-          aria-modal="true"
-        >
+        <div className="bg-black/90 backdrop-blur-md px-6 py-6 text-white">
           <div className="space-y-4 text-center text-sm uppercase tracking-wide">
             <Link
               href="/"
@@ -235,57 +306,40 @@ export default function Header() {
             {/* Tools (mobile) */}
             <div className="pt-2">
               <button
-                onClick={() => setMobileToolsOpen(v => !v)}
+                id={toolsMobileBtnId}
+                onClick={toggleMobileTools}
                 className="mx-auto flex items-center justify-center gap-2 rounded-md px-4 py-2 text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                 aria-expanded={mobileToolsOpen}
-                aria-controls="tools-menu-mobile"
+                aria-controls={toolsMobileMenuId}
                 aria-haspopup="true"
                 title="Open tools"
               >
                 Tools
-                <ChevronDown className={`h-4 w-4 transition-transform ${mobileToolsOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform motion-safe:duration-200 ${mobileToolsOpen ? 'rotate-180' : ''}`} />
               </button>
               <div
-                id="tools-menu-mobile"
+                id={toolsMobileMenuId}
                 className={[
                   'mx-auto mt-2 w-full max-w-xs overflow-hidden rounded-lg border border-white/10 bg-black/70',
-                  'transition-[max-height,opacity] duration-300 ease-out',
+                  'transition-[max-height,opacity] motion-safe:duration-300 ease-out',
                   mobileToolsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                 ].join(' ')}
                 role="menu"
+                aria-labelledby={toolsMobileBtnId}
               >
                 <ul className="p-2 text-left text-xs normal-case">
-                  <li>
-                    {/* Verify Seller Check */}
-                    <Link
-                      href="/tools/verify-seller"
-                      onClick={handleLinkClick}
-                      className="block rounded-md px-3 py-2 hover:bg-white/10"
-                      title="Verify Seller Check — Registered & Decanter verification"
-                    >
-                      Verify Seller Check
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/tools/decant"
-                      onClick={handleLinkClick}
-                      className="block rounded-md px-3 py-2 hover:bg-white/10"
-                      title="Decant Calculator"
-                    >
-                      Decant Calculator
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/tools/bottle-level"
-                      onClick={handleLinkClick}
-                      className="block rounded-md px-3 py-2 hover:bg-white/10"
-                      title="Bottle Level Estimator"
-                    >
-                      Bottle Level Estimator
-                    </Link>
-                  </li>
+                  {TOOL_LINKS.map((item) => (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        onClick={handleLinkClick}
+                        className="block rounded-md px-3 py-2 hover:bg-white/10"
+                        title={item.title}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
