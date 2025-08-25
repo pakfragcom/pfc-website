@@ -91,6 +91,7 @@ const BNIB = [
   { name: "Zakir Swati", code: "ZS-KW72" },
   { name: "Murtaza Wasim", code: "MW-4FG" },
   { name: "Basit Ali", code: "BA-2BXJ" },
+  { name: "Hammad Ansari", code: "HA-S5PK" },
 ].map((x) => ({ ...x, type: "BNIB" }));
 
 const DECANTERS = [
