@@ -1,5 +1,4 @@
 'use client'
-import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
 
 export default function Hero() {
@@ -12,33 +11,37 @@ export default function Hero() {
       aria-describedby="hero-subheading"
       className={[
         'relative flex w-full items-center justify-center',
-        // account for fixed header if needed: replace with min-h-[calc(100svh-64px)] if header is 64px high
         'min-h-[100svh]',
-        'overflow-hidden bg-black' // fallback color—prevents white flash before image paints
+        'overflow-hidden bg-black'
       ].join(' ')}
     >
-      {/* Background (decorative) with cinematic zoom */}
+      {/* Background with cinematic zoom */}
       <motion.div
-        initial={{ scale: 1.08 }}
+        initial={{ scale: 1.06 }}
         animate={{ scale: 1 }}
         transition={{
-          duration: reduce ? 0 : 7.5,
+          duration: reduce ? 0 : 6.5,
           ease: [0.16, 1, 0.3, 1],
         }}
         className="absolute inset-0 will-change-transform"
         style={{ transform: 'translateZ(0)' }}
         aria-hidden="true"
       >
-        <Image
-          src="/hero.jpg"
-          alt=""                 // decorative; keep SR clean
-          fill
-          priority              // keep as LCP for homepage hero
-          sizes="100vw"
-          quality={85}
-          draggable={false}
-          className="select-none object-cover object-center"
-        />
+        <picture>
+          {/* Modern browsers: AVIF */}
+          <source srcSet="/images/hero.avif" type="image/avif" />
+          {/* Fallback: JPG */}
+          <source srcSet="/images/hero.jpg" type="image/jpeg" />
+          <img
+            src="/images/hero.jpg"
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            className="h-full w-full object-cover object-center select-none"
+            draggable={false}
+          />
+        </picture>
       </motion.div>
 
       {/* Depth overlays */}
@@ -52,7 +55,7 @@ export default function Hero() {
         aria-hidden="true"
       />
 
-      {/* Clip halos so blur can’t create horizontal overflow */}
+      {/* Clip halos */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -top-32 left-0 h-80 w-80 -translate-x-1/2 rounded-full bg-[#2a5c4f]/18 blur-2xl sm:translate-x-0" />
         <div className="absolute -bottom-32 right-0 h-80 w-80 translate-x-1/2 rounded-full bg-[#94aea7]/18 blur-2xl sm:translate-x-0" />
