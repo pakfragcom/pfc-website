@@ -28,12 +28,12 @@ export default function Hero() {
         aria-hidden="true"
       >
         <picture>
-          {/* Modern browsers: AVIF */}
-          <source srcSet="/images/hero.avif" type="image/avif" />
-          {/* Fallback: JPG */}
-          <source srcSet="/images/hero.jpg" type="image/jpeg" />
+          {/* Optional AVIF (if you add public/hero.avif later) */}
+          <source srcSet="/hero.avif" type="image/avif" />
+          {/* Fallback: JPG in public/hero.jpg */}
+          <source srcSet="/hero.jpg" type="image/jpeg" />
           <img
-            src="/images/hero.jpg"
+            src="/hero.jpg"
             alt=""
             fetchPriority="high"
             decoding="async"
