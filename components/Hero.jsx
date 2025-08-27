@@ -102,8 +102,9 @@ export default function Hero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduce ? 0 : 0.8, ease: 'easeOut', delay: 0.95 }}
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap"
         >
+          {/* Primary */}
           <a
             href="https://www.facebook.com/groups/pkfragcom"
             target="_blank"
@@ -118,6 +119,7 @@ export default function Hero() {
             <span className="sr-only"> (opens in new tab)</span>
           </a>
 
+          {/* Secondary 1 */}
           <a
             href="https://forum.pakfrag.com"
             target="_blank"
@@ -126,6 +128,17 @@ export default function Hero() {
             className="inline-flex items-center justify-center rounded-full border border-white/40 px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-all motion-safe:duration-300 hover:border-white/70 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             Join the Forum
+          </a>
+
+          {/* Secondary 2 (new) */}
+          <a
+            href="https://www.facebook.com/groups/pakfragcom1.2"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Explore Pakistan’s Perfumery (opens in new tab)"
+            className="inline-flex items-center justify-center rounded-full border border-white/40 px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-all motion-safe:duration-300 hover:border-white/70 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+          >
+            Explore Pakistan’s Perfumery
           </a>
         </motion.div>
       </motion.div>
