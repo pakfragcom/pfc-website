@@ -99,6 +99,7 @@ const BNIB = [
   { name: "Adeel A.", code: "AA-B9Y7" },
   { name: "Javed Khan", code: "JK-B9Y7" },
   { name: "Faizan Karim", code: "FK-B9Y7" },
+  { name: "Umair Tahir", code: "UT-4FTY" },
 ].map((x) => ({ ...x, type: "BNIB" }));
 
 const DECANTERS = [
