@@ -9,7 +9,8 @@ import { AnimatePresence, motion } from "framer-motion";
  * - Suggestions only while typing (no full list dump)
  * - Click to reveal a polished detail card (House + Creative Director)
  * - When search box is empty: a rotating Featured Spotlight grid
- *   • Random batch size (3–6) every 7s
+ *   • Exactly 4 houses per cycle (balanced)
+ *   • 2×2 grid on mobile, 1×4 row on desktop
  *   • Animated gradient borders, spotlight glow, subtle motion
  * - Dark, billion-dollar luxury aesthetic (TailwindCSS assumed)
  */
@@ -141,7 +142,7 @@ const HOUSES = [
   { house: "Whiffs Fragrances", by: "Faraz" },
   { house: "Yesfir-Scents", by: "Ch. Mahad Ahmed" },
   { house: "Zeist Fragrances", by: "Ezazullah" },
-].map(x => ({ ...x, by: x.by?.trim() || "—" }));
+].map((x) => ({ ...x, by: x.by?.trim() || "—" }));
 
 // -------------------------- UTILITIES ---------------------------
 const normalize = (s) =>
@@ -156,7 +157,8 @@ const normalize = (s) =>
 function levenshtein(a, b) {
   a = normalize(a);
   b = normalize(b);
-  const m = a.length, n = b.length;
+  const m = a.length,
+    n = b.length;
   if (!m) return n;
   if (!n) return m;
   const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
@@ -191,14 +193,11 @@ function fuzzyRank(query, item) {
   const tokenScore = tokens.length ? (tokens.length - tokenHits) * 0.75 : 2;
   const editScore = Math.min(
     levenshtein(q, h.slice(0, q.length)),
-    Math.max(0, levenshtein(q, by) - 2) // de-prioritize director-only hits a bit
+    Math.max(0, levenshtein(q, by) - 2)
   );
   return tokenScore + editScore / 3;
 }
 
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 function pickRandomUnique(arr, count) {
   const copy = arr.slice();
   const out = [];
@@ -236,91 +235,53 @@ const VerifiedBadge = ({ size = 22 }) => (
   </span>
 );
 
-const MinimalResultCard = ({ item, onClick }) => (
-  <button
+// --- Unified card style (used for Search Results + Featured) ---
+const LuxuryCard = ({ item, onClick, idx }) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -12 }}
+    transition={{ duration: 0.4, delay: idx ? idx * 0.05 : 0, ease: "easeOut" }}
+    className="relative group cursor-pointer"
     onClick={onClick}
-    className="flex items-center justify-between w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition group"
   >
-    <div className="flex items-center gap-3">
-      <VerifiedBadge />
-      <div>
-        <div className="font-semibold tracking-wide">{item.house}</div>
-        <div className="text-xs sm:text-sm text-gray-300/80 italic">
-          By {item.by}
-        </div>
-      </div>
-    </div>
-  </button>
-);
-
-const SelectedDetailCard = ({ selected }) => (
-  <div className="bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded-2xl p-5 sm:p-6">
-    <div className="flex items-start gap-3">
-      <VerifiedBadge size={28} />
-      <div className="flex-1">
-        <div className="text-sm uppercase tracking-wider text-emerald-300/90 font-semibold">
-          Approved House
-        </div>
-        <h2 className="text-xl sm:text-2xl font-extrabold mt-1">{selected.house}</h2>
-        <div className="mt-2 inline-flex items-center gap-2 text-xs sm:text-sm px-2.5 py-1.5 rounded-full bg-white/10 ring-1 ring-white/20">
-          <span className="opacity-90">Creative Director(s):</span>
-          <span className="font-medium italic">{selected.by}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// --------- Featured (Billboard) Cards with Animated Gradient -----
-const SpotlightCard = ({ item, idx }) => {
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.5, delay: idx * 0.06, ease: "easeOut" }}
-      className="relative group"
-    >
-      {/* Animated gradient border */}
-      <div className="relative rounded-2xl p-[1px] overflow-hidden">
-        <div className="absolute inset-0 opacity-70 blur-xl pointer-events-none animate-spin-slower"
-             style={{
-               background:
-                 "conic-gradient(from 0deg, rgba(16,185,129,0.25), rgba(59,130,246,0.25), rgba(16,185,129,0.25))"
-             }} />
-        <div className="relative rounded-2xl bg-gradient-to-b from-[#0b0f15]/80 via-[#0b0f15]/70 to-[#0b0f15]/60 ring-1 ring-white/10 backdrop-blur-md">
-          {/* Inner content */}
-          <div className="relative p-5 sm:p-6 min-h-[120px]">
-            {/* Soft spotlight behind title */}
-            <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-3xl opacity-20"
-                 style={{ background: "radial-gradient(ellipse at center, rgba(16,185,129,0.5), transparent 60%)" }} />
-            <div className="flex items-start gap-3">
-              <VerifiedBadge />
-              <div className="flex-1">
-                <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tight leading-snug">
-                  {item.house}
-                </div>
-                <div className="mt-1 text-xs sm:text-sm text-emerald-200/90 italic">
-                  By {item.by}
-                </div>
-              </div>
-            </div>
-            {/* sheen on hover */}
-            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition duration-500"
-                 style={{ background: "linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)" }} />
+    <div className="relative rounded-2xl p-[1px] overflow-hidden min-h-[140px] sm:min-h-[160px] flex">
+      <div
+        className="absolute inset-0 opacity-40 blur-xl pointer-events-none animate-spin-slower"
+        style={{
+          background:
+            "conic-gradient(from 0deg, rgba(16,185,129,0.25), rgba(59,130,246,0.25), rgba(16,185,129,0.25))",
+        }}
+      />
+      <div className="relative rounded-2xl bg-gradient-to-b from-[#0b0f15]/80 via-[#0b0f15]/70 to-[#0b0f15]/60 ring-1 ring-white/10 backdrop-blur-md flex flex-col justify-between w-full">
+        <div className="relative p-4 sm:p-5 flex-1 flex flex-col items-center justify-center text-center">
+          <VerifiedBadge />
+          <div className="font-extrabold text-base sm:text-lg leading-snug line-clamp-2 mt-2">
+            {item.house}
+          </div>
+          <div className="mt-1 text-xs sm:text-sm text-emerald-200/90 italic line-clamp-2">
+            By {item.by}
           </div>
         </div>
+        <div
+          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition duration-500"
+          style={{
+            background:
+              "linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
+          }}
+        />
       </div>
-    </motion.div>
-  );
-};
+    </div>
+  </motion.div>
+);
 
 const FeaturedSpotlight = ({ data }) => {
-  const [batch, setBatch] = useState(() => pickRandomUnique(data, randomInt(3, 6)));
+  const [batch, setBatch] = useState(() => pickRandomUnique(data, 4));
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setBatch(pickRandomUnique(data, randomInt(3, 6)));
+      setBatch(pickRandomUnique(data, 4));
     }, 7000);
     return () => clearInterval(interval);
   }, [data]);
@@ -332,20 +293,22 @@ const FeaturedSpotlight = ({ data }) => {
           <VerifiedBadge size={14} />
           Featured Spotlight
         </div>
-        <div className="text-[11px] sm:text-xs text-gray-400">Rotates every 7s • Random selection</div>
+        <div className="text-[11px] sm:text-xs text-gray-400">
+          Rotates every 7s • Random 4 Houses
+        </div>
       </div>
 
       <AnimatePresence mode="popLayout">
         <motion.div
-          key={batch.map(b => b.house).join("|")}
+          key={batch.map((b) => b.house).join("|")}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
         >
           {batch.map((item, idx) => (
-            <SpotlightCard key={item.house} item={item} idx={idx} />
+            <LuxuryCard key={item.house} item={item} idx={idx} />
           ))}
         </motion.div>
       </AnimatePresence>
@@ -422,7 +385,13 @@ export default function ApprovedHousesPage() {
                 Search by house name
               </label>
               <div className="flex items-center gap-2 bg-black/30 ring-1 ring-white/10 rounded-xl px-3 py-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0 text-gray-300/80">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="shrink-0 text-gray-300/80"
+                >
                   <path
                     d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z"
                     stroke="currentColor"
@@ -433,7 +402,7 @@ export default function ApprovedHousesPage() {
                 <input
                   ref={inputRef}
                   id="houseSearch"
-                  placeholder="Type a house name (e.g., “Scent N Stories”, “Aura Scentique”)"
+                  placeholder='Type a house name (e.g., "Scent N Stories")'
                   className="w-full bg-transparent placeholder:text-gray-400/70 focus:outline-none text-base sm:text-lg"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -444,20 +413,21 @@ export default function ApprovedHousesPage() {
               {/* Featured Spotlight when empty */}
               {!query && <FeaturedSpotlight data={HOUSES} />}
 
-              {/* Suggestions: only when typing */}
+              {/* Suggestions */}
               {query && filtered.length > 0 && (
-                <div className="mt-3 grid gap-2 max-h-72 overflow-auto rounded-xl bg-black/40 ring-1 ring-white/10 p-2">
-                  {filtered.map((item) => (
-                    <MinimalResultCard
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-auto rounded-xl bg-black/40 ring-1 ring-white/10 p-2">
+                  {filtered.map((item, idx) => (
+                    <LuxuryCard
                       key={item.house}
                       item={item}
                       onClick={() => handlePick(item)}
+                      idx={idx}
                     />
                   ))}
                 </div>
               )}
 
-              {/* No results state */}
+              {/* No results */}
               {query && filtered.length === 0 && (
                 <div className="mt-3 p-4 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/30 text-amber-200">
                   <div className="font-semibold">Not found</div>
@@ -469,21 +439,28 @@ export default function ApprovedHousesPage() {
             </div>
           </div>
 
-          {/* Selected result card */}
-          {selected && <SelectedDetailCard selected={selected} />}
+          {/* Selected card */}
+          {selected && (
+            <div className="mt-6">
+              <LuxuryCard item={selected} />
+            </div>
+          )}
 
-          {/* Footer note */}
           <div className="text-center text-[11px] text-gray-400 mt-8">
             Last updated: {new Date().toLocaleDateString()} • For corrections, contact PFC admins.
           </div>
         </div>
       </div>
 
-      {/* Local CSS for slow spin animation (gradient border) */}
+      {/* Gradient spin animation */}
       <style jsx global>{`
         @keyframes spin-slower {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
         .animate-spin-slower {
           animation: spin-slower 14s linear infinite;
