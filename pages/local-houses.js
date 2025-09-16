@@ -294,7 +294,7 @@ const FeaturedSpotlight = ({ data }) => {
           Featured Spotlight
         </div>
         <div className="text-[11px] sm:text-xs text-gray-400">
-          Rotates every 7s • Random 4 Houses
+          Made By Pakistan
         </div>
       </div>
 
