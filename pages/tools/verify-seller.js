@@ -106,6 +106,8 @@ const BNIB = [
   { name: "Hussain Riaz", code: "HR-0245" },
   { name: "Azib Malik", code: "AM-P236" },
   { name: "Zee Kay", code: "ZK-H7FT" },
+  { name: "Malik Hasseb Bangash", code: "MAB-0176" },
+  { name: "Rehman Khan", code: "RK-A450" },
   
 ].map((x) => ({ ...x, type: "BNIB" }));
 
