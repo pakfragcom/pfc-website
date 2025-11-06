@@ -65,7 +65,6 @@ const BNIB = [
   { name: "Muhammad Hunain", code: "MH-OBJV" },
   { name: "Nabeel Akhtar", code: "NA-UJN6" },
   { name: "Nouman Ch", code: "NC-IGHV" },
-  { name: "Nouman Jamshaid Ali", code: "NJA-503K" },
   { name: "Omar Khalil", code: "OK-6RIG" },
   { name: "Qadeer Ahmad Adv", code: "QA-24K5" },
   { name: "Qamyar Khan", code: "QK-3J6T" },
