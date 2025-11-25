@@ -96,7 +96,6 @@ const BNIB = [
   { name: "Shehryar Khalil", code: "SK-5SI" },
   { name: "Syeda Maryam Omer", code: "SMO-FS1" },
   { name: "Adeel A.", code: "AA-B9Y7" },
-  { name: "Javed Khan", code: "JK-B9Y7" },
   { name: "Faizan Karim", code: "FK-B9Y7" },
   { name: "Umair Tahir", code: "UT-4FTY" },
   { name: "Tanya Zahid", code: "TZ-6NY8" },
@@ -113,6 +112,7 @@ const BNIB = [
   { name: "Ahmad Talat", code: "AH-33K3" },
   { name: "Muhammad Laman Samo", code: "MLS-G7D2" },
   { name: "Muhammad Hamza", code: "MH-5H3M" },
+  { name: "Mubbashir Tunio", code: "MT-S562" },
 
   
 ].map((x) => ({ ...x, type: "BNIB" }));
