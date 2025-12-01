@@ -114,6 +114,7 @@ const BNIB = [
   { name: "Muhammad Hamza", code: "MH-5H3M" },
   { name: "Mubbashir Tunio", code: "MT-S562" },
   { name: "Muhammad Aylee", code: "MA-5S5T" },
+  { name: "Baber Khan", code: "BK-Z65X" },
   
 
   
@@ -125,7 +126,7 @@ const DECANTERS = [
   { name: "Ahmad Shah", code: "AS-E2A1" },
   { name: "Arham Fawad", code: "AF-9P8I" },
   { name: "Babar Ali", code: "BA-247R" },
-  { name: "Baber Khan", code: "BK-Z65X" },
+  
   { name: "BalOch Asif", code: "BA-E0CS" },
   { name: "M Daud Amjad", code: "DA-FGN5" },
   { name: "Hassan Shah", code: "HS-1Y3J" },
@@ -147,6 +148,8 @@ const DECANTERS = [
   { name: "Abid Nazar", code: "AN-5ZA8" },
   { name: "Arqam Yousaf", code: "AY-7HZ4" },
   { name: "Laraib Taimur Khan", code: "LTK-5MT7" },
+  { name: "Muhammad Ali", code: "MAA-3J6H" },
+  { name: "Hamza Rehan", code: "HR-H79P" },
 ].map((x) => ({ ...x, type: "DECANT" }));
 
 const DIRECTORY = [...BNIB, ...DECANTERS];
