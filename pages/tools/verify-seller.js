@@ -150,6 +150,7 @@ const DECANTERS = [
   { name: "Laraib Taimur Khan", code: "LTK-5MT7" },
   { name: "Muhammad Ali", code: "MAA-3J6H" },
   { name: "Hamza Rehan", code: "HR-H79P" },
+  { name: "Ahsan Habib", code: "AH-J80Q" },
 ].map((x) => ({ ...x, type: "DECANT" }));
 
 const DIRECTORY = [...BNIB, ...DECANTERS];
