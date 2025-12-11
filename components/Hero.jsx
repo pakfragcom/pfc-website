@@ -121,7 +121,7 @@ export default function Hero() {
 
           {/* Secondary 1 */}
           <a
-            href="https://forum.pakfrag.com"
+            href="https://discord.gg/c7zAXTzxph"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open PFC Forum (opens in new tab)"

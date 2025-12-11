@@ -15,7 +15,6 @@ import Head from "next/head";
 const BNIB = [
   { name: "Abdur Rehman", code: "AR-K1DE" },
   { name: "Ahmed Raza", code: "AR-R470" },
-  { name: "Ali Rajpoot", code: "AR-MN5S" },
   { name: "Ammar Hafeez", code: "AH-G5AL" },
   { name: "Arif Umar", code: "AU-H9E9" },
   { name: "Arslan Ghaffar", code: "AG-B41X" },
@@ -100,7 +99,9 @@ const BNIB = [
   { name: "Mubbashir Tunio", code: "MT-S562" },
   { name: "Muhammad Aylee", code: "MA-5S5T" },
   { name: "Baber Khan", code: "BK-Z65X" },
-  
+  { name: "Ahsan Fayyaz", code: "AF-Y6U3" },
+  { name: "Muhammad Huzaifa Tayyab", code: "MHT-P2D6" },
+  { name: "Muhammad Ebaad Ur Rehman", code: "MEUR-D2L" },
 
   
 ].map((x) => ({ ...x, type: "BNIB" }));
@@ -128,7 +129,7 @@ const DECANTERS = [
   { name: "Tayyab Tariq", code: "TT-4FZ7" },
   { name: "Umar Zulfiqar", code: "UZ-G58K" },
   { name: "Zaryab Amir", code: "ZA-A8X6" },
-  { name: "Muhammad Ebaad Ur Rehman", code: "MEUR-D2L" },
+  
   { name: "Muhammad Umar", code: "MU-56JS" },
   { name: "Abid Nazar", code: "AN-5ZA8" },
   { name: "Arqam Yousaf", code: "AY-7HZ4" },
@@ -136,6 +137,7 @@ const DECANTERS = [
   { name: "Muhammad Ali", code: "MAA-3J6H" },
   { name: "Hamza Rehan", code: "HR-H79P" },
   { name: "Ahsan Habib", code: "AH-J80Q" },
+  { name: "Ali Rajpoot", code: "AR-MN5S" },
 ].map((x) => ({ ...x, type: "DECANT" }));
 
 const DIRECTORY = [...BNIB, ...DECANTERS];
