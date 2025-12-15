@@ -49,7 +49,7 @@ const BNIB = [
   { name: "Mohsin Malik", code: "MM-K0R4" },
   { name: "Moiz Ullah", code: "MU-29W7" },
   { name: "Mudasir Ali Tunio", code: "MAT-S561" },
-  { name: "Muhammad Abu Bakar", code: "MAB-1KY5" },
+  
   { name: "Muhammad Arsalan Tariq", code: "MAT-ATX7" },
   { name: "Muhammad Najeeb", code: "MN-3POB" },
   { name: "Muhammad Hunain", code: "MH-OBJV" },
@@ -82,10 +82,10 @@ const BNIB = [
   { name: "Areeb Sagheer", code: "AS-0WYH" },
   { name: "Shehryar Khalil", code: "SK-5SI" },
   { name: "Syeda Maryam Omer", code: "SMO-FS1" },
-  { name: "Faizan Karim", code: "FK-B9Y7" },
+  
   { name: "Umair Tahir", code: "UT-4FTY" },
-  { name: "Tanya Zahid", code: "TZ-6NY8" },
-  { name: "Hussain Riaz", code: "HR-0245" },
+  
+  
   { name: "Azib Malik", code: "AM-P236" },
   { name: "Zee Kay", code: "ZK-H7FT" },
   { name: "Malik Hasseb Bangash", code: "MAB-0176" },
@@ -111,12 +111,12 @@ const DECANTERS = [
   { name: "عبدالمھیمن عباسی", code: "AMA-40Z1" },
   { name: "Ahmad Shah", code: "AS-E2A1" },
   { name: "Arham Fawad", code: "AF-9P8I" },
-  { name: "Babar Ali", code: "BA-247R" },
+  
   
   { name: "BalOch Asif", code: "BA-E0CS" },
   { name: "M Daud Amjad", code: "DA-FGN5" },
   { name: "Hassan Shah", code: "HS-1Y3J" },
-  { name: "Ifrah Yousafani", code: "IY-BPN5" },
+
   { name: "Muhammad Bin Khalil", code: "MBK-XJL0" },
   { name: "Muhammad Bukhari", code: "MB-36K2" },
   { name: "Muhammad Talha", code: "MT-934C" },
@@ -130,9 +130,9 @@ const DECANTERS = [
   { name: "Umar Zulfiqar", code: "UZ-G58K" },
   { name: "Zaryab Amir", code: "ZA-A8X6" },
   
-  { name: "Muhammad Umar", code: "MU-56JS" },
-  { name: "Abid Nazar", code: "AN-5ZA8" },
-  { name: "Arqam Yousaf", code: "AY-7HZ4" },
+  
+  
+  
   { name: "Laraib Taimur Khan", code: "LTK-5MT7" },
   { name: "Muhammad Ali", code: "MAA-3J6H" },
   { name: "Hamza Rehan", code: "HR-H79P" },
