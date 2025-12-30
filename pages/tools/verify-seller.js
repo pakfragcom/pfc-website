@@ -129,6 +129,8 @@ const DECANTERS = [
   { name: "Tayyab Tariq", code: "TT-4FZ7" },
   { name: "Umar Zulfiqar", code: "UZ-G58K" },
   { name: "Zaryab Amir", code: "ZA-A8X6" },
+  { name: "Saad Farukh", code: "SF-7223" },
+
   
   
   
