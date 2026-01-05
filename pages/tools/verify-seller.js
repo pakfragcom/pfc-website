@@ -112,8 +112,8 @@ const DECANTERS = [
   { name: "عبدالمھیمن عباسی", code: "AMA-40Z1" },
   { name: "Ahmad Shah", code: "AS-E2A1" },
   { name: "Arham Fawad", code: "AF-9P8I" },
-  
-  
+  { name: "Ifrah Yousafani", code: "IY-BPN5" },
+  { name: "Faizuleman Faisal Marfani", code: "FFM-4U8J" },
   { name: "BalOch Asif", code: "BA-E0CS" },
   { name: "M Daud Amjad", code: "DA-FGN5" },
   { name: "Hassan Shah", code: "HS-1Y3J" },
