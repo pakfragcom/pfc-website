@@ -120,6 +120,7 @@ const DECANTERS = [
   { name: "Ahmed Soomro", code: "AS-5I9K" },
   { name: "Ismail Shahzad", code: "IS-600P" },
   { name: "Mudasir Sadiq Chugtai", code: "MSC-T4H3" },
+  { name: "Syed Hamza Naeem", code: "SHN-0512" },
 
   { name: "Muhammad Bin Khalil", code: "MBK-XJL0" },
   { name: "Muhammad Bukhari", code: "MB-36K2" },
