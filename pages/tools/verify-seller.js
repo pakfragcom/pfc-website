@@ -81,9 +81,10 @@ const BNIB = [
   { name: "Muhammad Faisal", code: "MF-6AG9" },
   { name: "Areeb Sagheer", code: "AS-0WYH" },
   { name: "Shehryar Khalil", code: "SK-5SI" },
-  { name: "Syeda Maryam Omer", code: "SMO-FS1" },
+  
   
   { name: "Umair Tahir", code: "UT-4FTY" },
+  { name: "Shahid Iqbal", code: "SI-O7M1" },
   
   
   { name: "Azib Malik", code: "AM-P236" },
