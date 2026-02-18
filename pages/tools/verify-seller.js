@@ -111,6 +111,7 @@ const BNIB = [
   { name: "Anwar Ul Mubeen", code: "AUM-K9HU" },
   { name: "Amir Khan", code: "AK-G4A4" },
   { name: "Abu Sufyan Kamboh", code: "ASK-1A1N" },
+  { name: "Naveed Anjum Kundi", code: "NAK-B55O" },
 
   
 ].map((x) => ({ ...x, type: "BNIB" }));
@@ -134,7 +135,7 @@ const DECANTERS = [
   { name: "Muhammad Bukhari", code: "MB-36K2" },
   { name: "Muhammad Talha", code: "MT-934C" },
   { name: "Muneeb Sheikh", code: "MS-48WY" },
-  { name: "Naveed Anjum Kundi", code: "NAK-B55O" },
+  
   { name: "Payam Abbasi", code: "PA-4LP7" },
   { name: "Rizvi B", code: "RB-73K" },
   { name: "Sayed Yasir Ali", code: "SYA-8TSS" },
