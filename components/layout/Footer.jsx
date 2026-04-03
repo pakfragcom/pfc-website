@@ -1,10 +1,33 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState('idle') // idle | loading | success | error
+
+  const handleNewsletterSubmit = useCallback(async (e) => {
+    e.preventDefault()
+    if (status === 'loading' || status === 'success') return
+    setStatus('loading')
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) {
+        setStatus('success')
+        setEmail('')
+      } else {
+        setStatus('error')
+      }
+    } catch {
+      setStatus('error')
+    }
+  }, [email, status])
 
   const scrollToTop = useCallback(() => {
     if (typeof window === 'undefined') return
@@ -18,17 +41,15 @@ export default function Footer() {
       aria-labelledby="site-footer-heading"
     >
       <div className="mx-auto max-w-screen-xl px-6 py-12 lg:py-16">
-        {/* Title for SR users */}
         <h2 id="site-footer-heading" className="sr-only">Site Footer</h2>
 
-        {/* Top: Brand + Nav + Newsletter */}
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-          {/* Brand / About */}
+          {/* Brand */}
           <div>
             <Link
               href="/"
               className="inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"
-              aria-label="Pakistan Fragrance Community — Home"
+              aria-label="Pakistan Fragrance Community - Home"
             >
               <Image
                 src="/logo.png"
@@ -40,9 +61,9 @@ export default function Footer() {
               />
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-gray-400">
-              Pakistan Fragrance Community is the nation’s first and most trusted platform for fragrance lovers, collectors, and reviewers — enabling buying, selling, decanting and sharing scents.
+              Pakistan Fragrance Community is the nation&apos;s first and most trusted platform for
+              fragrance lovers, collectors, and reviewers.
             </p>
-
             <div className="mt-6">
               <a
                 href="https://www.facebook.com/groups/pkfragcom"
@@ -50,14 +71,13 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="inline-block rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 aria-label="Join our Facebook Community (opens in new tab)"
-                title="Join our Facebook Community"
               >
                 Join Our Community
               </a>
             </div>
           </div>
 
-          {/* Navigation columns */}
+          {/* Navigation */}
           <nav
             aria-label="Footer Navigation"
             className="grid grid-cols-2 gap-8 sm:grid-cols-3"
@@ -68,12 +88,7 @@ export default function Footer() {
               <h3 className="mb-4 font-semibold text-[#F5F5F7]">Explore</h3>
               <ul className="space-y-2 text-sm uppercase tracking-wide">
                 <li>
-                  <Link
-                    href="/"
-                    className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                    title="Home"
-                    itemProp="url"
-                  >
+                  <Link href="/" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5" itemProp="url">
                     <span itemProp="name">Home</span>
                   </Link>
                 </li>
@@ -84,7 +99,6 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
                     aria-label="Forum (opens in new tab)"
-                    title="Forum (opens in new tab)"
                     itemProp="url"
                   >
                     <span itemProp="name">Forum</span>
@@ -104,7 +118,6 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
                     aria-label="Facebook Group (opens in new tab)"
-                    title="Facebook Group"
                   >
                     Facebook Group
                   </a>
@@ -116,7 +129,6 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
                     aria-label="Instagram (opens in new tab)"
-                    title="Instagram"
                   >
                     Instagram
                   </a>
@@ -128,20 +140,12 @@ export default function Footer() {
               <h3 className="mb-4 font-semibold text-[#F5F5F7]">Legal</h3>
               <ul className="space-y-2 text-sm uppercase tracking-wide">
                 <li>
-                  <Link
-                    href="/legal/terms"
-                    className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                    title="Terms"
-                  >
+                  <Link href="/legal/terms" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
                     Terms
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/legal/privacy"
-                    className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                    title="Privacy"
-                  >
+                  <Link href="/legal/privacy" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
                     Privacy
                   </Link>
                 </li>
@@ -149,39 +153,54 @@ export default function Footer() {
             </div>
           </nav>
 
-          {/* Newsletter (non-blocking stub; wire later) */}
+          {/* Newsletter */}
           <div className="md:col-span-3 lg:col-span-1 md:order-last lg:order-none">
             <form
               className="rounded-xl border border-white/10 bg-black/60 p-4 backdrop-blur"
-              onSubmit={(e) => {
-                e.preventDefault()
-                alert('Thanks! We’ll keep you posted. (Hook this to your ESP when ready.)')
-              }}
+              onSubmit={handleNewsletterSubmit}
               aria-labelledby="newsletter-heading"
             >
               <h3 id="newsletter-heading" className="text-sm font-semibold text-[#F5F5F7]">
                 Stay in the loop
               </h3>
               <p className="mt-1 text-xs text-gray-400">
-                News, reviews & tools — no spam.
+                News, reviews &amp; tools &mdash; no spam.
               </p>
-              <label htmlFor="email" className="sr-only">Email address</label>
-              <div className="mt-3 flex gap-2">
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-white/30"
-                  autoComplete="email"
-                />
-                <button
-                  type="submit"
-                  className="whitespace-nowrap rounded-md bg-white px-3 py-2 text-sm font-medium text-black transition hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                >
-                  Subscribe
-                </button>
-              </div>
+
+              {status === 'success' ? (
+                <p className="mt-3 text-sm text-green-400">
+                  You&apos;re in! We&apos;ll be in touch.
+                </p>
+              ) : (
+                <>
+                  <label htmlFor="footer-email" className="sr-only">Email address</label>
+                  <div className="mt-3 flex gap-2">
+                    <input
+                      id="footer-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-white/30"
+                      autoComplete="email"
+                      disabled={status === 'loading'}
+                    />
+                    <button
+                      type="submit"
+                      disabled={status === 'loading'}
+                      className="whitespace-nowrap rounded-md bg-white px-3 py-2 text-sm font-medium text-black transition hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-60"
+                    >
+                      {status === 'loading' ? '...' : 'Subscribe'}
+                    </button>
+                  </div>
+                  {status === 'error' && (
+                    <p className="mt-2 text-xs text-red-400">
+                      Something went wrong. Please try again.
+                    </p>
+                  )}
+                </>
+              )}
             </form>
           </div>
         </div>
@@ -192,31 +211,18 @@ export default function Footer() {
             <p className="text-xs text-gray-500">
               &copy; {year} Pakistan Fragrance Community. All rights reserved.
             </p>
-
             <div className="flex items-center gap-5">
-              {/* Socials */}
-              <SocialLink
-                href="https://www.facebook.com/groups/pkfragcom"
-                label="Facebook"
-                title="Join our Facebook Group"
-              >
+              <SocialLink href="https://www.facebook.com/groups/pkfragcom" label="Facebook" title="Join our Facebook Group">
                 <FacebookIcon className="h-5 w-5" />
               </SocialLink>
-              <SocialLink
-                href="https://www.instagram.com/pakfragcom/"
-                label="Instagram"
-                title="Follow us on Instagram"
-              >
+              <SocialLink href="https://www.instagram.com/pakfragcom/" label="Instagram" title="Follow us on Instagram">
                 <InstagramIcon className="h-5 w-5" />
               </SocialLink>
-
-              {/* Back to top */}
               <button
                 type="button"
                 onClick={scrollToTop}
                 className="group inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-300 transition hover:text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                 aria-label="Back to top"
-                title="Back to top"
               >
                 <ArrowUp className="h-4 w-4 motion-safe:transition-transform motion-safe:group-hover:-translate-y-0.5" />
                 Top
@@ -229,7 +235,6 @@ export default function Footer() {
   )
 }
 
-/* ========= Reusable bits ========= */
 function SocialLink({ href, label, title, children }) {
   return (
     <a

@@ -1,6 +1,7 @@
 // pages/approved-houses.js
 import { useMemo, useState, useEffect, useRef } from "react";
 import Head from "next/head";
+import { trackEvent } from "../lib/analytics";
 import { AnimatePresence, motion } from "framer-motion";
 
 /**
@@ -331,6 +332,18 @@ export default function ApprovedHousesPage() {
       .slice(0, 30)
       .map((x) => x.item);
   }, [query]);
+
+  // Track searches after user stops typing
+  useEffect(() => {
+    if (!query) return
+    const t = setTimeout(() => {
+      trackEvent('house_search', {
+        query_length: query.length,
+        result_count: filtered.length,
+      })
+    }, 800)
+    return () => clearTimeout(t)
+  }, [query, filtered.length]);
 
   const handlePick = (item) => {
     setSelected(item);

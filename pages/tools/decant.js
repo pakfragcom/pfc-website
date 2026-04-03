@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { trackEvent } from '../../lib/analytics';
 
 const DEFAULTS = {
   bottleSizeMl: 100,
@@ -42,6 +43,17 @@ export default function DecantCalculatorPage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...inputs, currency, usdRate }));
     }
   }, [inputs, currency, usdRate]);
+
+  // Track calculation after inputs settle
+  useEffect(() => {
+    const t = setTimeout(() => {
+      trackEvent('decant_calculated', {
+        bottle_size_ml: inputs.bottleSizeMl,
+        currency,
+      })
+    }, 1500)
+    return () => clearTimeout(t)
+  }, [inputs.bottleSizeMl, inputs.bottleCost, currency]);
 
   const bottleNetMl = useMemo(() => {
     const waste = (inputs.wastePct / 100) * inputs.bottleSizeMl;

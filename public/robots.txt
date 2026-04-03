@@ -1,12 +1,10 @@
+# *
 User-agent: *
-Disallow: /login
-Disallow: /signup
-Disallow: /register
-Disallow: /api
-Disallow: /submit-review
-Disallow: /dashboard
-
 Allow: /
 
+# Host
+Host: https://pakfrag.com
+
+# Sitemaps
 Sitemap: https://pakfrag.com/sitemap.xml
 Sitemap: https://forum.pakfrag.com/sitemap.xml

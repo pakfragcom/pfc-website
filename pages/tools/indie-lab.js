@@ -1,5 +1,6 @@
 // pages/tools/indie-lab.js
 import { useEffect, useMemo, useRef, useState } from "react";
+import { trackEvent } from "../../lib/analytics";
 
 /**
  * Indie Perfumers Toolkit V3 — PFC
@@ -69,6 +70,7 @@ export default function IndieLab() {
   }, []);
   useEffect(() => {
     localStorage.setItem("pfc_indie_lab_tab", tab);
+    trackEvent('tool_tab_switch', { tool: 'indie_lab', tab_name: tab })
   }, [tab]);
 
   return (

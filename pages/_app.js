@@ -4,6 +4,7 @@ import Script from 'next/script';
 import '../styles/main.css';
 import ScrollToTop from '../components/ScrollToTop';
 import SEO from '../components/SEO';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function App({ Component, pageProps }) {
   return (
@@ -50,7 +51,9 @@ export default function App({ Component, pageProps }) {
         `}
       </Script>
 
-      <Component {...pageProps} />
+      <ErrorBoundary>
+        <Component {...pageProps} />
+      </ErrorBoundary>
       <ScrollToTop />
     </>
   );

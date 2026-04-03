@@ -21,6 +21,16 @@ const seoConfig = {
       'Estimate the remaining perfume in your bottle by calibrating top, bottom, and liquid level for accurate mL reading.',
     url: `${siteUrl}/tools/bottle-level`,
   },
+  '/legal/terms': {
+    title: 'Terms of Service — Pakistan Fragrance Community',
+    description: 'Terms of Service for pakfrag.com — Pakistan Fragrance Community.',
+    url: `${siteUrl}/legal/terms`,
+  },
+  '/legal/privacy': {
+    title: 'Privacy Policy — Pakistan Fragrance Community',
+    description: 'Privacy Policy for pakfrag.com — how we collect, use, and protect your information.',
+    url: `${siteUrl}/legal/privacy`,
+  },
 };
 
 export default seoConfig;
