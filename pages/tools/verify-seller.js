@@ -264,7 +264,7 @@ export default function VerifySellerPage() {
 
   const handlePick = (item) => {
     setSelected(item);
-    setQuery(item.name);
+    setQuery(""); // clear so dropdown hides and result card is visible
     trackEvent("seller_verified", { seller_type: item.type });
   };
 
@@ -336,7 +336,7 @@ export default function VerifySellerPage() {
             <input
               ref={inputRef}
               id="sellerSearch"
-              type="search"
+              type="text"
               placeholder="Name or code (e.g. Zakir or SM-222)"
               className="w-full bg-transparent text-base text-white placeholder-gray-500 outline-none"
               value={query}
