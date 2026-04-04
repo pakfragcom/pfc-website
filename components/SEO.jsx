@@ -3,7 +3,9 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import seoConfig from '../seoConfig';
 
-export default function SEO() {
+const OG_IMAGE = 'https://pakfrag.com/og-image.jpg';
+
+export default function SEO({ title, description } = {}) {
   const router = useRouter();
   const path = router?.pathname || '/';
 
@@ -14,7 +16,7 @@ export default function SEO() {
     url: 'https://pakfrag.com',
   };
 
-  const meta = { ...defaults, ...(seoConfig[path] || {}) };
+  const meta = { ...defaults, ...(seoConfig[path] || {}), ...(title ? { title } : {}), ...(description ? { description } : {}) };
 
   return (
     <Head>
@@ -31,11 +33,13 @@ export default function SEO() {
       <meta property="og:description" content={meta.description} />
       {meta.url && <meta property="og:url" content={meta.url} />}
       <meta property="og:site_name" content="Pakistan Fragrance Community - PFC" />
+      <meta property="og:image" content={OG_IMAGE} />
 
       {/* Twitter */}
-      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={meta.title} />
       <meta name="twitter:description" content={meta.description} />
+      <meta name="twitter:image" content={OG_IMAGE} />
     </Head>
   );
 }

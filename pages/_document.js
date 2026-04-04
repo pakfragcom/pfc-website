@@ -4,7 +4,7 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 class MyDocument extends Document {
   render() {
     // Adjust these paths to your real assets
-    const hero = '/images/hero.avif' // keep an AVIF/WebP hero in /public/images
+    const hero = '/hero.jpg'
 
     return (
       <Html lang="en" className="dark">

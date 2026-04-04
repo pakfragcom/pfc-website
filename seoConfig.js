@@ -31,6 +31,21 @@ const seoConfig = {
     description: 'Privacy Policy for pakfrag.com — how we collect, use, and protect your information.',
     url: `${siteUrl}/legal/privacy`,
   },
+  '/tools/verify-seller': {
+    title: 'Verify a Seller — PFC',
+    description: 'Check if a fragrance seller is PFC-verified before you buy. Search by seller name or code.',
+    url: `${siteUrl}/tools/verify-seller`,
+  },
+  '/local-houses': {
+    title: 'Approved Houses | PFC-MFP',
+    description: 'Explore the PFC-MFP curated directory of approved fragrance houses in Pakistan. Search by house name and discover Creative Directors.',
+    url: `${siteUrl}/local-houses`,
+  },
+  '/tools/indie-lab': {
+    title: 'PFC Indie Perfumers Toolkit',
+    description: 'All-in-one toolkit for indie perfumers: costing, batching, composer, note pyramid, compliance, wear testing, and AI accord suggestions.',
+    url: `${siteUrl}/tools/indie-lab`,
+  },
 };
 
 export default seoConfig;

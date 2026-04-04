@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { trackEvent } from '../../lib/analytics';
+import SEO from '../../components/SEO';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 
 const DEFAULTS = {
   bottleSizeMl: 100,
@@ -95,9 +98,15 @@ export default function DecantCalculatorPage() {
   const toCurrency = (n) => (currency === 'USD' ? n / Math.max(usdRate, 0.0001) : n);
 
   return (
-    <div className="mx-auto max-w-5xl p-6 text-sm text-white">
+    <div className="bg-black text-white font-sans">
+      <SEO
+        title="PFC Decant Calculator"
+        description="Plan decant splits, price transparently, and hit your margins with the PFC Decant &amp; Price-per-mL Calculator."
+      />
+      <Header />
+      <main className="mx-auto max-w-5xl p-6 text-sm text-white">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">PFC Decant & Price-per-mL Calculator</h1>
+        <h1 className="text-2xl font-bold">PFC Decant &amp; Price-per-mL Calculator</h1>
         <p className="text-white/70">Plan splits, price transparently, and hit your margins — all client-side.</p>
       </div>
 
@@ -217,6 +226,8 @@ export default function DecantCalculatorPage() {
           </table>
         </div>
       </Section>
+      </main>
+      <Footer />
     </div>
   );
 }

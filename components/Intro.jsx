@@ -21,7 +21,7 @@ export default function Intro() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: reduce ? 0 : 0.5, ease: 'easeOut' }}
-        className="mb-3 inline-block rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-300 backdrop-blur"
+        className="mb-3 inline-block rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-300 backdrop-blur"
       >
         Pakistan Fragrance Community
       </motion.span>

@@ -1,6 +1,8 @@
 // pages/approved-houses.js
 import { useMemo, useState, useEffect, useRef } from "react";
-import Head from "next/head";
+import SEO from "../components/SEO";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 import { trackEvent } from "../lib/analytics";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -351,13 +353,14 @@ export default function ApprovedHousesPage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Approved Houses • PFC-MFP</title>
-        <meta name="robots" content="noindex,nofollow" />
-      </Head>
+    <div className="bg-black text-white font-sans">
+      <SEO
+        title="Approved Houses | PFC-MFP"
+        description="Explore the PFC-MFP curated directory of approved fragrance houses in Pakistan. Search by house name and discover Creative Directors."
+      />
+      <Header />
 
-      <div className="min-h-screen bg-gradient-to-b from-[#0b0d12] via-[#0f1220] to-[#0b0d12] text-white">
+      <div className="min-h-screen text-white">
         <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
           {/* Title */}
           <div className="text-center mb-8">
@@ -479,6 +482,7 @@ export default function ApprovedHousesPage() {
           animation: spin-slower 14s linear infinite;
         }
       `}</style>
-    </>
+      <Footer />
+    </div>
   );
 }

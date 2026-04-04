@@ -1,6 +1,9 @@
 // pages/tools/indie-lab.js
 import { useEffect, useMemo, useRef, useState } from "react";
 import { trackEvent } from "../../lib/analytics";
+import SEO from "../../components/SEO";
+import Header from "../../components/layout/Header";
+import Footer from "../../components/layout/Footer";
 
 /**
  * Indie Perfumers Toolkit V3 — PFC
@@ -74,13 +77,12 @@ export default function IndieLab() {
   }, [tab]);
 
   return (
-    <div className="min-h-screen w-full bg-neutral-950 text-neutral-100">
-      <header className="sticky top-0 z-30 backdrop-blur border-b border-white/10 bg-black/40">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <h1 className="text-lg sm:text-xl font-semibold tracking-tight">PFC • Indie Perfumers Toolkit</h1>
-          <a href="/" className="text-xs sm:text-sm text-neutral-400 hover:text-neutral-200 underline">Home</a>
-        </div>
-      </header>
+    <div className="bg-black text-white font-sans">
+      <SEO
+        title="PFC Indie Perfumers Toolkit"
+        description="All-in-one toolkit for indie perfumers: costing, batching, composer, note pyramid, compliance, wear testing, and AI accord suggestions."
+      />
+      <Header />
 
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Tabs tab={tab} setTab={setTab} />
@@ -94,10 +96,11 @@ export default function IndieLab() {
           {tab === "ai" && <AIAssist />}
         </section>
 
-        <footer className="pt-8 pb-10 text-center text-xs text-neutral-500">
-          Built for indie perfumers • All on-device • Verify regulations for your market
-        </footer>
+        <p className="pt-8 pb-4 text-center text-xs text-neutral-500">
+          Built for indie perfumers &bull; All on-device &bull; Verify regulations for your market
+        </p>
       </main>
+      <Footer />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import SEO from '../../components/SEO';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 
 const STORAGE_KEY = 'pfc-bottle-level-calib-v3';
 
@@ -205,12 +207,13 @@ export default function BottleLevelEstimator() {
   }
 
   return (
-    <>
+    <div className="bg-black text-white font-sans">
       <SEO
         title="PFC Bottle Level Estimator"
         description="Drag three guides and get an instant estimate of how much fragrance is left. Friendly presets for bottle shapes and an optional Pro panel for precision."
       />
-
+      <Header />
+      <main>
       <div className="mx-auto max-w-6xl px-4 py-6 text-white">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -458,7 +461,9 @@ export default function BottleLevelEstimator() {
           Heads‑up: estimates depend on placement and glass shape. You can zoom the page (Ctrl/Cmd + +/–) so the silhouette matches your bottle height.
         </div>
       </div>
-    </>
+      </main>
+      <Footer />
+    </div>
   );
 }
 

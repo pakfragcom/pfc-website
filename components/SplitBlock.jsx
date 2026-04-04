@@ -100,13 +100,15 @@ export default function SplitBlock() {
               >
                 Join the Community
               </a>
-              <Link
-                href="/reviews"
+              <a
+                href="https://forum.pakfrag.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white
                            transition hover:border-white/60 hover:bg-white/10"
               >
                 Read Reviews
-              </Link>
+              </a>
             </div>
           </div>
         </div>
