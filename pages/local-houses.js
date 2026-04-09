@@ -4,148 +4,17 @@ import SEO from "../components/SEO";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import { trackEvent } from "../lib/analytics";
+import { supabase } from "../lib/supabase";
 import { AnimatePresence, motion } from "framer-motion";
 
 /**
  * PFC-MFP APPROVED HOUSES • Luxury Search + Featured Spotlight
+ * - Data fetched from Supabase via getStaticProps (ISR every 5 min)
  * - Global search (fuzzy by house name; directors help ranking)
  * - Suggestions only while typing (no full list dump)
  * - Click to reveal a polished detail card (House + Creative Director)
  * - When search box is empty: a rotating Featured Spotlight grid
- *   • Exactly 4 houses per cycle (balanced)
- *   • 2×2 grid on mobile, 1×4 row on desktop
- *   • Animated gradient borders, spotlight glow, subtle motion
- * - Dark, billion-dollar luxury aesthetic (TailwindCSS assumed)
  */
-
-// ----------------------------- DATA -----------------------------
-const HOUSES = [
-  { house: "Abu Hashir", by: "Fareed Iqbal Machiyara" },
-  { house: "Adonis", by: "Atiq Rajput" },
-  { house: "Aeldor Fragrances", by: "Faisal Khan" },
-  { house: "Al Asr Perfumes", by: "Muhammad Taha" },
-  { house: "Al-Jayyid Galleria", by: "Afnan Siddiqui" },
-  { house: "Al-Razi", by: "Adnan Tajani" },
-  { house: "Alawaisfragrances", by: "Sharjeel Sheikh and Farooq Sheikh" },
-  { house: "Aldora Fragrances", by: "Aiman Akber Ali & Zoya Aimannj" },
-  { house: "Allure Perfume Oils & Attars", by: "Narina Shams" },
-  { house: "Arcano Parfum", by: "Abdul Rafaay Qureshi" },
-  { house: "ARCHI SCENT.", by: "Asim Jalil, & Syed Mohammad Talha" },
-  { house: "Aroma World", by: "Uzair Jaleel" },
-  { house: "Arome", by: "Ahsan Iqbal" },
-  { house: "Attaricous", by: "Osama Altaf" },
-  { house: "Aura Scentique", by: "Fahad Mukhtar Ahmed" },
-  { house: "Ausaan", by: "Muhammad Umar" },
-  { house: "Avital Perfumes", by: "Saad Maahir" },
-  { house: "Bahar Scentiments", by: "Waseem Pasha" },
-  { house: "Balsamico Fragrances", by: "Syed Osama bin Mazhar" },
-  { house: "Bavari Perfumery", by: "Mian Abdul Samad" },
-  { house: "Bin Tariq Fragrances", by: "Sohaib Ahmed" },
-  { house: "CADAR", by: "Rouhaan Faiz Chaudry" },
-  { house: "Carizmatic Perfumes", by: "Muhammad Bilal Khan" },
-  { house: "CHAPS", by: "Anas Sabrani" },
-  { house: "Colish", by: "Abdullah Tariq" },
-  { house: "Cover Outfit", by: "" },
-  { house: "Crete D'or", by: "Syed Yousaf Shah" },
-  { house: "D Fragrance", by: "Danish Khan" },
-  { house: "De dallad", by: "Farooq Khan" },
-  { house: "Devior", by: "M. Furqan Rashid" },
-  { house: "Divine in Paris", by: "Hammad Ansari" },
-  { house: "Dua Fragrances", by: "" },
-  { house: "Dynamo Perfumes", by: "Usama Ch." },
-  { house: "Elegance Perfumes", by: "Asif Baloch" },
-  { house: "Enchanté Perfumes", by: "Bilal Sohail" },
-  { house: "ESSENZA", by: "AbuBakar Nawab" },
-  { house: "Eternal Impressions", by: "Muddasir Ahmed Sheikh" },
-  { house: "EverScent", by: "Sami Navaid" },
-  { house: "FAAYAB", by: "Wakas Kokhar" },
-  { house: "Fab Fragrances", by: "Salman" },
-  { house: "FBM Scents", by: "Fahad Ali" },
-  { house: "Folle", by: "Huzaifa Bawany" },
-  { house: "Fragaro", by: "Zunair Shakeel" },
-  { house: "Fragrances From ALEE", by: "Ali Choudhary" },
-  { house: "Fragyard", by: "Faeez Hassan" },
-  { house: "Franade", by: "Abdullah Nasir" },
-  { house: "Freakfragrance", by: "Muhammad Nazim Khan" },
-  { house: "Fumers", by: "Mohsin Ali" },
-  { house: "Fusion Fragrances", by: "Hassan Jan Siddiqui" },
-  { house: "GAIA Parfums & Raza Perfumes", by: "Ovais Saleem" },
-  { house: "Genzed", by: "Sheryar Shahid" },
-  { house: "House of Presence", by: "Ali Faizan" },
-  { house: "House Of SR", by: "Irfan Memon" },
-  { house: "Ibn-E-Noor Fragrances", by: "Hashaam Noor" },
-  { house: "IKSAS SCENTS", by: "Iftikhar Khan" },
-  { house: "INAR Fragrances", by: "Azeem Ibrahim" },
-  { house: "Infuse Fragrances", by: "Shayan Younus and Itban Bazil" },
-  { house: "Inn-o-scents", by: "Hamza Javed" },
-  { house: "Ismaeelmuhammad.Pk", by: "Ismaeel Muhammad" },
-  { house: "Jabl e Rehmat", by: "Abid" },
-  { house: "Jogi", by: "Fahad Hanif & Fareed Iqbal Machiyara" },
-  { house: "Joy&Spray", by: "S. Hassan Raza Kazmi" },
-  { house: "Karachi Perfumery", by: "Muhammad Saad Basir" },
-  { house: "Khusboo-e-Khaas", by: "Noman Abdul Razzaq" },
-  { house: "Kingsmen Perfumes", by: "Abdullah Khan Yousafzai" },
-  { house: "Lumineux Parfums", by: "Awais Saleem" },
-  { house: "Luxe Aroma", by: "Mansoor Saleem" },
-  { house: "Luxemy Perfumes", by: "Murtaza Hassan Shah" },
-  { house: "Mahdi", by: "Ali Raza Khatri" },
-  { house: "Manaal Olfactives", by: "Ali Raza Khatri" },
-  { house: "Marib Fragrances", by: "Muhammad Shamaan Patel" },
-  { house: "Miraaz", by: "Karim Kalani & Salik Ahmad Sheikh" },
-  { house: "MOAS Perfumes", by: "Aqib Khan & Osman Khan" },
-  { house: "Muhaaf", by: "Furqan Feroz" },
-  { house: "NIOI & Santir Bon", by: "Abid Ayub" },
-  { house: "Nishaan", by: "Nishaan E Zehra & Zain Raza" },
-  { house: "Noor Fragrances", by: "Noor Muhammad" },
-  { house: "Notes", by: "Atif Sheikh" },
-  { house: "Notes Club", by: "Syed Shayan Ul Huda" },
-  { house: "Oud Al Haram", by: "Ibrahim Shazad" },
-  { house: "Pakistan Perfumes", by: "Abdullah Bhatti" },
-  { house: "Peirama Parfums", by: "Hasan Bin Nasim" },
-  { house: "Perfume Parlour", by: "Amir" },
-  { house: "Perfumerie", by: "M. Naim Majeed" },
-  { house: "Perfumes Hub", by: "Rizwan Jameel" },
-  { house: "Pioneer Fragrances", by: "Osama Sheikh" },
-  { house: "Qarigari", by: "Farooq Fayyaz" },
-  { house: "Rawaha", by: "Uzair Punjani" },
-  { house: "Reve Fragrance", by: "Usman Ali" },
-  { house: "Rivendell Colognes", by: "Daniyal Khan" },
-  { house: "RJ Fragrances", by: "Muhammad Raza Jiwani" },
-  { house: "Roux Perfumes", by: "Waqar Mahmood" },
-  { house: "Sahraat Fragrances", by: "Abdullah Noor" },
-  { house: "Scent in a Bottle", by: "Omer Razaque" },
-  { house: "Scent It", by: "Umair Saleem" },
-  { house: "Scent N Stories", by: "Saad Afridi" },
-  { house: "Scent Profile", by: "Mujahid Abbas Naqvi" },
-  { house: "Scented", by: "Faizy Shykh" },
-  { house: "Scentefy", by: "Saad Ahmed Tamimi" },
-  { house: "Scentica", by: "Huzaifa Javeed Khan" },
-  { house: "Scentiments", by: "Haider Ali Mangi" },
-  { house: "Scentinio", by: "Raza Bashir" },
-  { house: "Scentiorita", by: "Abdul Latif Orakzai" },
-  { house: "Scentncare", by: "Laraib Taimur Khan" },
-  { house: "Scentraction", by: "Bashaar Ashraf" },
-  { house: "Scentriqa", by: "Syed Abdul Waris" },
-  { house: "Scentrome", by: "Usman Shoaib Khawaja & Khawaja Hamza" },
-  { house: "Scent St.", by: "Tehmina" },
-  { house: "Scents By Amir", by: "Shan Ali" },
-  { house: "Scents de Cover", by: "Daniyal Mehmood" },
-  { house: "Scents Fusion", by: "Bilal Haroon" },
-  { house: "Scents Mania", by: "Habib Abdullah" },
-  { house: "Scents Paradise", by: "Haya Khan" },
-  { house: "Secret Aroma", by: "Irfan Sumra" },
-  { house: "Sesky Perfumes", by: "Hammad Masood" },
-  { house: "Seven Fragrances", by: "Waleed A Malik" },
-  { house: "SJ Fragrances", by: "S. Jawad Hussain Shah" },
-  { house: "Stellare", by: "Rahim Wahid" },
-  { house: "Suroor", by: "Wajahat Ali Siddiqui" },
-  { house: "Swan Perfumes", by: "Anas Shiwani" },
-  { house: "The Fragrance Square", by: "Syed Rizwan Ali" },
-  { house: "Vibes", by: "Junaid" },
-  { house: "Whiffs Fragrances", by: "Faraz" },
-  { house: "Yesfir-Scents", by: "Ch. Mahad Ahmed" },
-  { house: "Zeist Fragrances", by: "Ezazullah" },
-].map((x) => ({ ...x, by: x.by?.trim() || "—" }));
 
 // -------------------------- UTILITIES ---------------------------
 const normalize = (s) =>
@@ -160,8 +29,7 @@ const normalize = (s) =>
 function levenshtein(a, b) {
   a = normalize(a);
   b = normalize(b);
-  const m = a.length,
-    n = b.length;
+  const m = a.length, n = b.length;
   if (!m) return n;
   if (!n) return m;
   const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
@@ -170,11 +38,7 @@ function levenshtein(a, b) {
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + cost
-      );
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
     }
   }
   return dp[m][n];
@@ -190,8 +54,7 @@ function fuzzyRank(query, item) {
 
   const tokens = q.split(" ").filter(Boolean);
   const tokenHits = tokens.reduce(
-    (acc, t) => acc + (h.includes(t) || by.includes(t) ? 1 : 0),
-    0
+    (acc, t) => acc + (h.includes(t) || by.includes(t) ? 1 : 0), 0
   );
   const tokenScore = tokens.length ? (tokens.length - tokenHits) * 0.75 : 2;
   const editScore = Math.min(
@@ -238,7 +101,6 @@ const VerifiedBadge = ({ size = 22 }) => (
   </span>
 );
 
-// --- Unified card style (used for Search Results + Featured) ---
 const LuxuryCard = ({ item, onClick, idx }) => (
   <motion.div
     layout
@@ -253,8 +115,7 @@ const LuxuryCard = ({ item, onClick, idx }) => (
       <div
         className="absolute inset-0 opacity-40 blur-xl pointer-events-none animate-spin-slower"
         style={{
-          background:
-            "conic-gradient(from 0deg, rgba(16,185,129,0.25), rgba(59,130,246,0.25), rgba(16,185,129,0.25))",
+          background: "conic-gradient(from 0deg, rgba(16,185,129,0.25), rgba(59,130,246,0.25), rgba(16,185,129,0.25))",
         }}
       />
       <div className="relative rounded-2xl bg-gradient-to-b from-[#0b0f15]/80 via-[#0b0f15]/70 to-[#0b0f15]/60 ring-1 ring-white/10 backdrop-blur-md flex flex-col justify-between w-full">
@@ -270,8 +131,7 @@ const LuxuryCard = ({ item, onClick, idx }) => (
         <div
           className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition duration-500"
           style={{
-            background:
-              "linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
+            background: "linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
           }}
         />
       </div>
@@ -297,7 +157,7 @@ const FeaturedSpotlight = ({ data }) => {
           Featured Spotlight
         </div>
         <div className="text-[11px] sm:text-xs text-gray-400">
-          Rotates every 7s • Random 4 Houses
+          Rotates every 7s &bull; Random 4 Houses
         </div>
       </div>
 
@@ -320,31 +180,30 @@ const FeaturedSpotlight = ({ data }) => {
 };
 
 // --------------------------- PAGE -------------------------------
-export default function ApprovedHousesPage() {
+export default function ApprovedHousesPage({ houses = [] }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
   const inputRef = useRef(null);
 
   const filtered = useMemo(() => {
     if (!query) return [];
-    return HOUSES
+    return houses
       .map((item) => ({ item, score: fuzzyRank(query, item) }))
       .filter((x) => x.score < 6.5)
       .sort((a, b) => a.score - b.score)
       .slice(0, 30)
       .map((x) => x.item);
-  }, [query]);
+  }, [query, houses]);
 
-  // Track searches after user stops typing
   useEffect(() => {
-    if (!query) return
+    if (!query) return;
     const t = setTimeout(() => {
-      trackEvent('house_search', {
+      trackEvent("house_search", {
         query_length: query.length,
         result_count: filtered.length,
-      })
-    }, 800)
-    return () => clearTimeout(t)
+      });
+    }, 800);
+    return () => clearTimeout(t);
   }, [query, filtered.length]);
 
   const handlePick = (item) => {
@@ -400,20 +259,10 @@ export default function ApprovedHousesPage() {
               <label htmlFor="houseSearch" className="sr-only">
                 Search by house name
               </label>
+
               <div className="flex items-center gap-2 bg-black/30 ring-1 ring-white/10 rounded-xl px-3 py-2">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-gray-300/80"
-                >
-                  <path
-                    d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="shrink-0 text-gray-300/80">
+                  <path d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 <input
                   ref={inputRef}
@@ -427,7 +276,7 @@ export default function ApprovedHousesPage() {
               </div>
 
               {/* Featured Spotlight when empty */}
-              {!query && <FeaturedSpotlight data={HOUSES} />}
+              {!query && houses.length > 0 && <FeaturedSpotlight data={houses} />}
 
               {/* Suggestions */}
               {query && filtered.length > 0 && (
@@ -448,7 +297,7 @@ export default function ApprovedHousesPage() {
                 <div className="mt-3 p-4 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/30 text-amber-200">
                   <div className="font-semibold">Not found</div>
                   <div className="text-sm opacity-90 mt-1">
-                    This house isn’t in our approved list. Check spelling or try a shorter part of the name.
+                    This house isn&apos;t in our approved list. Check spelling or try a shorter part of the name.
                   </div>
                 </div>
               )}
@@ -463,7 +312,7 @@ export default function ApprovedHousesPage() {
           )}
 
           <div className="text-center text-[11px] text-gray-400 mt-8">
-            Last updated: {new Date().toLocaleDateString()} • For corrections, contact PFC admins.
+            Last updated: {new Date().toLocaleDateString()} &bull; For corrections, contact PFC admins.
           </div>
         </div>
       </div>
@@ -471,12 +320,8 @@ export default function ApprovedHousesPage() {
       {/* Gradient spin animation */}
       <style jsx global>{`
         @keyframes spin-slower {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         .animate-spin-slower {
           animation: spin-slower 14s linear infinite;
@@ -485,4 +330,27 @@ export default function ApprovedHousesPage() {
       <Footer />
     </div>
   );
+}
+
+export async function getStaticProps() {
+  const { data: houses, error } = await supabase
+    .from("fragrance_houses")
+    .select("house, director")
+    .in("status", ["active", "grace"])
+    .order("house");
+
+  if (error) {
+    console.error("[local-houses] Supabase fetch error:", error.message);
+  }
+
+  // Map director → by to match existing component field names
+  const mapped = (houses || []).map((h) => ({
+    house: h.house,
+    by: h.director?.trim() || "\u2014",
+  }));
+
+  return {
+    props: { houses: mapped },
+    revalidate: 300, // ISR: refresh every 5 minutes
+  };
 }

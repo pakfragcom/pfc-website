@@ -1,161 +1,19 @@
 // pages/tools/verify-seller.js
 import { useMemo, useState, useEffect, useRef } from "react";
-import Head from "next/head";
 import Link from "next/link";
 import { trackEvent } from "../../lib/analytics";
+import { supabase } from "../../lib/supabase";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 
 /**
  * VERIFIED SELLER PORTAL CHECK (Search-Only)
+ * - Data fetched from Supabase via getStaticProps (ISR every 5 min)
  * - BNIB pass includes decant selling (explicitly shown in UI)
  * - Search by name OR verification code (fuzzy)
  * - Shows suggestions ONLY when typing; no full list rendering
  * - After selecting, shows a verified card
  */
-
-// ----------------------------- DATA -----------------------------
-const BNIB = [
-  { name: "Abdur Rehman", code: "AR-K1DE" },
-  { name: "Ahmed Raza", code: "AR-R470" },
-  { name: "Ammar Hafeez", code: "AH-G5AL" },
-  { name: "Arif Umar", code: "AU-H9E9" },
-  { name: "Arslan Ghaffar", code: "AG-B41X" },
-  { name: "Asad Khan Khalil", code: "AKK-ZB00" },
-  { name: "Asjid", code: "A-49YI" },
-  { name: "Aswad Yahya", code: "AY-EG7N" },
-  { name: "Atif Memon", code: "AM-W8Q7" },
-  { name: "Behzad Hassan", code: "BH-OA91" },
-  { name: "Bilal Jarral", code: "BJ-II1Z" },
-  { name: "Emraan Malick", code: "EM-78H2" },
-  { name: "Esrar Shenwari", code: "ES-F3D6" },
-  { name: "Farooq Khan", code: "FK-SD6I" },
-  { name: "Farrukh Shahzad", code: "FS-25B6" },
-  { name: "Hadi Hassan", code: "HH-K76A" },
-  { name: "Hafiz Anas Mansoor", code: "HAM-Z368" },
-  { name: "Haider Ali Mangi", code: "HAM-U89E" },
-  { name: "Haider Ali Raza", code: "HAR-1S58" },
-  { name: "Haris Ali Mangi", code: "HAM-X081" },
-  { name: "Haris Saleem", code: "HS-WE741" },
-  { name: "Huzaifa Bawany", code: "HB-3R24" },
-  { name: "Irfan Abuhadi", code: "IA-CI72" },
-  { name: "Jawwad Saleem", code: "JS-5GQT" },
-  { name: "Jazib ALi Butt", code: "JAB-5DMW" },
-  { name: "Junaid Rafiq", code: "JR-77P" },
-  { name: "Kabir Shaz Khan", code: "KSK-L01J" },
-  { name: "Khurram Shabbir", code: "KS-W1E" },
-  { name: "Muhammad Ahmad Jan", code: "MAJ-LHFX" },
-  { name: "M. Amir", code: "MA-KGKF" },
-  { name: "Malik Mohammad", code: "MM-DQK2" },
-  { name: "Mohammad Abu Torab", code: "MAT-01F0" },
-  { name: "Mohammad Khan", code: "MK-AAK9" },
-  { name: "Mohsin Malik", code: "MM-K0R4" },
-  { name: "Moiz Ullah", code: "MU-29W7" },
-  { name: "Mudasir Ali Tunio", code: "MAT-S561" },
-  { name: "Asad Agha", code: "AA-A6BT" },
-  { name: "Muhammad Arsalan Tariq", code: "MAT-ATX7" },
-  { name: "Muhammad Najeeb", code: "MN-3POB" },
-  { name: "Muhammad Hunain", code: "MH-OBJV" },
-  { name: "Nabeel Akhtar", code: "NA-UJN6" },
-  { name: "Nouman Ch", code: "NC-IGHV" },
-  { name: "Omar Khalil", code: "OK-6RIG" },
-  { name: "Qadeer Ahmad Adv", code: "QA-24K5" },
-  { name: "Qamyar Khan", code: "QK-3J6T" },
-  { name: "Raja Usman", code: "RU-5GPQ" },
-  { name: "Saad Chawla", code: "SC-33OH" },
-  { name: "Saad Imran Khan", code: "SIK-6HK1" },
-  { name: "Saad Saleem", code: "SS-VRPB" },
-  { name: "Sehar Javed", code: "SJ-0ACZ" },
-  { name: "Shahid Iqbal", code: "SI-O7M1" },
-  { name: "Shahzaib Mahtab", code: "SM-3655" },
-  { name: "Shaikh Abdul Azeem", code: "SAA-PW5B" },
-  { name: "Shehroz Malik", code: "SM-222" },
-  { name: "Sheheryar Shahid", code: "SS-51BR" },
-  { name: "Sohail Khan", code: "SK-54ZX" },
-  { name: "Sohail Shoukat", code: "SS-878Q" },
-  { name: "Sonu Sameer", code: "SS-631A" },
-  { name: "Tameem Faheem / Shopforever", code: "TF-9701" },
-  { name: "Usama Naeem", code: "UN-B79Z" },
-  { name: "Waqas Ahmed / Waqas Ahmed", code: "WA-K5Z6" },
-  { name: "Xohayb Hasan", code: "ZH-789G" },
-  { name: "Zaib Ali", code: "ZA-B777" },
-  { name: "Zakir Swati", code: "ZS-KW72" },
-  { name: "Hammad Ansari", code: "HA-S5PK" },
-  { name: "Muhammad Faisal", code: "MF-6AG9" },
-  { name: "Areeb Sagheer", code: "AS-0WYH" },
-  { name: "Shehryar Khalil", code: "SK-5SI" },
-  { name: "Zahid Khan", code: "ZK-J8GY" },
-  { name: "Umair Tahir", code: "UT-4FTY" },
-  { name: "Azib Malik", code: "AM-P236" },
-  { name: "Zee Kay", code: "ZK-H7FT" },
-  { name: "Malik Hasseb Bangash", code: "MAB-0176" },
-  { name: "Rehman Khan", code: "RK-A450" },
-  { name: "Arqam Zafar", code: "AZ-3YC1" },
-  { name: "Hassan Ali", code: "HA-2GKA" },
-  { name: "Muhammad Saad", code: "MS-6TJ9" },
-  { name: "Ahmad Talat", code: "AH-33K3" },
-  { name: "Muhammad Laman Samo", code: "MLS-G7D2" },
-  { name: "Muhammad Hamza", code: "MH-5H3M" },
-  { name: "Mubbashir Tunio", code: "MT-S562" },
-  { name: "Muhammad Aylee", code: "MA-5S5T" },
-  { name: "Baber Khan", code: "BK-Z65X" },
-  { name: "Ahsan Fayyaz", code: "AF-Y6U3" },
-  { name: "Muhammad Huzaifa Tayyab", code: "MHT-P2D6" },
-  { name: "Muhammad Ebaad Ur Rehman", code: "MEUR-D2L" },
-  { name: "Sheikh Basim", code: "SB-6J4Z" },
-  { name: "Zawar Qureshi", code: "ZQ-J828" },
-  { name: "Kanwal Basim", code: "KB-6J4Z" },
-  { name: "Sharan Kapoor", code: "SK-6T49" },
-  { name: "Hussnain Mehmood", code: "HM-J8GY" },
-  { name: "Anwar Ul Mubeen", code: "AUM-K9HU" },
-  { name: "Amir Khan", code: "AK-G4A4" },
-  { name: "Abu Sufyan Kamboh", code: "ASK-1A1N" },
-  { name: "Naveed Anjum Kundi", code: "NAK-B55O" },
-  { name: "Basit Ali", code: "BA-2BXJ" },
-  { name: "Syed Waheed Zada", code: "SWZ-R52X" },
-  { name: "Aimal Kakar", code: "AK-O6X8" },
-  { name: "A. Raza", code: "AR-1K56" },
-  { name: "Muhammad A", code: "MA-5H7D" },
-  { name: "Syeda Maryam Omer", code: "SMO-FS1" },
-  { name: "Saif Afridi", code: "SA-3H4T" },
-].map((x) => ({ ...x, type: "BNIB" }));
-
-const DECANTERS = [
-  { name: "Abdul Basit", code: "AB-TU44" },
-  { name: "عبدالمھیمن عباسی", code: "AMA-40Z1" },
-  { name: "Ahmad Shah", code: "AS-E2A1" },
-  { name: "Arham Fawad", code: "AF-9P8I" },
-  { name: "Ifrah Yousafani", code: "IY-BPN5" },
-  { name: "Faizuleman Faisal Marfani", code: "FFM-4U8J" },
-  { name: "BalOch Asif", code: "BA-E0CS" },
-  { name: "M Daud Amjad", code: "DA-FGN5" },
-  { name: "Hassan Shah", code: "HS-1Y3J" },
-  { name: "Ahmed Soomro", code: "AS-5I9K" },
-  { name: "Ismail Shahzad", code: "IS-600P" },
-  { name: "Mudasir Sadiq Chugtai", code: "MSC-T4H3" },
-  { name: "Syed Hamza Naeem", code: "SHN-0512" },
-  { name: "Muhammad Bin Khalil", code: "MBK-XJL0" },
-  { name: "Muhammad Bukhari", code: "MB-36K2" },
-  { name: "Muhammad Talha", code: "MT-934C" },
-  { name: "Muneeb Sheikh", code: "MS-48WY" },
-  { name: "Payam Abbasi", code: "PA-4LP7" },
-  { name: "Rizvi B", code: "RB-73K" },
-  { name: "Sayed Yasir Ali", code: "SYA-8TSS" },
-  { name: "Syed Wasi Hassan", code: "SWH-DS12" },
-  { name: "Tayyab Tariq", code: "TT-4FZ7" },
-  { name: "Umar Zulfiqar", code: "UZ-G58K" },
-  { name: "Zaryab Amir", code: "ZA-A8X6" },
-  { name: "Saad Farukh", code: "SF-7223" },
-  { name: "Ahsan Afzal", code: "AA-78KD" },
-  { name: "Sharoon Arsin", code: "SA-5GA8" },
-  { name: "Abdullah Akram", code: "AA-7TX4" },
-  { name: "Muhammad Ali", code: "MAA-3J6H" },
-  { name: "Hamza Rehan", code: "HR-H79P" },
-  { name: "Ahsan Habib", code: "AH-J80Q" },
-  { name: "Ali Rajpoot", code: "AR-MN5S" },
-].map((x) => ({ ...x, type: "DECANT" }));
-
-const DIRECTORY = [...BNIB, ...DECANTERS];
 
 // -------------------------- UTILITIES ---------------------------
 const normalize = (s) =>
@@ -225,7 +83,7 @@ const CopyIcon = () => (
 );
 
 // --------------------------- PAGE -------------------------------
-export default function VerifySellerPage() {
+export default function VerifySellerPage({ sellers = [] }) {
   const [query, setQuery] = useState("");
   const [activeType, setActiveType] = useState("ALL");
   const [selected, setSelected] = useState(null);
@@ -233,7 +91,7 @@ export default function VerifySellerPage() {
   const inputRef = useRef(null);
 
   const filteredDirectory = useMemo(() => {
-    const pool = activeType === "ALL" ? DIRECTORY : activeType === "BNIB" ? BNIB : DECANTERS;
+    const pool = activeType === "ALL" ? sellers : sellers.filter((s) => s.type === activeType);
     if (!query) return [];
     return pool
       .map((item) => ({ item, score: fuzzyRank(query, item) }))
@@ -241,7 +99,7 @@ export default function VerifySellerPage() {
       .sort((a, b) => a.score - b.score)
       .slice(0, 25)
       .map((x) => x.item);
-  }, [query, activeType]);
+  }, [query, activeType, sellers]);
 
   useEffect(() => {
     if (copied) {
@@ -264,7 +122,7 @@ export default function VerifySellerPage() {
 
   const handlePick = (item) => {
     setSelected(item);
-    setQuery(""); // clear so dropdown hides and result card is visible
+    setQuery("");
     trackEvent("seller_verified", { seller_type: item.type });
   };
 
@@ -276,11 +134,6 @@ export default function VerifySellerPage() {
 
   return (
     <div className="bg-black text-white font-sans">
-      <Head>
-        <title>Verify a Seller &mdash; PFC</title>
-        <meta name="description" content="Check if a fragrance seller is verified by Pakistan Fragrance Community." />
-      </Head>
-
       <Header />
 
       <main className="mx-auto max-w-2xl px-4 py-20 sm:py-28">
@@ -408,7 +261,6 @@ export default function VerifySellerPage() {
                 <h2 className="text-2xl font-bold text-[#F5F5F7] truncate">{selected.name}</h2>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {/* Code badge + copy */}
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm">
                     <span className="font-mono text-[#F5F5F7]">{selected.code}</span>
                     <button
@@ -424,7 +276,6 @@ export default function VerifySellerPage() {
                     </button>
                   </span>
 
-                  {/* Type badge */}
                   <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300">
                     {selected.type === "BNIB" ? "BNIB — includes Decanting" : "Decanter / Vial Seller"}
                   </span>
@@ -459,4 +310,28 @@ export default function VerifySellerPage() {
       <Footer />
     </div>
   );
+}
+
+export async function getStaticProps() {
+  const { data: sellers, error } = await supabase
+    .from("sellers")
+    .select("name, code, seller_type")
+    .in("status", ["active", "grace"])
+    .order("name");
+
+  if (error) {
+    console.error("[verify-seller] Supabase fetch error:", error.message);
+  }
+
+  // Map seller_type → type so existing component logic works unchanged
+  const mapped = (sellers || []).map((s) => ({
+    name: s.name,
+    code: s.code,
+    type: s.seller_type,
+  }));
+
+  return {
+    props: { sellers: mapped },
+    revalidate: 300, // ISR: refresh every 5 minutes
+  };
 }
