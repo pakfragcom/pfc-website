@@ -229,7 +229,7 @@ export default function AdminSellers() {
 
   async function loadSellers() {
     const res = await fetch("/api/admin/sellers");
-    if (res.status === 401) { router.push("/admin/login"); return; }
+    if (res.status === 401) { router.push("/pfc-mgmt/login"); return; }
     const data = await res.json();
     setSellers(data);
     setLoading(false);
@@ -239,7 +239,7 @@ export default function AdminSellers() {
 
   async function handleLogout() {
     await fetch("/api/admin/auth", { method: "DELETE" });
-    router.push("/admin/login");
+    router.push("/pfc-mgmt/login");
   }
 
   async function changeStatus(seller, status) {
@@ -327,7 +327,7 @@ export default function AdminSellers() {
           <div className="flex items-center gap-6">
             <span className="font-bold text-lg">PFC Admin</span>
             <nav className="flex gap-4 text-sm">
-              <Link href="/admin" className="text-gray-400 hover:text-white transition">Overview</Link>
+              <Link href="/pfc-mgmt" className="text-gray-400 hover:text-white transition">Overview</Link>
               <span className="text-emerald-400 font-medium">Sellers</span>
             </nav>
           </div>

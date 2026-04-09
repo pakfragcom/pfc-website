@@ -20,7 +20,7 @@ export default function AdminLogin() {
     });
 
     if (res.ok) {
-      router.push("/admin");
+      router.push("/pfc-mgmt");
     } else {
       const { error } = await res.json();
       setError(error || "Invalid password");
@@ -81,7 +81,7 @@ export default function AdminLogin() {
 export function getServerSideProps({ req }) {
   const { isAdminAuthenticated } = require("../../lib/admin-auth");
   if (isAdminAuthenticated(req)) {
-    return { redirect: { destination: "/admin", permanent: false } };
+    return { redirect: { destination: "/pfc-mgmt", permanent: false } };
   }
   return { props: {} };
 }
