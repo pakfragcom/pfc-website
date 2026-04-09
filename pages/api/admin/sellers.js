@@ -1,0 +1,64 @@
+import { supabaseAdmin } from "../../../lib/supabase-admin";
+import { isAdminAuthenticated } from "../../../lib/admin-auth";
+
+export default async function handler(req, res) {
+  if (!isAdminAuthenticated(req)) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // GET — list all sellers
+  if (req.method === "GET") {
+    const { data, error } = await supabaseAdmin
+      .from("sellers")
+      .select("id, name, code, seller_type, status, subscription_expires_at, contact_whatsapp, city, added_at")
+      .order("name");
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(data);
+  }
+
+  // POST — add new seller
+  if (req.method === "POST") {
+    const { name, code, seller_type, contact_whatsapp, city } = req.body;
+    if (!name || !code || !seller_type) {
+      return res.status(400).json({ error: "name, code, and seller_type are required" });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("sellers")
+      .insert({ name, code, seller_type, status: "pending", contact_whatsapp, city })
+      .select()
+      .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(201).json(data);
+  }
+
+  // PATCH — update a seller
+  if (req.method === "PATCH") {
+    const { id, ...updates } = req.body;
+    if (!id) return res.status(400).json({ error: "id is required" });
+
+    const { data, error } = await supabaseAdmin
+      .from("sellers")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(data);
+  }
+
+  // DELETE — remove a seller
+  if (req.method === "DELETE") {
+    const { id } = req.body;
+    if (!id) return res.status(400).json({ error: "id is required" });
+
+    const { error } = await supabaseAdmin.from("sellers").delete().eq("id", id);
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ ok: true });
+  }
+
+  return res.status(405).end();
+}

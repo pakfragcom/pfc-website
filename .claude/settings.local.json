@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(head -100 styles/*.css)"
+      "Bash(head -100 styles/*.css)",
+      "Bash(npm run:*)"
     ]
   }
 }
