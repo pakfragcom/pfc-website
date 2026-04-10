@@ -1,23 +1,26 @@
 // pages/_app.js
 import Head from 'next/head';
 import Script from 'next/script';
+import { Space_Grotesk } from 'next/font/google';
 import '../styles/main.css';
 import ScrollToTop from '../components/ScrollToTop';
 import SEO from '../components/SEO';
 import ErrorBoundary from '../components/ErrorBoundary';
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-space-grotesk',
+});
+
 export default function App({ Component, pageProps }) {
   return (
-    <>
+    <div className={spaceGrotesk.variable} style={{ fontFamily: 'var(--font-space-grotesk), sans-serif' }}>
       {/* ✅ Automatic SEO for every page */}
       <SEO />
 
       <Head>
-        {/* Fonts */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
 
         {/* Favicon */}
         <link rel="icon" href="/pfc-round.png" type="image/png" />
@@ -55,6 +58,6 @@ export default function App({ Component, pageProps }) {
         <Component {...pageProps} />
       </ErrorBoundary>
       <ScrollToTop />
-    </>
+    </div>
   );
 }

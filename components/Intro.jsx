@@ -1,96 +1,90 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion'
 
 export default function Intro() {
   const reduce = useReducedMotion()
 
   return (
-    <section
-      aria-labelledby="intro-heading"
-      className="relative mx-auto max-w-5xl px-6 py-24 overflow-hidden text-center"
-    >
-      {/* Background accents (no layout shift) */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-white/[0.03] to-transparent" />
-      <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#2a5c4f]/12 blur-3xl" />
-      <GridDither />
-
-      {/* Eyebrow */}
-      <motion.span
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: reduce ? 0 : 0.5, ease: 'easeOut' }}
-        className="mb-3 inline-block rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-300 backdrop-blur"
+    <LazyMotion features={domAnimation}>
+      <section
+        id="main"
+        aria-labelledby="intro-heading"
+        className="relative mx-auto max-w-5xl px-6 py-28 overflow-hidden text-center"
       >
-        Pakistan Fragrance Community
-      </motion.span>
+        {/* Background accents */}
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-white/[0.025] to-transparent" />
+        <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-[#2a5c4f]/15 blur-3xl" />
+        <GridDither />
 
-      {/* Heading */}
-      <motion.h2
-        id="intro-heading"
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: reduce ? 0 : 0.6, ease: [0.2, 0.8, 0.2, 1], delay: 0.05 }}
-        className="mx-auto mb-5 bg-gradient-to-b from-white to-white/70 bg-clip-text text-2xl font-extrabold uppercase tracking-wide text-transparent sm:text-3xl"
-      >
-        Welcome to the Premier Fragrance Community in Pakistan
-      </motion.h2>
+        {/* Heading — removed duplicate eyebrow badge */}
+        <m.h2
+          id="intro-heading"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: reduce ? 0 : 0.65, ease: [0.2, 0.8, 0.2, 1] }}
+          className="mx-auto mb-5 bg-gradient-to-b from-white via-white to-white/60 bg-clip-text text-2xl font-extrabold uppercase tracking-wide text-transparent sm:text-3xl"
+        >
+          Welcome to the Premier Fragrance Community in Pakistan
+        </m.h2>
 
-      {/* Body copy */}
-      <motion.p
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: reduce ? 0 : 0.5, ease: 'easeOut', delay: 0.1 }}
-        className="mx-auto max-w-3xl text-base leading-relaxed text-gray-300 sm:text-lg"
-      >
-        Connecting perfume lovers, collectors, reviewers, and decanters under one trusted platform.
-        Our mission is to elevate scent culture, build trust, and inspire the next generation of fragrance enthusiasts.
-      </motion.p>
+        {/* Body copy */}
+        <m.p
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: reduce ? 0 : 0.55, ease: 'easeOut', delay: 0.08 }}
+          className="mx-auto max-w-3xl text-base leading-relaxed text-gray-300 sm:text-lg"
+        >
+          Connecting perfume lovers, collectors, reviewers, and decanters under one trusted platform.
+          Our mission is to elevate scent culture, build trust, and inspire the next generation of fragrance enthusiasts.
+        </m.p>
 
-      {/* Divider */}
-      <motion.div
-        initial={{ scaleX: 0, opacity: 0 }}
-        whileInView={{ scaleX: 1, opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: reduce ? 0 : 0.6, ease: 'easeOut', delay: 0.15 }}
-        className="mx-auto mt-10 h-px w-24 origin-left bg-gradient-to-r from-transparent via-white/40 to-transparent"
-        aria-hidden="true"
-      />
-
-      {/* Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: reduce ? 0 : 0.6, ease: 'easeOut', delay: 0.2 }}
-        className="mx-auto mt-10 grid max-w-xl grid-cols-3 gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur"
-      >
-        <Stat
-          icon={<UsersIcon className="h-5 w-5 text-white/80" />}
-          label="Members"
-          valueEnd={100000}
-          suffix="+"
-          reduce={reduce}
-          ariaLabel="One hundred thousand plus members"
+        {/* Divider */}
+        <m.div
+          initial={{ scaleX: 0, opacity: 0 }}
+          whileInView={{ scaleX: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: reduce ? 0 : 0.6, ease: 'easeOut', delay: 0.12 }}
+          className="mx-auto mt-10 h-px w-32 origin-center bg-gradient-to-r from-transparent via-[#557d72]/70 to-transparent"
+          aria-hidden="true"
         />
-        <Stat
-          icon={<ShieldIcon className="h-5 w-5 text-white/80" />}
-          label="Verified Sellers"
-          valueEnd={100}
-          suffix="+"
-          reduce={reduce}
-          ariaLabel="One hundred plus verified sellers"
-        />
-        <StatInfinity
-          icon={<StarIcon className="h-5 w-5 text-white/80" />}
-          label="Reviews"
-          ariaLabel="Infinite reviews"
-        />
-      </motion.div>
-    </section>
+
+        {/* Stats — premium glass card */}
+        <m.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: reduce ? 0 : 0.6, ease: 'easeOut', delay: 0.18 }}
+          className="mx-auto mt-10 grid max-w-xl grid-cols-3 gap-0 rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_0_40px_rgba(42,92,79,0.12)] backdrop-blur-md overflow-hidden"
+        >
+          <Stat
+            icon={<UsersIcon className="h-5 w-5 text-[#94aea7]" />}
+            label="Members"
+            valueEnd={100000}
+            suffix="+"
+            reduce={reduce}
+            ariaLabel="One hundred thousand plus members"
+          />
+          <div className="border-x border-white/10">
+            <Stat
+              icon={<ShieldIcon className="h-5 w-5 text-[#94aea7]" />}
+              label="Verified Sellers"
+              valueEnd={100}
+              suffix="+"
+              reduce={reduce}
+              ariaLabel="One hundred plus verified sellers"
+            />
+          </div>
+          <StatInfinity
+            icon={<StarIcon className="h-5 w-5 text-[#94aea7]" />}
+            label="Reviews"
+            ariaLabel="Infinite reviews"
+          />
+        </m.div>
+      </section>
+    </LazyMotion>
   )
 }
 
@@ -103,56 +97,42 @@ function Stat({ icon, label, valueEnd, suffix = '', reduce, ariaLabel }) {
   useEffect(() => {
     if (!ref.current) return
     const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setHasViewed(true)
-          obs.disconnect()
-        }
-      },
+      (entries) => { if (entries[0].isIntersecting) { setHasViewed(true); obs.disconnect() } },
       { threshold: 0.4 }
     )
     obs.observe(ref.current)
     return () => obs.disconnect()
   }, [])
 
-  const value = useCountUp(hasViewed && !reduce ? valueEnd : valueEnd, {
-    duration: reduce ? 0 : 900, // ms
-  })
+  const value = useCountUp(hasViewed && !reduce ? valueEnd : valueEnd, { duration: reduce ? 0 : 900 })
 
   return (
-    <div ref={ref} className="flex flex-col items-center gap-1.5">
-      <div className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 p-2">
+    <div ref={ref} className="flex flex-col items-center gap-2 py-6 px-4">
+      <div className="inline-flex items-center justify-center rounded-full border border-white/10 bg-gradient-to-br from-white/8 to-white/3 p-2.5">
         {icon}
       </div>
-      <div
-        className="text-lg font-semibold leading-none text-white tabular-nums"
-        aria-label={ariaLabel}
-      >
-        {formatNumber(value)}
-        {suffix}
+      <div className="text-xl font-bold leading-none text-white tabular-nums" aria-label={ariaLabel}>
+        {formatNumber(value)}{suffix}
       </div>
-      <div className="text-[11px] uppercase tracking-wide text-white/50">{label}</div>
+      <div className="text-[10px] uppercase tracking-widest text-white/45">{label}</div>
     </div>
   )
 }
 
 function StatInfinity({ icon, label, ariaLabel }) {
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 p-2">
+    <div className="flex flex-col items-center gap-2 py-6 px-4">
+      <div className="inline-flex items-center justify-center rounded-full border border-white/10 bg-gradient-to-br from-white/8 to-white/3 p-2.5">
         {icon}
       </div>
-      <div className="text-lg font-semibold leading-none text-white" aria-label={ariaLabel}>
-        ∞
-      </div>
-      <div className="text-[11px] uppercase tracking-wide text-white/50">{label}</div>
+      <div className="text-xl font-bold leading-none text-white" aria-label={ariaLabel}>∞</div>
+      <div className="text-[10px] uppercase tracking-widest text-white/45">{label}</div>
     </div>
   )
 }
 
 /* ---------- Hooks & utils ---------- */
 
-// Lightweight, GC‑friendly count‑up that respects reduced motion.
 function useCountUp(target, { duration = 900 } = {}) {
   const [val, setVal] = useState(target)
   const rafRef = useRef()
@@ -164,22 +144,14 @@ function useCountUp(target, { duration = 900 } = {}) {
     fromRef.current = val
     toRef.current = target
     startRef.current = undefined
-
     cancelAnimationFrame(rafRef.current)
-    if (duration === 0 || fromRef.current === toRef.current) {
-      setVal(target)
-      return
-    }
+    if (duration === 0 || fromRef.current === toRef.current) { setVal(target); return }
 
     const step = (t) => {
       if (startRef.current === undefined) startRef.current = t
       const p = Math.min(1, (t - startRef.current) / duration)
-      // easeOutCubic
       const eased = 1 - Math.pow(1 - p, 3)
-      const next = Math.round(
-        fromRef.current + (toRef.current - fromRef.current) * eased
-      )
-      setVal(next)
+      setVal(Math.round(fromRef.current + (toRef.current - fromRef.current) * eased))
       if (p < 1) rafRef.current = requestAnimationFrame(step)
     }
     rafRef.current = requestAnimationFrame(step)
@@ -191,11 +163,7 @@ function useCountUp(target, { duration = 900 } = {}) {
 }
 
 function formatNumber(n) {
-  try {
-    return new Intl.NumberFormat('en-US').format(n)
-  } catch {
-    return String(n)
-  }
+  try { return new Intl.NumberFormat('en-US').format(n) } catch { return String(n) }
 }
 
 /* ---------- Decorative ---------- */
@@ -204,7 +172,7 @@ function GridDither() {
   return (
     <svg
       aria-hidden="true"
-      className="pointer-events-none absolute -left-20 top-1/2 -z-10 hidden h-[520px] w-[520px] -translate-y-1/2 opacity-[0.07] md:block"
+      className="pointer-events-none absolute -left-20 top-1/2 -z-10 hidden h-[520px] w-[520px] -translate-y-1/2 opacity-[0.06] md:block"
       viewBox="0 0 200 200"
       fill="none"
     >

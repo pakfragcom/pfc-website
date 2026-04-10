@@ -2,10 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Set global font-family OUTSIDE the @layer block */
+/* ✅ Prevent horizontal scroll from blurs/svw */
 body {
-  font-family: 'Space Grotesk', sans-serif;
-  overflow-x: hidden; /* 🔹 Prevent horizontal scroll from blurs, svw, etc. */
+  overflow-x: hidden;
 }
 
 @layer base {
