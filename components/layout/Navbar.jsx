@@ -1,17 +1,16 @@
-'use client'
-
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { useMemo, useRef, useEffect, useCallback } from 'react'
 
 export default function Navbar({ onLinkClick }) {
-  const pathname = usePathname()
+  const { pathname } = useRouter()
 
   // Single source of truth (keep only real links—no placeholders)
   const ITEMS = useMemo(
     () => [
-      { label: 'Home',  href: '/', external: false },
-      { label: 'Forum', href: 'https://forum.pakfrag.com', external: true },
+      { label: 'Home',    href: '/',         external: false },
+      { label: 'Reviews', href: '/reviews',  external: false },
+      { label: 'Forum',   href: 'https://forum.pakfrag.com', external: true },
     ],
     []
   )

@@ -329,6 +329,7 @@ export default function AdminSellers() {
             <nav className="flex gap-4 text-sm">
               <Link href="/pfc-mgmt" className="text-gray-400 hover:text-white transition">Overview</Link>
               <span className="text-emerald-400 font-medium">Sellers</span>
+              <Link href="/pfc-mgmt/reviews" className="text-gray-400 hover:text-white transition">Reviews</Link>
             </nav>
           </div>
           <button onClick={handleLogout} className="text-sm text-gray-500 hover:text-white transition">

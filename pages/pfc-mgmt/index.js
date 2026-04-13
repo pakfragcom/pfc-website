@@ -54,6 +54,7 @@ export default function AdminDashboard() {
             <nav className="flex gap-4 text-sm">
               <span className="text-emerald-400 font-medium">Overview</span>
               <Link href="/pfc-mgmt/sellers" className="text-gray-400 hover:text-white transition">Sellers</Link>
+              <Link href="/pfc-mgmt/reviews" className="text-gray-400 hover:text-white transition">Reviews</Link>
             </nav>
           </div>
           <button onClick={handleLogout} className="text-sm text-gray-500 hover:text-white transition">

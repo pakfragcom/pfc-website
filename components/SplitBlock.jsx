@@ -105,9 +105,7 @@ export default function SplitBlock() {
                 Join the Community
               </a>
               <a
-                href="https://forum.pakfrag.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/reviews"
                 className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/10"
               >
                 Read Reviews
