@@ -4,10 +4,10 @@ import { createClient } from '@supabase/supabase-js'
 let _client = null
 function getClient() {
   if (!_client && typeof window !== 'undefined') {
-    _client = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!url || !key) return null
+    _client = createClient(url, key)
   }
   return _client
 }

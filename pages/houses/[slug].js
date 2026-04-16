@@ -3,7 +3,6 @@ import Link from 'next/link'
 import Header from '../../components/layout/Header'
 import Footer from '../../components/layout/Footer'
 import { supabase } from '../../lib/supabase'
-import { supabaseAdmin } from '../../lib/supabase-admin'
 
 const STAR = '★'
 const STAR_EMPTY = '☆'
