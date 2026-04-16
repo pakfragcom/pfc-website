@@ -8,7 +8,7 @@ function getClient() {
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     if (!url || !key) return null
     _client = createClient(url, key, {
-      auth: { flowType: 'pkce', detectSessionInUrl: false },
+      auth: { flowType: 'implicit', detectSessionInUrl: true },
     })
   }
   return _client
