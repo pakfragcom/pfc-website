@@ -1,5 +1,6 @@
-// pages/approved-houses.js
+// pages/local-houses.js
 import { useMemo, useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import SEO from "../components/SEO";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -101,16 +102,8 @@ const VerifiedBadge = ({ size = 22 }) => (
   </span>
 );
 
-const LuxuryCard = ({ item, onClick, idx }) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -12 }}
-    transition={{ duration: 0.4, delay: idx ? idx * 0.05 : 0, ease: "easeOut" }}
-    className="relative group cursor-pointer"
-    onClick={onClick}
-  >
+const LuxuryCard = ({ item, onClick, idx }) => {
+  const inner = (
     <div className="relative rounded-2xl p-[1px] overflow-hidden min-h-[140px] sm:min-h-[160px] flex">
       <div
         className="absolute inset-0 opacity-40 blur-xl pointer-events-none animate-spin-slower"
@@ -136,8 +129,27 @@ const LuxuryCard = ({ item, onClick, idx }) => (
         />
       </div>
     </div>
-  </motion.div>
-);
+  );
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.4, delay: idx ? idx * 0.05 : 0, ease: "easeOut" }}
+      className="relative group"
+    >
+      {item.slug ? (
+        <Link href={`/houses/${item.slug}`} className="block cursor-pointer" onClick={onClick}>
+          {inner}
+        </Link>
+      ) : (
+        <div className="cursor-pointer" onClick={onClick}>{inner}</div>
+      )}
+    </motion.div>
+  );
+};
 
 const FeaturedSpotlight = ({ data }) => {
   const [batch, setBatch] = useState(() => pickRandomUnique(data, 4));
@@ -214,8 +226,8 @@ export default function ApprovedHousesPage({ houses = [] }) {
   return (
     <div className="bg-black text-white font-sans">
       <SEO
-        title="Approved Houses | PFC-MFP"
-        description="Explore the PFC-MFP curated directory of approved fragrance houses in Pakistan. Search by house name and discover Creative Directors."
+        title="Pakistani Fragrance Houses & Local Brands | PFC"
+        description={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses. Browse local brands, read community reviews, and find your next signature scent from Pakistan's fragrance community.`}
       />
       <Header />
 
@@ -308,6 +320,16 @@ export default function ApprovedHousesPage({ houses = [] }) {
           {selected && (
             <div className="mt-6">
               <LuxuryCard item={selected} />
+              {selected.slug && (
+                <div className="mt-3 text-center">
+                  <Link
+                    href={`/houses/${selected.slug}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#2a5c4f]/20 hover:brightness-110 transition"
+                  >
+                    View Profile &amp; Reviews →
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
@@ -335,7 +357,7 @@ export default function ApprovedHousesPage({ houses = [] }) {
 export async function getStaticProps() {
   const { data: houses, error } = await supabase
     .from("fragrance_houses")
-    .select("house, director")
+    .select("house, director, slug")
     .in("status", ["active", "grace"])
     .order("house");
 
@@ -343,10 +365,11 @@ export async function getStaticProps() {
     console.error("[local-houses] Supabase fetch error:", error.message);
   }
 
-  // Map director → by to match existing component field names
+  // Map to component field names
   const mapped = (houses || []).map((h) => ({
     house: h.house,
     by: h.director?.trim() || "\u2014",
+    slug: h.slug || null,
   }));
 
   return {

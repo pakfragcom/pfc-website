@@ -80,6 +80,7 @@ export default function AdminReviews() {
             <nav className="flex gap-4 text-sm">
               <Link href="/pfc-mgmt" className="text-gray-400 hover:text-white transition">Overview</Link>
               <Link href="/pfc-mgmt/sellers" className="text-gray-400 hover:text-white transition">Sellers</Link>
+              <Link href="/pfc-mgmt/houses" className="text-gray-400 hover:text-white transition">Houses</Link>
               <span className="text-emerald-400 font-medium">Reviews</span>
             </nav>
           </div>
