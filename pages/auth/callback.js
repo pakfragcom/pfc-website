@@ -12,31 +12,22 @@ export default function AuthCallback() {
       return;
     }
 
-    async function handleCallback() {
-      // Check if session already resolved (auth state change fired before mount)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const next = new URLSearchParams(window.location.search).get('next') || '/';
-        router.replace(next);
-        return;
-      }
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const next = params.get('next') || '/';
 
-      // Explicitly exchange the PKCE code for a session
-      const code = new URLSearchParams(window.location.search).get('code');
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (!error) {
-          const next = new URLSearchParams(window.location.search).get('next') || '/';
-          router.replace(next);
-        } else {
-          router.replace('/auth/login?error=oauth_failed');
-        }
-      } else {
-        router.replace('/auth/login');
-      }
+    if (!code) {
+      router.replace('/auth/login');
+      return;
     }
 
-    handleCallback();
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (error) {
+        router.replace('/auth/login?error=' + encodeURIComponent(error.message));
+      } else {
+        router.replace(next);
+      }
+    });
   }, [router, supabase]);
 
   return (
