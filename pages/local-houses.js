@@ -77,55 +77,81 @@ function pickRandomUnique(arr, count) {
   return out;
 }
 
+// --------------------------- TIER CONFIG ---------------------------
+const TIER = {
+  platinum: {
+    label: "The Platinum Club",
+    icon: "♛",
+    glow: "rgba(251,191,36,0.35), rgba(245,158,11,0.35), rgba(251,191,36,0.35)",
+    ring: "ring-amber-500/35",
+    badge: "bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/30",
+    border: "from-amber-400/20 to-yellow-600/10",
+    desc: "PFC's highest-recognised houses — seniority, quality, and olfactory excellence.",
+    headingClass: "text-amber-300",
+    sectionBg: "bg-amber-500/5 ring-1 ring-amber-500/10",
+  },
+  gold: {
+    label: "The Gold Club",
+    icon: "✦",
+    glow: "rgba(234,179,8,0.28), rgba(202,138,4,0.28), rgba(234,179,8,0.28)",
+    ring: "ring-yellow-500/25",
+    badge: "bg-yellow-500/10 text-yellow-400 ring-1 ring-yellow-500/20",
+    border: "from-yellow-400/15 to-amber-600/8",
+    desc: "Strong brand recognition, reliable quality, and a defined house identity.",
+    headingClass: "text-yellow-400",
+    sectionBg: "bg-yellow-500/5 ring-1 ring-yellow-500/8",
+  },
+  silver: {
+    label: "The Silver Club",
+    icon: "◈",
+    glow: "rgba(148,163,184,0.22), rgba(100,116,139,0.22), rgba(148,163,184,0.22)",
+    ring: "ring-slate-400/20",
+    badge: "bg-slate-500/10 text-slate-300 ring-1 ring-slate-400/20",
+    border: "from-slate-300/10 to-slate-500/8",
+    desc: "Promising newer houses showing real potential — ones to watch.",
+    headingClass: "text-slate-300",
+    sectionBg: "bg-slate-500/5 ring-1 ring-slate-400/8",
+  },
+};
+
 // --------------------------- UI PARTS ---------------------------
-const VerifiedBadge = ({ size = 22 }) => (
-  <span
-    className="inline-flex items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
-    style={{ width: size, height: size }}
-    aria-label="Approved"
-    title="Approved"
-  >
-    <svg viewBox="0 0 24 24" fill="none" width={size * 0.7} height={size * 0.7}>
-      <path
-        d="M12 2l2.4 2.2 3.2-.6.6 3.2L20.8 9 23 12l-2.2 3 .4 3.4-3.4.4L14.4 22 12 19.8 9.6 22l-3.4-.4L6.6 15 4 12l2.2-3L5.8 5.6l3.2.6L12 2z"
-        fill="currentColor"
-        opacity="0.2"
-      />
-      <path
-        d="M9 12.5l2 2 4-5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  </span>
-);
+const VerifiedBadge = ({ size = 22, tier = "platinum" }) => {
+  const t = TIER[tier] || TIER.platinum;
+  return (
+    <span
+      className={`inline-flex items-center justify-center rounded-full ${t.badge}`}
+      style={{ width: size, height: size }}
+      aria-label={t.label}
+      title={t.label}
+    >
+      <span style={{ fontSize: size * 0.52, lineHeight: 1 }}>{t.icon}</span>
+    </span>
+  );
+};
 
 const LuxuryCard = ({ item, onClick, idx }) => {
+  const tier = item.tier || "silver";
+  const t = TIER[tier] || TIER.silver;
+
   const inner = (
-    <div className="relative rounded-2xl p-[1px] overflow-hidden min-h-[140px] sm:min-h-[160px] flex">
+    <div className={`relative rounded-2xl p-[1px] overflow-hidden min-h-[140px] sm:min-h-[160px] flex`}>
       <div
-        className="absolute inset-0 opacity-40 blur-xl pointer-events-none animate-spin-slower"
-        style={{
-          background: "conic-gradient(from 0deg, rgba(16,185,129,0.25), rgba(59,130,246,0.25), rgba(16,185,129,0.25))",
-        }}
+        className="absolute inset-0 opacity-35 blur-xl pointer-events-none animate-spin-slower"
+        style={{ background: `conic-gradient(from 0deg, ${t.glow})` }}
       />
-      <div className="relative rounded-2xl bg-gradient-to-b from-[#0b0f15]/80 via-[#0b0f15]/70 to-[#0b0f15]/60 ring-1 ring-white/10 backdrop-blur-md flex flex-col justify-between w-full">
+      <div className={`relative rounded-2xl bg-gradient-to-b from-[#0b0f15]/80 via-[#0b0f15]/70 to-[#0b0f15]/60 ${t.ring} ring-1 backdrop-blur-md flex flex-col justify-between w-full`}>
         <div className="relative p-4 sm:p-5 flex-1 flex flex-col items-center justify-center text-center">
-          <VerifiedBadge />
+          <VerifiedBadge tier={tier} />
           <div className="font-extrabold text-base sm:text-lg leading-snug line-clamp-2 mt-2">
             {item.house}
           </div>
-          <div className="mt-1 text-xs sm:text-sm text-emerald-200/90 italic line-clamp-2">
+          <div className="mt-1 text-xs sm:text-sm text-emerald-200/80 italic line-clamp-2">
             By {item.by}
           </div>
         </div>
         <div
           className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition duration-500"
-          style={{
-            background: "linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
-          }}
+          style={{ background: "linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)" }}
         />
       </div>
     </div>
@@ -151,42 +177,24 @@ const LuxuryCard = ({ item, onClick, idx }) => {
   );
 };
 
-const FeaturedSpotlight = ({ data }) => {
-  const [batch, setBatch] = useState(() => pickRandomUnique(data, 4));
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBatch(pickRandomUnique(data, 4));
-    }, 7000);
-    return () => clearInterval(interval);
-  }, [data]);
-
+const TierSection = ({ tier, items }) => {
+  const t = TIER[tier];
+  if (!items?.length) return null;
   return (
-    <div className="mt-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/30 text-emerald-300 text-xs font-medium">
-          <VerifiedBadge size={14} />
-          Featured Spotlight
+    <div className={`rounded-2xl ${t.sectionBg} px-5 py-5 mb-6`}>
+      <div className="flex items-center gap-3 mb-4">
+        <span className={`text-2xl`}>{tier === 'platinum' ? '🏆' : tier === 'gold' ? '🥇' : '🥈'}</span>
+        <div>
+          <h2 className={`text-base font-bold ${t.headingClass}`}>{t.label}</h2>
+          <p className="text-[11px] text-gray-500 mt-0.5">{t.desc}</p>
         </div>
-        <div className="text-[11px] sm:text-xs text-gray-400">
-          Rotates every 7s &bull; Random 4 Houses
-        </div>
+        <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${t.badge}`}>{items.length}</span>
       </div>
-
-      <AnimatePresence mode="popLayout">
-        <motion.div
-          key={batch.map((b) => b.house).join("|")}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
-        >
-          {batch.map((item, idx) => (
-            <LuxuryCard key={item.house} item={item} idx={idx} />
-          ))}
-        </motion.div>
-      </AnimatePresence>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {items.map((item, idx) => (
+          <LuxuryCard key={item.house} item={item} idx={idx} />
+        ))}
+      </div>
     </div>
   );
 };
@@ -196,6 +204,10 @@ export default function ApprovedHousesPage({ houses = [] }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
   const inputRef = useRef(null);
+
+  const platinum = useMemo(() => houses.filter(h => h.tier === 'platinum'), [houses]);
+  const gold     = useMemo(() => houses.filter(h => h.tier === 'gold'),     [houses]);
+  const silver   = useMemo(() => houses.filter(h => h.tier === 'silver'),   [houses]);
 
   const filtered = useMemo(() => {
     if (!query) return [];
@@ -227,24 +239,25 @@ export default function ApprovedHousesPage({ houses = [] }) {
     <div className="bg-black text-white font-sans">
       <SEO
         title="Pakistani Fragrance Houses & Local Brands | PFC"
-        description={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses. Browse local brands, read community reviews, and find your next signature scent from Pakistan's fragrance community.`}
+        description={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses — Platinum, Gold & Silver tiers. Browse local brands, read community reviews, and find your next signature scent.`}
       />
       <Header />
 
       <div className="min-h-screen text-white">
-        <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:py-14">
           {/* Title */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/30 text-emerald-300 text-xs font-medium">
-              <VerifiedBadge size={14} />
-              PFC-MFP Approved Houses
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 ring-1 ring-amber-500/25 text-amber-300 text-xs font-medium">
+              🏆 PFC-MBP Approved Houses
             </div>
             <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Explore the Curated House Directory
+              Pakistan Fragrance House Directory
             </h1>
-            <p className="mt-3 text-sm sm:text-base text-gray-300/90">
-              Type a <span className="font-semibold">house name</span> to search, or enjoy the{" "}
-              <span className="font-semibold text-emerald-300/90">Featured Spotlight</span>.
+            <p className="mt-3 text-sm sm:text-base text-gray-400">
+              {houses.length} PFC-verified houses &nbsp;·&nbsp;
+              <span className="text-amber-300">{platinum.length} Platinum</span>&nbsp;·&nbsp;
+              <span className="text-yellow-400">{gold.length} Gold</span>&nbsp;·&nbsp;
+              <span className="text-slate-300">{silver.length} Silver</span>
             </p>
           </div>
 
@@ -287,8 +300,14 @@ export default function ApprovedHousesPage({ houses = [] }) {
                 />
               </div>
 
-              {/* Featured Spotlight when empty */}
-              {!query && houses.length > 0 && <FeaturedSpotlight data={houses} />}
+              {/* Tier browse when empty */}
+              {!query && houses.length > 0 && (
+                <div className="mt-6">
+                  <TierSection tier="platinum" items={platinum} />
+                  <TierSection tier="gold" items={gold} />
+                  <TierSection tier="silver" items={silver} />
+                </div>
+              )}
 
               {/* Suggestions */}
               {query && filtered.length > 0 && (
@@ -357,7 +376,7 @@ export default function ApprovedHousesPage({ houses = [] }) {
 export async function getStaticProps() {
   const { data: houses, error } = await supabase
     .from("fragrance_houses")
-    .select("house, director, slug")
+    .select("house, director, slug, tier")
     .in("status", ["active", "grace"])
     .order("house");
 
@@ -370,6 +389,7 @@ export async function getStaticProps() {
     house: h.house,
     by: h.director?.trim() || "\u2014",
     slug: h.slug || null,
+    tier: h.tier || "silver",
   }));
 
   return {

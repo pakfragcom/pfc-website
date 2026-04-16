@@ -84,7 +84,8 @@ export default function HousePage({ house, reviews = [], stats }) {
     ],
   }
 
-  const pageTitle = `${house.house} Reviews — Pakistani Fragrance House | PFC`
+  const tierLabel = { platinum: 'Platinum Club', gold: 'Gold Club', silver: 'Silver Club' }[house.tier] || ''
+  const pageTitle = `${house.house} Reviews — ${tierLabel ? tierLabel + ' · ' : ''}Pakistani Fragrance House | PFC`
   const pageDesc = house.description
     ? `${house.description.slice(0, 140)}…`
     : `Read community reviews of ${house.house}${house.director ? `, led by ${house.director}` : ''} — a PFC-verified Pakistani fragrance brand.`
@@ -133,14 +134,25 @@ export default function HousePage({ house, reviews = [], stats }) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  {/* Verified badge */}
-                  <div className="flex items-center gap-2 mb-2">
+                  {/* Tier + verified badges */}
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    {house.tier === 'platinum' && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300 ring-1 ring-amber-500/30">
+                        🏆 Platinum Club
+                      </span>
+                    )}
+                    {house.tier === 'gold' && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-yellow-400 ring-1 ring-yellow-500/20">
+                        🥇 Gold Club
+                      </span>
+                    )}
+                    {house.tier === 'silver' && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-slate-300 ring-1 ring-slate-400/20">
+                        🥈 Silver Club
+                      </span>
+                    )}
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400 ring-1 ring-emerald-500/25">
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 2l2.4 2.2 3.2-.6.6 3.2L20.8 9 23 12l-2.2 3 .4 3.4-3.4.4L14.4 22 12 19.8 9.6 22l-3.4-.4-.4-3.4L4 12l2.2-3-.6-3.2 3.2.6z" opacity=".2" />
-                        <path d="M9 12.5l2 2 4-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                      </svg>
-                      PFC Verified
+                      ✓ PFC Verified
                     </span>
                     {house.established_year && (
                       <span className="text-[11px] text-gray-600">Est. {house.established_year}</span>
@@ -300,7 +312,7 @@ export async function getStaticProps({ params }) {
   // Fetch house (use admin client to bypass RLS for the page build, but data is public)
   const { data: house } = await supabase
     .from('fragrance_houses')
-    .select('id, house, slug, director, city, description, established_year, instagram, website, status')
+    .select('id, house, slug, director, city, description, established_year, instagram, website, status, tier')
     .eq('slug', slug)
     .single()
 
