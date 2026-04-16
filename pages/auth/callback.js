@@ -2,20 +2,41 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '../../lib/auth-context';
 
-// Handles OAuth redirects and email confirmation links.
-// Supabase redirects here with ?code= — we exchange it for a session.
 export default function AuthCallback() {
   const router = useRouter();
   const supabase = useSupabaseClient();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
-        const next = router.query.next || '/';
+    if (!supabase) {
+      router.replace('/auth/login');
+      return;
+    }
+
+    async function handleCallback() {
+      // Check if session already resolved (auth state change fired before mount)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const next = new URLSearchParams(window.location.search).get('next') || '/';
         router.replace(next);
+        return;
       }
-    });
-    return () => subscription.unsubscribe();
+
+      // Explicitly exchange the PKCE code for a session
+      const code = new URLSearchParams(window.location.search).get('code');
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error) {
+          const next = new URLSearchParams(window.location.search).get('next') || '/';
+          router.replace(next);
+        } else {
+          router.replace('/auth/login?error=oauth_failed');
+        }
+      } else {
+        router.replace('/auth/login');
+      }
+    }
+
+    handleCallback();
   }, [router, supabase]);
 
   return (
