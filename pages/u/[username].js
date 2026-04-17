@@ -8,7 +8,7 @@ const CATEGORY_LABELS = {
   designer: 'Designer', middle_eastern: 'Middle Eastern', niche: 'Niche', local: 'Local Brand',
 };
 
-export default function UserProfile({ profile, reviews = [] }) {
+export default function UserProfile({ profile, reviews = [], sellerType = null }) {
   if (!profile) return null;
 
   const joinDate = new Date(profile.created_at).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' });
@@ -41,7 +41,14 @@ export default function UserProfile({ profile, reviews = [] }) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl font-extrabold text-white">{profile.display_name}</h1>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h1 className="text-2xl font-extrabold text-white">{profile.display_name}</h1>
+                    {sellerType && (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/25">
+                        ✓ Verified {sellerType} Seller
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
                     {profile.city && (
                       <span className="text-sm text-gray-400 flex items-center gap-1">
@@ -137,5 +144,12 @@ export async function getStaticProps({ params }) {
     .eq('status', 'approved')
     .order('published_at', { ascending: false });
 
-  return { props: { profile, reviews: reviews || [] }, revalidate: 300 };
+  const { data: seller } = await supabase
+    .from('sellers')
+    .select('seller_type')
+    .eq('user_id', profile.id)
+    .in('status', ['active', 'grace'])
+    .maybeSingle();
+
+  return { props: { profile, reviews: reviews || [], sellerType: seller?.seller_type || null }, revalidate: 300 };
 }
