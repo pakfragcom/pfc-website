@@ -1,31 +1,57 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useSupabaseClient } from '../../lib/auth-context';
+import { createServerClient } from '@supabase/ssr';
+
+export async function getServerSideProps({ req, res, query }) {
+  const code = query.code;
+  const next = query.next || '/';
+
+  if (!code) {
+    return { redirect: { destination: '/auth/login', permanent: false } };
+  }
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return Object.entries(req.cookies).map(([name, value]) => ({ name, value }));
+        },
+        setAll(cookiesToSet) {
+          const existing = res.getHeader('Set-Cookie');
+          const existingArr = existing
+            ? Array.isArray(existing) ? existing : [existing]
+            : [];
+          res.setHeader('Set-Cookie', [
+            ...existingArr,
+            ...cookiesToSet.map(({ name, value, options = {} }) => {
+              let str = `${name}=${value}; Path=${options.path || '/'}`;
+              if (options.httpOnly) str += '; HttpOnly';
+              if (options.secure) str += '; Secure';
+              if (options.sameSite) str += `; SameSite=${options.sameSite}`;
+              if (options.maxAge !== undefined) str += `; Max-Age=${options.maxAge}`;
+              return str;
+            }),
+          ]);
+        },
+      },
+    }
+  );
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    return {
+      redirect: {
+        destination: '/auth/login?error=' + encodeURIComponent(error.message),
+        permanent: false,
+      },
+    };
+  }
+
+  return { redirect: { destination: next, permanent: false } };
+}
 
 export default function AuthCallback() {
-  const router = useRouter();
-  const supabase = useSupabaseClient();
-
-  useEffect(() => {
-    if (!supabase) { router.replace('/auth/login'); return; }
-
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const next = params.get('next') || '/';
-
-    if (!code) { router.replace('/auth/login'); return; }
-
-    // createBrowserClient stores the PKCE verifier in cookies so it survives
-    // the full-page OAuth redirect and is available here for exchange.
-    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error) {
-        router.replace('/auth/login?error=' + encodeURIComponent(error.message));
-      } else {
-        router.replace(next);
-      }
-    });
-  }, [router, supabase]);
-
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
       <div className="text-center">
