@@ -9,27 +9,20 @@ export default function AuthCallback() {
   useEffect(() => {
     if (!supabase) { router.replace('/auth/login'); return; }
 
-    const next = new URLSearchParams(window.location.search).get('next') || '/';
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const next = params.get('next') || '/';
 
-    // With implicit flow, Supabase puts the session in the URL hash.
-    // getSession() auto-processes the hash and returns the session.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    if (!code) { router.replace('/auth/login'); return; }
+
+    // createBrowserClient stores the PKCE verifier in cookies so it survives
+    // the full-page OAuth redirect and is available here for exchange.
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (error) {
+        router.replace('/auth/login?error=' + encodeURIComponent(error.message));
+      } else {
         router.replace(next);
-        return;
       }
-      // Fallback: wait for onAuthStateChange in case timing is off
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          subscription.unsubscribe();
-          router.replace(next);
-        }
-      });
-      const timeout = setTimeout(() => {
-        subscription.unsubscribe();
-        router.replace('/auth/login?error=Sign-in+timed+out.+Please+try+again.');
-      }, 8000);
-      return () => { clearTimeout(timeout); subscription.unsubscribe(); };
     });
   }, [router, supabase]);
 

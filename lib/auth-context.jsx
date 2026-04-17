@@ -1,15 +1,15 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
+// createBrowserClient stores the PKCE code verifier in cookies, not localStorage.
+// Cookies survive the full-page redirect through Google OAuth and back.
 let _client = null
 function getClient() {
   if (!_client && typeof window !== 'undefined') {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     if (!url || !key) return null
-    _client = createClient(url, key, {
-      auth: { flowType: 'implicit', detectSessionInUrl: true },
-    })
+    _client = createBrowserClient(url, key)
   }
   return _client
 }
@@ -26,12 +26,10 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (!supabase) return
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
     })
-    // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
