@@ -10,6 +10,7 @@ export default function Navbar({ onLinkClick }) {
     () => [
       { label: 'Home',          href: '/',             external: false },
       { label: 'Local Houses',  href: '/local-houses', external: false },
+      { label: 'Fragrances',    href: '/fragrances',   external: false },
       { label: 'Reviews',       href: '/reviews',      external: false },
     ],
     []

@@ -119,8 +119,7 @@ export default function Reviews({ reviews = [], activeCategory = 'all' }) {
 function ReviewCard({ review }) {
   const stars = Math.round(review.rating_overall);
   return (
-    <Link href={`/reviews/${review.slug}`}
-      className="group block rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden card-lift glass-card">
+    <div className="group rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden card-lift glass-card">
       {/* Cover image placeholder / gradient */}
       <div className="relative h-44 bg-gradient-to-br from-[#2a5c4f]/30 via-black to-[#94aea7]/20 overflow-hidden">
         {review.cover_image_url ? (
@@ -163,8 +162,22 @@ function ReviewCard({ review }) {
           <span>{review.profiles?.display_name || 'Anonymous'}</span>
           <span>{review.published_at ? new Date(review.published_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</span>
         </div>
+
+        {/* Footer links */}
+        <div className="mt-3 pt-3 border-t border-white/8 flex items-center justify-between gap-2">
+          <Link href={`/reviews/${review.slug}`}
+            className="text-[11px] text-gray-500 hover:text-white transition">
+            Read full review →
+          </Link>
+          {review.fragrances?.slug && (
+            <Link href={`/fragrances/${review.fragrances.slug}`}
+              className="text-[11px] text-[#6b9e94] hover:text-[#94aea7] transition">
+              All reviews for this fragrance
+            </Link>
+          )}
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -190,7 +203,7 @@ export async function getServerSideProps({ query }) {
   const category = query.category || 'all';
   let q = supabase
     .from('reviews')
-    .select('id, slug, fragrance_name, house, category, rating_overall, review_text, cover_image_url, published_at, profiles(display_name)')
+    .select('id, slug, fragrance_name, house, category, rating_overall, review_text, cover_image_url, published_at, profiles(display_name), fragrances(slug)')
     .eq('status', 'approved')
     .order('published_at', { ascending: false })
     .limit(48);

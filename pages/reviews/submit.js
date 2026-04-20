@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useUser, useSupabaseClient } from '../../lib/auth-context';
 import Header from '../../components/layout/Header';
@@ -26,16 +26,90 @@ export default function SubmitReview() {
   const user     = useUser();
   const supabase = useSupabaseClient();
 
+  // Pre-fill from query params (e.g. coming from /fragrances/[slug])
+  const prefillName = router.query.fragrance || '';
+  const prefillHouse = router.query.house || '';
+  const prefillFid  = router.query.fid || '';
+
   const [form, setForm] = useState({
-    fragrance_name: '', house: '', category: '',
+    fragrance_name: prefillName,
+    house: prefillHouse,
+    category: '',
     rating_overall: 0, rating_longevity: 0, rating_sillage: 0, rating_value: 0,
     review_text: '', occasion: '', season: '',
   });
+  const [fragrance_id, setFragranceId] = useState(prefillFid || null);
+
+  // Sync pre-fill once router is ready
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (prefillName || prefillHouse) {
+      setForm(p => ({ ...p, fragrance_name: prefillName, house: prefillHouse }));
+      if (prefillFid) setFragranceId(prefillFid);
+    }
+  }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const [done, setDone]       = useState(false);
 
-  // Not logged in
+  // ── Fragrance auto-suggest ───────────────────────────────────────
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const suggestTimeout = useRef(null);
+  const suggestionRef = useRef(null);
+
+  const searchFragrances = useCallback(async (query) => {
+    if (query.trim().length < 2) { setSuggestions([]); return; }
+    setSuggestionLoading(true);
+    const { data } = await supabase
+      .from('fragrances')
+      .select('id, name, house, category, concentration')
+      .eq('status', 'approved')
+      .ilike('name', `%${query.trim()}%`)
+      .limit(8);
+    setSuggestions(data || []);
+    setSuggestionLoading(false);
+  }, [supabase]);
+
+  const handleFragranceNameChange = (value) => {
+    set('fragrance_name', value);
+    setFragranceId(null); // clear linked fragrance when user types freely
+    clearTimeout(suggestTimeout.current);
+    if (value.trim().length >= 2) {
+      setShowSuggestions(true);
+      suggestTimeout.current = setTimeout(() => searchFragrances(value), 300);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const pickSuggestion = (frag) => {
+    setForm(p => ({
+      ...p,
+      fragrance_name: frag.name,
+      house: frag.house,
+      category: frag.category || p.category,
+    }));
+    setFragranceId(frag.id);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (suggestionRef.current && !suggestionRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // ── Auth guard ───────────────────────────────────────────────────
   if (!user) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
@@ -94,7 +168,7 @@ export default function SubmitReview() {
 
     setLoading(true); setError('');
 
-    // Ensure profile exists (auto-create for OAuth users who haven't visited /u/me)
+    // Ensure profile exists
     const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
     if (!profile) {
       const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
@@ -106,22 +180,23 @@ export default function SubmitReview() {
     }
 
     const slug = slugify(form.fragrance_name);
-    const { error } = await supabase.from('reviews').insert({
+    const { error: insertError } = await supabase.from('reviews').insert({
       author_id:        user.id,
       slug,
       fragrance_name:   form.fragrance_name.trim(),
       house:            form.house.trim(),
       category:         form.category,
+      fragrance_id:     fragrance_id || null,
       rating_overall:   form.rating_overall,
       rating_longevity: form.rating_longevity || null,
-      rating_sillage:   form.rating_sillage || null,
-      rating_value:     form.rating_value || null,
+      rating_sillage:   form.rating_sillage   || null,
+      rating_value:     form.rating_value     || null,
       review_text:      form.review_text.trim(),
       occasion:         form.occasion || null,
-      season:           form.season || null,
+      season:           form.season   || null,
     });
 
-    if (error) { setError(error.message); setLoading(false); }
+    if (insertError) { setError(insertError.message); setLoading(false); }
     else setDone(true);
   }
 
@@ -148,20 +223,84 @@ export default function SubmitReview() {
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Fragrance info */}
               <Section title="Fragrance">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="Fragrance Name *" value={form.fragrance_name} onChange={v => set('fragrance_name', v)} placeholder="e.g. Sauvage" required />
-                  <Field label="House / Brand *" value={form.house} onChange={v => set('house', v)} placeholder="e.g. Dior" required />
+                {/* Fragrance name with auto-suggest */}
+                <div ref={suggestionRef} className="relative">
+                  <label className="block text-xs text-gray-400 mb-1.5">
+                    Fragrance Name *
+                    {fragrance_id && (
+                      <span className="ml-2 inline-flex items-center gap-1 text-[#94aea7]">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Linked to directory
+                      </span>
+                    )}
+                  </label>
+                  <input
+                    type="text"
+                    value={form.fragrance_name}
+                    onChange={e => handleFragranceNameChange(e.target.value)}
+                    onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                    placeholder="e.g. Sauvage EDP"
+                    required
+                    autoComplete="off"
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-[#557d72] focus:ring-1 focus:ring-[#557d72] transition"
+                  />
+
+                  {/* Dropdown */}
+                  {showSuggestions && (
+                    <div className="absolute z-20 top-full mt-1 left-0 right-0 rounded-xl border border-white/10 bg-[#0d0d0d] shadow-2xl overflow-hidden">
+                      {suggestionLoading ? (
+                        <div className="px-4 py-3 text-xs text-gray-500">Searching…</div>
+                      ) : suggestions.length > 0 ? (
+                        <>
+                          <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-gray-600">
+                            Fragrances in directory
+                          </div>
+                          {suggestions.map(frag => (
+                            <button
+                              key={frag.id}
+                              type="button"
+                              onMouseDown={() => pickSuggestion(frag)}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 transition text-left"
+                            >
+                              <div className="w-8 h-8 rounded-lg bg-[#2a5c4f]/20 border border-[#2a5c4f]/30 flex items-center justify-center flex-shrink-0">
+                                <svg className="w-4 h-4 text-[#94aea7]" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M12 2a5 5 0 015 5v1h1a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V10a2 2 0 012-2h1V7a5 5 0 015-5zm0 2a3 3 0 00-3 3v1h6V7a3 3 0 00-3-3z"/>
+                                </svg>
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-white truncate">{frag.name}</p>
+                                <p className="text-xs text-gray-500 truncate">{frag.house}{frag.concentration ? ` · ${frag.concentration}` : ''}</p>
+                              </div>
+                            </button>
+                          ))}
+                          <div className="px-4 py-2 border-t border-white/8 text-[11px] text-gray-600">
+                            Don&apos;t see it? Continue typing to add a new fragrance.
+                          </div>
+                        </>
+                      ) : form.fragrance_name.trim().length >= 2 && (
+                        <div className="px-4 py-3 text-xs text-gray-500">
+                          Not in directory yet — your review will help us add it.
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-2">Category *</label>
-                  <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map(c => (
-                      <button key={c.id} type="button" onClick={() => set('category', c.id)}
-                        className={['px-4 py-2 rounded-full text-xs font-medium transition',
-                          form.category === c.id ? 'bg-white text-black' : 'bg-white/5 ring-1 ring-white/10 text-gray-400 hover:text-white'].join(' ')}>
-                        {c.label}
-                      </button>
-                    ))}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="House / Brand *" value={form.house} onChange={v => set('house', v)} placeholder="e.g. Dior" required />
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">Category *</label>
+                    <div className="flex flex-wrap gap-2">
+                      {CATEGORIES.map(c => (
+                        <button key={c.id} type="button" onClick={() => set('category', c.id)}
+                          className={['px-4 py-2 rounded-full text-xs font-medium transition',
+                            form.category === c.id ? 'bg-white text-black' : 'bg-white/5 ring-1 ring-white/10 text-gray-400 hover:text-white'].join(' ')}>
+                          {c.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </Section>
