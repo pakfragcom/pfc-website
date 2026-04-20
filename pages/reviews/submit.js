@@ -168,16 +168,15 @@ export default function SubmitReview() {
 
     setLoading(true); setError('');
 
-    // Ensure profile exists
-    const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
-    if (!profile) {
-      const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
-      const username = rawName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 20) + '-' + user.id.slice(0, 6);
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: user.id, username, display_name: rawName, city: user.user_metadata?.city || null,
-      });
-      if (profileError) { setError('Could not set up your profile. Please visit your profile page first.'); setLoading(false); return; }
-    }
+    // Ensure profile exists — upsert with ignoreDuplicates so it's safe to call every time
+    const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
+    const base = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 20) || 'user';
+    const username = `${base}-${user.id.slice(0, 6)}`;
+    const { error: profileError } = await supabase.from('profiles').upsert(
+      { id: user.id, username, display_name: rawName },
+      { onConflict: 'id', ignoreDuplicates: true }
+    );
+    if (profileError) { setError(`Profile error: ${profileError.message}`); setLoading(false); return; }
 
     const slug = slugify(form.fragrance_name);
     const { error: insertError } = await supabase.from('reviews').insert({
