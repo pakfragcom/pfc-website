@@ -94,9 +94,16 @@ export default function SubmitReview() {
 
     setLoading(true); setError('');
 
-    // Get the user's profile id
-    const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).single();
-    if (!profile) { setError('Profile not found. Please refresh and try again.'); setLoading(false); return; }
+    // Ensure profile exists (auto-create for OAuth users who haven't visited /u/me)
+    const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle();
+    if (!profile) {
+      const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
+      const username = rawName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 20) + '-' + user.id.slice(0, 6);
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: user.id, username, display_name: rawName, city: user.user_metadata?.city || null,
+      });
+      if (profileError) { setError('Could not set up your profile. Please visit your profile page first.'); setLoading(false); return; }
+    }
 
     const slug = slugify(form.fragrance_name);
     const { error } = await supabase.from('reviews').insert({
