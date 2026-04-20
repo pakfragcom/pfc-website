@@ -1,9 +1,10 @@
 import { supabaseAdmin } from "../../../lib/supabase-admin";
-import { isAdminAuthenticated } from "../../../lib/admin-auth";
+import { resolveApiAuth } from "../../../lib/api-auth";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
-  if (!isAdminAuthenticated(req)) return res.status(401).json({ error: "Unauthorized" });
+  const auth = await resolveApiAuth(req, res);
+  if (!auth.ok) return;
 
   const now = new Date();
   const in14Days = new Date(now);

@@ -1,7 +1,8 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useSupabaseClient } from '../../lib/auth-context';
+import AdminNav from '../../components/admin/AdminNav';
 
 const CATEGORY_LABELS = {
   designer: 'Designer', middle_eastern: 'Middle Eastern', niche: 'Niche', local: 'Local Brand',
@@ -13,8 +14,11 @@ const STATUS_COLORS = {
   rejected: 'text-red-400 bg-red-500/10 ring-red-500/20',
 };
 
-export default function AdminReviews() {
+const ADMIN_IDENTITY = { type: 'admin', displayName: 'Admin', permissions: { is_admin: true, can_manage_sellers: true, can_manage_houses: true, can_manage_reviews: true } };
+
+export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
   const router = useRouter();
+  const supabase = useSupabaseClient();
   const [reviews, setReviews]   = useState([]);
   const [loading, setLoading]   = useState(true);
   const [filter, setFilter]     = useState('pending');
@@ -33,7 +37,8 @@ export default function AdminReviews() {
   useEffect(() => { load(); }, []);
 
   async function handleLogout() {
-    await fetch('/api/admin/auth', { method: 'DELETE' });
+    if (identity?.type === 'admin') await fetch('/api/admin/auth', { method: 'DELETE' });
+    else await supabase.auth.signOut();
     router.push('/pfc-mgmt/login');
   }
 
@@ -65,6 +70,20 @@ export default function AdminReviews() {
     { id: 'all',      label: `All (${reviews.length})` },
   ];
 
+  if (!identity.permissions.can_manage_reviews && !identity.permissions.is_admin) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white">
+        <AdminNav currentPage="reviews" identity={identity} onLogout={handleLogout} />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <p className="text-gray-400 text-sm mb-1">Access restricted</p>
+            <p className="text-gray-600 text-xs">You don&apos;t have permission to manage reviews.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -73,19 +92,7 @@ export default function AdminReviews() {
       </Head>
 
       <div className="min-h-screen bg-[#0a0a0a] text-white">
-        {/* Top bar */}
-        <div className="border-b border-white/10 bg-black/40 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <span className="font-bold text-lg">PFC Admin</span>
-            <nav className="flex gap-4 text-sm">
-              <Link href="/pfc-mgmt" className="text-gray-400 hover:text-white transition">Overview</Link>
-              <Link href="/pfc-mgmt/sellers" className="text-gray-400 hover:text-white transition">Sellers</Link>
-              <Link href="/pfc-mgmt/houses" className="text-gray-400 hover:text-white transition">Houses</Link>
-              <span className="text-emerald-400 font-medium">Reviews</span>
-            </nav>
-          </div>
-          <button onClick={handleLogout} className="text-sm text-gray-500 hover:text-white transition">Sign out</button>
-        </div>
+        <AdminNav currentPage="reviews" identity={identity} onLogout={handleLogout} />
 
         <div className="max-w-5xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">

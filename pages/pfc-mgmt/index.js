@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useSupabaseClient } from "../../lib/auth-context";
+import AdminNav from "../../components/admin/AdminNav";
 
 function StatCard({ label, value, color = "white", sub }) {
   const colors = {
@@ -21,8 +23,11 @@ function StatCard({ label, value, color = "white", sub }) {
   );
 }
 
-export default function AdminDashboard() {
+const ADMIN_IDENTITY = { type: 'admin', displayName: 'Admin', permissions: { is_admin: true, can_manage_sellers: true, can_manage_houses: true, can_manage_reviews: true } };
+
+export default function AdminDashboard({ identity = ADMIN_IDENTITY }) {
   const router = useRouter();
+  const supabase = useSupabaseClient();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +41,8 @@ export default function AdminDashboard() {
   }, [router]);
 
   async function handleLogout() {
-    await fetch("/api/admin/auth", { method: "DELETE" });
+    if (identity?.type === 'admin') await fetch("/api/admin/auth", { method: "DELETE" });
+    else await supabase.auth.signOut();
     router.push("/pfc-mgmt/login");
   }
 
@@ -47,21 +53,7 @@ export default function AdminDashboard() {
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <div className="min-h-screen bg-[#0a0a0a] text-white">
-        {/* Top bar */}
-        <div className="border-b border-white/10 bg-black/40 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <span className="font-bold text-lg">PFC Admin</span>
-            <nav className="flex gap-4 text-sm">
-              <span className="text-emerald-400 font-medium">Overview</span>
-              <Link href="/pfc-mgmt/sellers" className="text-gray-400 hover:text-white transition">Sellers</Link>
-              <Link href="/pfc-mgmt/houses" className="text-gray-400 hover:text-white transition">Houses</Link>
-              <Link href="/pfc-mgmt/reviews" className="text-gray-400 hover:text-white transition">Reviews</Link>
-            </nav>
-          </div>
-          <button onClick={handleLogout} className="text-sm text-gray-500 hover:text-white transition">
-            Sign out
-          </button>
-        </div>
+        <AdminNav currentPage="overview" identity={identity} onLogout={handleLogout} />
 
         <div className="max-w-5xl mx-auto px-6 py-10">
           <h1 className="text-2xl font-bold mb-8">Overview</h1>

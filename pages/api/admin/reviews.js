@@ -1,8 +1,10 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
-import { isAdminAuthenticated } from '../../../lib/admin-auth';
+import { resolveApiAuth } from '../../../lib/api-auth';
 
 export default async function handler(req, res) {
-  if (!isAdminAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const auth = await resolveApiAuth(req, res);
+  if (!auth.ok) return;
+  if (!auth.permissions.can_manage_reviews) return res.status(403).json({ error: 'Forbidden' });
 
   // GET — list all reviews with author info
   if (req.method === 'GET') {
