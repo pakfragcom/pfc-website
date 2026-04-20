@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
+import Reveal from '../ui/Reveal'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -45,7 +46,7 @@ export default function Footer() {
 
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
           {/* Brand */}
-          <div>
+          <Reveal delay={0}>
             <Link
               href="/"
               className="inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"
@@ -75,86 +76,89 @@ export default function Footer() {
                 Join Our Community
               </a>
             </div>
-          </div>
+          </Reveal>
 
           {/* Navigation */}
-          <nav
-            aria-label="Footer Navigation"
-            className="grid grid-cols-2 gap-8 sm:grid-cols-3"
-            itemScope
-            itemType="https://schema.org/SiteNavigationElement"
-          >
-            <div>
-              <h3 className="mb-4 font-semibold text-[#F5F5F7]">Explore</h3>
-              <ul className="space-y-2 text-sm uppercase tracking-wide">
-                <li>
-                  <Link href="/" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5" itemProp="url">
-                    <span itemProp="name">Home</span>
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="https://forum.pakfrag.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                    aria-label="Forum (opens in new tab)"
-                    itemProp="url"
-                  >
-                    <span itemProp="name">Forum</span>
-                    <span className="sr-only"> (opens in new tab)</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
+          <Reveal delay={0.1}>
+            <nav
+              aria-label="Footer Navigation"
+              className="grid grid-cols-2 gap-8 sm:grid-cols-3"
+              itemScope
+              itemType="https://schema.org/SiteNavigationElement"
+            >
+              <div>
+                <h3 className="mb-4 font-semibold text-[#F5F5F7]">Explore</h3>
+                <ul className="space-y-2 text-sm uppercase tracking-wide">
+                  <li>
+                    <Link href="/" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5" itemProp="url">
+                      <span itemProp="name">Home</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <a
+                      href="https://discord.gg/c7zAXTzxph"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
+                      aria-label="Discord (opens in new tab)"
+                      itemProp="url"
+                    >
+                      <span itemProp="name">Discord</span>
+                      <span className="sr-only"> (opens in new tab)</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
 
-            <div>
-              <h3 className="mb-4 font-semibold text-[#F5F5F7]">Community</h3>
-              <ul className="space-y-2 text-sm uppercase tracking-wide">
-                <li>
-                  <a
-                    href="https://www.facebook.com/groups/pkfragcom"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                    aria-label="Facebook Group (opens in new tab)"
-                  >
-                    Facebook Group
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.instagram.com/pakfragcom/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                    aria-label="Instagram (opens in new tab)"
-                  >
-                    Instagram
-                  </a>
-                </li>
-              </ul>
-            </div>
+              <div>
+                <h3 className="mb-4 font-semibold text-[#F5F5F7]">Community</h3>
+                <ul className="space-y-2 text-sm uppercase tracking-wide">
+                  <li>
+                    <a
+                      href="https://www.facebook.com/groups/pkfragcom"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
+                      aria-label="Facebook Group (opens in new tab)"
+                    >
+                      Facebook Group
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.instagram.com/pakfragcom/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
+                      aria-label="Instagram (opens in new tab)"
+                    >
+                      Instagram
+                    </a>
+                  </li>
+                </ul>
+              </div>
 
-            <div>
-              <h3 className="mb-4 font-semibold text-[#F5F5F7]">Legal</h3>
-              <ul className="space-y-2 text-sm uppercase tracking-wide">
-                <li>
-                  <Link href="/legal/terms" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/legal/privacy" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
-                    Privacy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </nav>
+              <div>
+                <h3 className="mb-4 font-semibold text-[#F5F5F7]">Legal</h3>
+                <ul className="space-y-2 text-sm uppercase tracking-wide">
+                  <li>
+                    <Link href="/legal/terms" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
+                      Terms
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/legal/privacy" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
+                      Privacy
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </Reveal>
 
           {/* Newsletter */}
-          <div className="md:col-span-3 lg:col-span-1 md:order-last lg:order-none">
+          <Reveal delay={0.2} className="md:col-span-3 lg:col-span-1 md:order-last lg:order-none">
+          <div>
             <form
               className="rounded-xl border border-white/10 bg-black/60 p-4 backdrop-blur"
               onSubmit={handleNewsletterSubmit}
@@ -203,6 +207,7 @@ export default function Footer() {
               )}
             </form>
           </div>
+          </Reveal>
         </div>
 
         {/* Bottom bar */}

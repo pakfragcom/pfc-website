@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import Reveal from './ui/Reveal'
 
 export default function SplitBlock() {
   return (
@@ -31,7 +32,7 @@ export default function SplitBlock() {
 
       <div className="flex flex-col items-stretch gap-8 md:flex-row md:gap-10">
         {/* Visual card */}
-        <div className="w-full md:w-1/2">
+        <Reveal delay={0} className="w-full md:w-1/2">
           <div className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/40 backdrop-blur">
             <Image
               src="/hero.jpg"
@@ -53,10 +54,10 @@ export default function SplitBlock() {
               Trusted Community
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Content card */}
-        <div className="w-full md:w-1/2">
+        <Reveal delay={0.13} className="w-full md:w-1/2">
           <div className="relative h-full rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.06] via-black/20 to-black/40 p-8 shadow-xl shadow-black/30 backdrop-blur md:p-10">
             {/* Subtle inner glow top-left */}
             <div
@@ -112,7 +113,7 @@ export default function SplitBlock() {
               </a>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   )

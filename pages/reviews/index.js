@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { m } from 'framer-motion';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
@@ -79,13 +80,32 @@ export default function Reviews({ reviews = [], activeCategory = 'all' }) {
 
             {/* Reviews grid */}
             {reviews.length === 0 ? (
-              <EmptyState />
+              <m.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
+                <EmptyState />
+              </m.div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <m.div
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                initial="hidden"
+                animate="show"
+                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } } }}
+              >
                 {reviews.map(review => (
-                  <ReviewCard key={review.id} review={review} />
+                  <m.div
+                    key={review.id}
+                    variants={{
+                      hidden: { opacity: 0, y: 18 },
+                      show:   { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } },
+                    }}
+                  >
+                    <ReviewCard review={review} />
+                  </m.div>
                 ))}
-              </div>
+              </m.div>
             )}
           </div>
         </main>
@@ -100,7 +120,7 @@ function ReviewCard({ review }) {
   const stars = Math.round(review.rating_overall);
   return (
     <Link href={`/reviews/${review.slug}`}
-      className="group block rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-all hover:border-white/20 overflow-hidden">
+      className="group block rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden card-lift glass-card">
       {/* Cover image placeholder / gradient */}
       <div className="relative h-44 bg-gradient-to-br from-[#2a5c4f]/30 via-black to-[#94aea7]/20 overflow-hidden">
         {review.cover_image_url ? (

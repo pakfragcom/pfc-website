@@ -1,6 +1,8 @@
 // pages/_app.js
 import Head from 'next/head';
 import Script from 'next/script';
+import { useRouter } from 'next/router';
+import { AnimatePresence, LazyMotion, domAnimation, m } from 'framer-motion';
 import { AuthProvider } from '../lib/auth-context';
 import '../styles/main.css';
 import ScrollToTop from '../components/ScrollToTop';
@@ -8,8 +10,11 @@ import SEO from '../components/SEO';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
+
   return (
     <AuthProvider>
+      <LazyMotion features={domAnimation}>
       <div>
         <SEO />
 
@@ -43,10 +48,21 @@ export default function App({ Component, pageProps }) {
         </Script>
 
         <ErrorBoundary>
-          <Component {...pageProps} />
+          <AnimatePresence mode="wait" initial={false}>
+            <m.div
+              key={router.asPath}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } }}
+              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
+              <Component {...pageProps} />
+            </m.div>
+          </AnimatePresence>
         </ErrorBoundary>
         <ScrollToTop />
       </div>
+      </LazyMotion>
     </AuthProvider>
   );
 }
