@@ -111,10 +111,10 @@ export default function Hero() {
               href="https://discord.gg/c7zAXTzxph"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Open PFC Forum (opens in new tab)"
+              aria-label="Join our Discord server (opens in new tab)"
               className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/5 px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition-all motion-safe:duration-300 hover:border-white/60 hover:bg-white/12 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
-              Join the Forum
+              Join our Discord
             </a>
 
             {/* Secondary 2 */}

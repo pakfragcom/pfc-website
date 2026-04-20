@@ -1,24 +1,16 @@
 // pages/_app.js
 import Head from 'next/head';
 import Script from 'next/script';
-import { Space_Grotesk } from 'next/font/google';
 import { AuthProvider } from '../lib/auth-context';
 import '../styles/main.css';
 import ScrollToTop from '../components/ScrollToTop';
 import SEO from '../components/SEO';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  variable: '--font-space-grotesk',
-});
-
 export default function App({ Component, pageProps }) {
   return (
     <AuthProvider>
-      <div className={spaceGrotesk.variable} style={{ fontFamily: 'var(--font-space-grotesk), sans-serif' }}>
+      <div>
         <SEO />
 
         <Head>

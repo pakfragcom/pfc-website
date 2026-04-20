@@ -30,6 +30,7 @@ export default function Header() {
     { href: '/tools/verify-seller', label: 'Verify Seller Check' },
     { href: '/tools/decant',        label: 'Decant Calculator' },
     { href: '/tools/bottle-level',  label: 'Bottle Level Estimator' },
+    { href: '/tools/indie-lab',     label: 'Indie Lab Helper' },
   ]
 
   /* Body scroll lock */
@@ -295,9 +296,8 @@ export default function Header() {
 
           <div className="space-y-4 text-center text-sm uppercase tracking-wide">
             <Link href="/" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Home</Link>
+            <Link href="/local-houses" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Local Houses</Link>
             <Link href="/reviews" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Reviews</Link>
-            <a href="https://forum.pakfrag.com" onClick={handleLinkClick} target="_blank" rel="noopener noreferrer"
-              className="block hover:text-gray-300 transition">Forum</a>
 
             {/* Tools */}
             <div className="pt-2">

@@ -8,9 +8,9 @@ export default function Navbar({ onLinkClick }) {
   // Single source of truth (keep only real links—no placeholders)
   const ITEMS = useMemo(
     () => [
-      { label: 'Home',    href: '/',         external: false },
-      { label: 'Reviews', href: '/reviews',  external: false },
-      { label: 'Forum',   href: 'https://forum.pakfrag.com', external: true },
+      { label: 'Home',          href: '/',             external: false },
+      { label: 'Local Houses',  href: '/local-houses', external: false },
+      { label: 'Reviews',       href: '/reviews',      external: false },
     ],
     []
   )

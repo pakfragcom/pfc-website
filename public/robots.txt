@@ -1,6 +1,7 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /pfc-mgmt
 
 # Host
 Host: https://pakfrag.com

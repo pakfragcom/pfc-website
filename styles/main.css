@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Prevent horizontal scroll from blurs/svw */
+/* Prevent horizontal scroll from blurs */
 body {
   overflow-x: hidden;
 }
@@ -13,7 +13,9 @@ body {
   }
 
   body {
-    @apply bg-black text-white tracking-wide antialiased;
+    @apply bg-black text-white antialiased;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, ui-sans-serif, sans-serif;
+    letter-spacing: -0.01em;
   }
 
   a {
@@ -22,11 +24,29 @@ body {
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
+    letter-spacing: -0.02em;
+  }
+
+  /* Blue focus ring on all inputs/textareas/selects — per design system */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: #0a84ff !important;
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.22) !important;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-block px-6 py-2 rounded-full uppercase tracking-wide text-sm transition;
+    @apply inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full text-sm font-semibold transition;
+  }
+
+  /* Design system badge */
+  .pill-brand {
+    @apply inline-block px-4 py-1 rounded-full text-xs font-medium;
+    background: rgba(255,255,255,.09);
+    border: 0.5px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(24px);
   }
 }
