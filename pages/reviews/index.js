@@ -158,7 +158,11 @@ function ReviewCard({ review }) {
         <h2 className="font-semibold text-white text-base leading-snug group-hover:text-white transition line-clamp-1">
           {review.fragrance_name}
         </h2>
-        <p className="text-xs text-gray-500 mt-0.5 mb-3">{review.house}</p>
+        <p className="text-xs text-gray-500 mt-0.5 mb-3">
+          {review.fragrance_houses?.slug
+            ? <Link href={`/houses/${review.fragrance_houses.slug}`} className="hover:text-white transition" onClick={e => e.stopPropagation()}>{review.house}</Link>
+            : review.house}
+        </p>
 
         <p className="text-sm text-gray-400 line-clamp-3 leading-relaxed">{review.review_text}</p>
 
@@ -207,7 +211,7 @@ export async function getServerSideProps({ query }) {
   const category = query.category || 'all';
   let q = supabase
     .from('reviews')
-    .select('id, slug, fragrance_name, house, category, rating_overall, review_text, cover_image_url, published_at, profiles(display_name), fragrances(slug)')
+    .select('id, slug, fragrance_name, house, category, rating_overall, review_text, cover_image_url, published_at, profiles(display_name), fragrances(slug), fragrance_houses!reviews_house_id_fkey(slug)')
     .eq('status', 'approved')
     .eq('featured', true)
     .order('published_at', { ascending: false })

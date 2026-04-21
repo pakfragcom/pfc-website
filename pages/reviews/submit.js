@@ -142,9 +142,9 @@ export default function SubmitReview() {
               ? 'Your review is live — it has been published automatically.'
               : "Your review is under review by our team. It’ll go live once approved — usually within 24 hours."}
           </p>
-          <Link href="/reviews"
+          <Link href="/fragrances"
             className="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-5 py-2 text-sm text-white hover:bg-white/10 transition">
-            Browse Reviews
+            Browse Fragrances
           </Link>
         </div>
       </div>

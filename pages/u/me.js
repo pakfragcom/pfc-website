@@ -389,6 +389,8 @@ function ReviewCard({ review, pending, rejected }) {
 // ── Main Page ──────────────────────────────────────────────
 export default function MyProfile({ profile, reviews, seller, isAdmin }) {
   const [editOpen, setEditOpen] = useState(false);
+  const router = useRouter();
+  const isWelcome = router.query.welcome === '1';
 
   const initials = (profile.display_name || 'U')
     .split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -405,6 +407,27 @@ export default function MyProfile({ profile, reviews, seller, isAdmin }) {
         <Header />
 
         <main className="pt-24 pb-20">
+          {/* Welcome banner for first-time users */}
+          {isWelcome && (
+            <div className="max-w-4xl mx-auto px-6 mb-0 -mt-2">
+              <div className="rounded-xl border border-[#2a5c4f]/40 bg-[#2a5c4f]/10 px-5 py-4 flex items-start gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#2a5c4f]/30 flex items-center justify-center mt-0.5">
+                  <svg className="w-4 h-4 text-[#94aea7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Welcome to PFC!</p>
+                  <p className="text-xs text-gray-400 mt-0.5">You&apos;re signed in. Set your display name and city so the community knows who you are.</p>
+                </div>
+                <button onClick={() => setEditOpen(true)}
+                  className="ml-auto flex-shrink-0 text-xs text-[#94aea7] hover:text-white transition font-medium">
+                  Complete profile →
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Profile header */}
           <div className="relative border-b border-white/10 overflow-hidden">
             <div className="pointer-events-none absolute inset-0">

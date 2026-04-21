@@ -53,6 +53,27 @@ export default function Login() {
     setTimeout(() => inputRefs.current[0]?.focus(), 100);
   }
 
+  async function redirectAfterLogin() {
+    const next = router.query.next || '/';
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (!profile || !profile.display_name) {
+          router.replace(next !== '/' ? `/u/me?welcome=1&next=${encodeURIComponent(next)}` : '/u/me?welcome=1');
+          return;
+        }
+      }
+    } catch {
+      // Profile check failing should not block login
+    }
+    router.replace(next);
+  }
+
   async function handleVerify(e) {
     e?.preventDefault();
     const token = code.join('');
@@ -70,7 +91,7 @@ export default function Login() {
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
       return;
     }
-    router.replace(router.query.next || '/');
+    await redirectAfterLogin();
   }
 
   function handleCodeInput(i, val) {
@@ -114,7 +135,7 @@ export default function Login() {
       setCode(['', '', '', '', '', '']);
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
     } else {
-      router.replace(router.query.next || '/');
+      await redirectAfterLogin();
     }
   }
 

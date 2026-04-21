@@ -49,6 +49,26 @@ export async function getServerSideProps({ req, res, query }) {
     };
   }
 
+  // Check if this is a first-time user (no profile yet)
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (!profile || !profile.display_name) {
+        const welcomeDest = next !== '/'
+          ? `/u/me?welcome=1&next=${encodeURIComponent(next)}`
+          : '/u/me?welcome=1';
+        return { redirect: { destination: welcomeDest, permanent: false } };
+      }
+    }
+  } catch {
+    // Profile check failing should not block login
+  }
+
   return { redirect: { destination: next, permanent: false } };
 }
 

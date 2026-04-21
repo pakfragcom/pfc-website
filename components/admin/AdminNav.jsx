@@ -1,21 +1,35 @@
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-function NavLink({ href, active, children }) {
+function NavLink({ href, active, badge, children }) {
   return (
     <Link
       href={href}
       className={active
-        ? 'text-emerald-400 font-medium'
-        : 'text-gray-400 hover:text-white transition'}
+        ? 'text-emerald-400 font-medium inline-flex items-center gap-1'
+        : 'text-gray-400 hover:text-white transition inline-flex items-center gap-1'}
     >
       {children}
+      {badge > 0 && (
+        <span className="text-[10px] bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30 rounded px-1 leading-4">
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }
 
 export default function AdminNav({ currentPage, identity, onLogout }) {
   const p = identity?.permissions ?? {};
+  const [counts, setCounts] = useState({ reviews: 0, fragrances: 0 });
+
+  useEffect(() => {
+    fetch('/api/admin/pending-counts')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setCounts(d); })
+      .catch(() => {});
+  }, [currentPage]);
 
   return (
     <div className="border-b border-white/10 bg-black/40 px-6 py-4 flex items-center justify-between">
@@ -30,10 +44,10 @@ export default function AdminNav({ currentPage, identity, onLogout }) {
             <NavLink href="/pfc-mgmt/houses" active={currentPage === 'houses'}>Houses</NavLink>
           )}
           {(p.can_manage_reviews || p.is_admin) && (
-            <NavLink href="/pfc-mgmt/reviews" active={currentPage === 'reviews'}>Reviews</NavLink>
+            <NavLink href="/pfc-mgmt/reviews" active={currentPage === 'reviews'} badge={counts.reviews}>Reviews</NavLink>
           )}
           {(p.can_manage_reviews || p.is_admin) && (
-            <NavLink href="/pfc-mgmt/fragrances" active={currentPage === 'fragrances'}>Fragrances</NavLink>
+            <NavLink href="/pfc-mgmt/fragrances" active={currentPage === 'fragrances'} badge={counts.fragrances}>Fragrances</NavLink>
           )}
           {p.is_admin && (
             <NavLink href="/pfc-mgmt/team" active={currentPage === 'team'}>Team</NavLink>

@@ -206,7 +206,7 @@ export default function HousePage({ house, reviews = [], stats }) {
                         Website
                       </a>
                     )}
-                    <Link href={`/reviews/submit?category=local&house=${house.slug}`}
+                    <Link href={`/reviews/submit?category=local&house=${encodeURIComponent(house.house)}`}
                       className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-4 py-1.5 text-xs font-semibold text-white shadow-md shadow-[#2a5c4f]/20 hover:brightness-110 transition">
                       + Write a Review
                     </Link>
@@ -224,7 +224,7 @@ export default function HousePage({ house, reviews = [], stats }) {
                 {hasReviews && <span className="ml-2 text-sm font-normal text-gray-500">({stats.count})</span>}
               </h2>
               {hasReviews && (
-                <Link href={`/reviews/submit?category=local&house=${house.slug}`}
+                <Link href={`/reviews/submit?category=local&house=${encodeURIComponent(house.house)}`}
                   className="text-sm text-[#94aea7] hover:text-white transition">
                   Write a Review →
                 </Link>
@@ -238,7 +238,7 @@ export default function HousePage({ house, reviews = [], stats }) {
                 <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
                   Be the first PFC member to share your experience with {house.house}.
                 </p>
-                <Link href={`/reviews/submit?category=local&house=${house.slug}`}
+                <Link href={`/reviews/submit?category=local&house=${encodeURIComponent(house.house)}`}
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2a5c4f]/20 hover:brightness-110 transition">
                   Write the First Review
                 </Link>

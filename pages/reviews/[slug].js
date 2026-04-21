@@ -77,14 +77,18 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
 
               <div className="relative h-full flex flex-col justify-end max-w-3xl mx-auto px-6 pb-8">
                 <div className="flex items-center gap-2 mb-3">
-                  <Link href="/reviews" className="text-xs text-gray-400 hover:text-white transition">Reviews</Link>
+                  <Link href="/fragrances" className="text-xs text-gray-400 hover:text-white transition">Fragrances</Link>
                   <span className="text-gray-700">/</span>
                   <span className="text-xs text-gray-400">{CATEGORY_LABELS[review.category]}</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
                   {review.fragrance_name}
                 </h1>
-                <p className="text-gray-400 mt-1 text-base">{review.house}</p>
+                <p className="text-gray-400 mt-1 text-base">
+                  {review.fragrance_houses?.slug
+                    ? <Link href={`/houses/${review.fragrance_houses.slug}`} className="text-[#94aea7] hover:text-white transition">{review.house}</Link>
+                    : review.house}
+                </p>
               </div>
             </div>
 
@@ -237,7 +241,7 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const { data: review } = await supabase
     .from('reviews')
-    .select('*, profiles(display_name, city, username)')
+    .select('*, profiles(display_name, city, username), fragrance_houses!reviews_house_id_fkey(slug)')
     .eq('slug', params.slug)
     .eq('status', 'approved')
     .single();
