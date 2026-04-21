@@ -6,12 +6,6 @@ import { useUser, useSupabaseClient } from '../../lib/auth-context';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 
-function slugify(str) {
-  return str.toLowerCase().trim()
-    .replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '')
-    + '-' + Math.random().toString(36).slice(2, 7);
-}
-
 const CATEGORIES = [
   { id: 'designer',       label: 'Designer' },
   { id: 'middle_eastern', label: 'Middle Eastern' },
@@ -168,35 +162,19 @@ export default function SubmitReview() {
 
     setLoading(true); setError('');
 
-    // Ensure profile exists — upsert with ignoreDuplicates so it's safe to call every time
-    const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
-    const base = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 20) || 'user';
-    const username = `${base}-${user.id.slice(0, 6)}`;
-    const { error: profileError } = await supabase.from('profiles').upsert(
-      { id: user.id, username, display_name: rawName },
-      { onConflict: 'id', ignoreDuplicates: true }
-    );
-    if (profileError) { setError(`Profile error: ${profileError.message}`); setLoading(false); return; }
-
-    const slug = slugify(form.fragrance_name);
-    const { error: insertError } = await supabase.from('reviews').insert({
-      author_id:        user.id,
-      slug,
-      fragrance_name:   form.fragrance_name.trim(),
-      house:            form.house.trim(),
-      category:         form.category,
-      fragrance_id:     fragrance_id || null,
-      rating_overall:   form.rating_overall,
-      rating_longevity: form.rating_longevity || null,
-      rating_sillage:   form.rating_sillage   || null,
-      rating_value:     form.rating_value     || null,
-      review_text:      form.review_text.trim(),
-      occasion:         form.occasion || null,
-      season:           form.season   || null,
-    });
-
-    if (insertError) { setError(insertError.message); setLoading(false); }
-    else setDone(true);
+    try {
+      const res = await fetch('/api/reviews/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, fragrance_id: fragrance_id || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Something went wrong. Please try again.'); setLoading(false); return; }
+      setDone(true);
+    } catch {
+      setError('Network error — please check your connection and try again.');
+      setLoading(false);
+    }
   }
 
   return (

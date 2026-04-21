@@ -32,6 +32,9 @@ export default function AdminNav({ currentPage, identity, onLogout }) {
           {(p.can_manage_reviews || p.is_admin) && (
             <NavLink href="/pfc-mgmt/reviews" active={currentPage === 'reviews'}>Reviews</NavLink>
           )}
+          {(p.can_manage_reviews || p.is_admin) && (
+            <NavLink href="/pfc-mgmt/fragrances" active={currentPage === 'fragrances'}>Fragrances</NavLink>
+          )}
           {p.is_admin && (
             <NavLink href="/pfc-mgmt/team" active={currentPage === 'team'}>Team</NavLink>
           )}

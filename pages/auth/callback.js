@@ -24,8 +24,9 @@ export async function getServerSideProps({ req, res, query }) {
           res.setHeader('Set-Cookie', [
             ...existingArr,
             ...cookiesToSet.map(({ name, value, options = {} }) => {
+              // Do NOT set HttpOnly — createBrowserClient reads session via document.cookie
+              // and HttpOnly cookies are invisible to JS, causing immediate logout after OAuth.
               let str = `${name}=${value}; Path=${options.path || '/'}`;
-              if (options.httpOnly) str += '; HttpOnly';
               if (options.secure) str += '; Secure';
               if (options.sameSite) str += `; SameSite=${options.sameSite}`;
               if (options.maxAge !== undefined) str += `; Max-Age=${options.maxAge}`;

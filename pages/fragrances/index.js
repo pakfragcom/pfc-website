@@ -83,6 +83,19 @@ export default function FragrancesIndex({ fragrances = [] }) {
                 >
                   Every fragrance reviewed by Pakistan&apos;s community in one place.
                 </m.p>
+                <m.div
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: EASE, delay: 0.21 }}
+                  className="mt-6"
+                >
+                  <Link href="/fragrances/submit"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#2a5c4f] hover:bg-[#3d8b76] px-5 py-2.5 text-sm font-medium text-white transition-all duration-300">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add a Fragrance
+                  </Link>
+                </m.div>
               </div>
             </div>
 
