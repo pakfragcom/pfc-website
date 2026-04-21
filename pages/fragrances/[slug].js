@@ -6,6 +6,7 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
 import { useUser, useSupabaseClient } from '../../lib/auth-context';
+import { track } from '../../lib/analytics';
 
 const EASE = [0.25, 0.46, 0.45, 0.94];
 
@@ -23,7 +24,7 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
 };
 
-export default function FragranceDetail({ fragrance, reviews = [] }) {
+export default function FragranceDetail({ fragrance, reviews = [], related = [] }) {
   if (!fragrance) return null;
 
   const user = useUser();
@@ -51,7 +52,10 @@ export default function FragranceDetail({ fragrance, reviews = [] }) {
       body: JSON.stringify({ fragrance_id: fragrance.id }),
     });
     const data = await res.json();
-    if (res.ok) setWishlisted(data.wishlisted);
+    if (res.ok) {
+      setWishlisted(data.wishlisted);
+      track.wishlistToggled(fragrance.id, fragrance.name, data.wishlisted ? 'added' : 'removed');
+    }
     setWishlistLoading(false);
   }
 
@@ -221,6 +225,11 @@ export default function FragranceDetail({ fragrance, reviews = [] }) {
                 </div>
               </m.div>
 
+              {/* Related fragrances */}
+              {related.length > 0 && (
+                <RelatedFragrances related={related} category={fragrance.category} />
+              )}
+
               {/* Reviews */}
               <div id="reviews">
                 <h2 className="text-lg font-semibold text-white mb-6">
@@ -260,6 +269,38 @@ export default function FragranceDetail({ fragrance, reviews = [] }) {
         <Footer />
       </div>
     </>
+  );
+}
+
+function RelatedFragrances({ related, category }) {
+  return (
+    <div className="mb-10">
+      <h2 className="text-lg font-semibold text-white mb-4">
+        More {CATEGORY_LABELS[category] || category} Fragrances
+      </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {related.map(f => (
+          <Link key={f.id} href={`/fragrances/${f.slug}`}
+            className="group rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden hover:border-white/20 hover:bg-white/[0.04] transition">
+            <div className="relative h-24 bg-gradient-to-br from-[#2a5c4f]/20 via-black to-[#94aea7]/10">
+              {f.image_url ? (
+                <img src={f.image_url} alt={f.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white/8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2a5 5 0 015 5v1h1a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V10a2 2 0 012-2h1V7a5 5 0 015-5zm0 2a3 3 0 00-3 3v1h6V7a3 3 0 00-3-3z"/>
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div className="p-3">
+              <p className="text-xs font-medium text-white leading-snug line-clamp-2 group-hover:text-[#94aea7] transition">{f.name}</p>
+              <p className="text-[10px] text-gray-600 mt-0.5 truncate">{f.house}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -371,12 +412,21 @@ export async function getStaticProps({ params }) {
 
   if (!fragrance) return { notFound: true };
 
-  const { data: reviewRows } = await supabase
-    .from('reviews')
-    .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, published_at, profiles(display_name, username)')
-    .eq('fragrance_id', fragrance.id)
-    .eq('status', 'approved')
-    .order('published_at', { ascending: false });
+  const [{ data: reviewRows }, { data: relatedRows }] = await Promise.all([
+    supabase
+      .from('reviews')
+      .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, published_at, profiles(display_name, username)')
+      .eq('fragrance_id', fragrance.id)
+      .eq('status', 'approved')
+      .order('published_at', { ascending: false }),
+    supabase
+      .from('fragrances')
+      .select('id, name, slug, house, image_url')
+      .eq('status', 'approved')
+      .eq('category', fragrance.category)
+      .neq('id', fragrance.id)
+      .limit(4),
+  ]);
 
   const serialized = {
     id:            fragrance.id,
@@ -395,7 +445,13 @@ export async function getStaticProps({ params }) {
   };
 
   return {
-    props: { fragrance: serialized, reviews: reviewRows || [] },
+    props: {
+      fragrance: serialized,
+      reviews: reviewRows || [],
+      related: (relatedRows || []).map(r => ({
+        id: r.id, name: r.name, slug: r.slug, house: r.house, image_url: r.image_url || null,
+      })),
+    },
     revalidate: 300,
   };
 }

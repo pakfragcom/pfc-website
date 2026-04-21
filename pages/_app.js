@@ -1,18 +1,39 @@
 // pages/_app.js
 import Head from 'next/head';
 import Script from 'next/script';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { AnimatePresence, LazyMotion, domAnimation, m } from 'framer-motion';
+import posthog from 'posthog-js';
+import { PostHogProvider } from 'posthog-js/react';
 import { AuthProvider } from '../lib/auth-context';
 import '../styles/main.css';
 import ScrollToTop from '../components/ScrollToTop';
 import SEO from '../components/SEO';
 import ErrorBoundary from '../components/ErrorBoundary';
 
+if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+    person_profiles: 'identified_only',
+    capture_pageview: false,
+    capture_pageleave: true,
+  });
+}
+
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 
+  useEffect(() => {
+    // Track pageview on initial load
+    posthog.capture('$pageview');
+    const handleRouteComplete = () => posthog.capture('$pageview');
+    router.events.on('routeChangeComplete', handleRouteComplete);
+    return () => router.events.off('routeChangeComplete', handleRouteComplete);
+  }, []);
+
   return (
+    <PostHogProvider client={posthog}>
     <AuthProvider>
       <LazyMotion features={domAnimation}>
       <div>
@@ -64,5 +85,6 @@ export default function App({ Component, pageProps }) {
       </div>
       </LazyMotion>
     </AuthProvider>
+    </PostHogProvider>
   );
 }

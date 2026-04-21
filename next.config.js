@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const { withSentryConfig } = require('@sentry/nextjs');
 const ONE_YEAR = 60 * 60 * 24 * 365
 const ONE_DAY = 60 * 60 * 24
 
@@ -55,9 +56,9 @@ const nextConfig = {
               "media-src 'self' https: blob:",
               "font-src 'self' https: data:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              // GA snippet + GTM + your inline JSON-LD in _app.js
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
-              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com",
+              // GA + PostHog + Sentry
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://us-assets.i.posthog.com",
+              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io",
               "frame-ancestors 'self'",
               "object-src 'none'",
               "base-uri 'self'",
@@ -70,4 +71,10 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+  hideSourceMaps: true,
+});

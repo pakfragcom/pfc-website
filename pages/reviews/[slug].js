@@ -7,6 +7,7 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
 import { useUser } from '../../lib/auth-context';
+import { track } from '../../lib/analytics';
 
 const EASE = [0.25, 0.46, 0.45, 0.94];
 const CATEGORY_LABELS = {
@@ -56,6 +57,7 @@ function ShareButton({ slug, title }) {
   const [copied, setCopied] = useState(false);
   function share() {
     const url = `https://pakfrag.com/reviews/${slug}`;
+    track.reviewShared(slug);
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({ title, url }).catch(() => {});
     } else {
@@ -202,7 +204,9 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
         <meta property="og:title" content={`${review.fragrance_name} Review | PFC`} />
         <meta property="og:description" content={review.review_text.slice(0, 155)} />
         <meta property="og:url" content={`https://pakfrag.com/reviews/${review.slug}`} />
-        {review.cover_image_url && <meta property="og:image" content={review.cover_image_url} />}
+        <meta property="og:image" content={review.cover_image_url || 'https://pakfrag.com/og-image.jpg'} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={review.cover_image_url || 'https://pakfrag.com/og-image.jpg'} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Review',
