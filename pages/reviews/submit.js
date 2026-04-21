@@ -238,7 +238,7 @@ export default function SubmitReview() {
                             <button
                               key={frag.id}
                               type="button"
-                              onMouseDown={() => pickSuggestion(frag)}
+                              onClick={() => pickSuggestion(frag)}
                               className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 transition text-left"
                             >
                               <div className="w-8 h-8 rounded-lg bg-[#2a5c4f]/20 border border-[#2a5c4f]/30 flex items-center justify-center flex-shrink-0">

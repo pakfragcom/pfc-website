@@ -1,9 +1,12 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
+import { useUser } from '../../lib/auth-context';
 
 const EASE = [0.25, 0.46, 0.45, 0.94];
 const CATEGORY_LABELS = {
@@ -49,18 +52,167 @@ function MiniStars({ value }) {
   );
 }
 
+function ShareButton({ slug, title }) {
+  const [copied, setCopied] = useState(false);
+  function share() {
+    const url = `https://pakfrag.com/reviews/${slug}`;
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({ title, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+  return (
+    <button onClick={share}
+      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors">
+      {copied ? (
+        <>
+          <svg className="h-3.5 w-3.5 text-[#94aea7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Copied!
+        </>
+      ) : (
+        <>
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          Share
+        </>
+      )}
+    </button>
+  );
+}
+
+function EditReviewPanel({ review, onCancel, onSaved }) {
+  const [text, setText] = useState(review.review_text);
+  const [overall, setOverall] = useState(review.rating_overall || 5);
+  const [longevity, setLongevity] = useState(review.rating_longevity || '');
+  const [sillage, setSillage] = useState(review.rating_sillage || '');
+  const [value, setValue] = useState(review.rating_value || '');
+  const [occasion, setOccasion] = useState(review.occasion || '');
+  const [season, setSeason] = useState(review.season || '');
+  const [coverImg, setCoverImg] = useState(review.cover_image_url || '');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSave() {
+    if (text.trim().length < 80) { setError('Review must be at least 80 characters.'); return; }
+    setSaving(true); setError('');
+    const res = await fetch('/api/reviews/edit', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: review.id,
+        review_text: text,
+        rating_overall: Number(overall),
+        rating_longevity: longevity ? Number(longevity) : null,
+        rating_sillage: sillage ? Number(sillage) : null,
+        rating_value: value ? Number(value) : null,
+        occasion: occasion || null,
+        season: season || null,
+        cover_image_url: coverImg || null,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error || 'Failed to save'); setSaving(false); return; }
+    onSaved();
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-5">
+      <h3 className="text-sm font-semibold text-white">Edit Review</h3>
+      <textarea
+        value={text} onChange={e => setText(e.target.value)} rows={6}
+        className="w-full rounded-xl bg-black/40 ring-1 ring-white/10 px-4 py-3 text-sm text-white outline-none focus:ring-white/25 resize-y placeholder-gray-600"
+        placeholder="Your review..." />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[['Overall', overall, setOverall], ['Longevity', longevity, setLongevity], ['Sillage', sillage, setSillage], ['Value', value, setValue]].map(([label, val, setter]) => (
+          <div key={label}>
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">{label}</label>
+            <input type="number" min="1" max="5" step="0.5" value={val}
+              onChange={e => setter(e.target.value)}
+              className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25" />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">Occasion</label>
+          <select value={occasion} onChange={e => setOccasion(e.target.value)}
+            className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25">
+            <option value="">—</option>
+            <option value="casual">Casual</option>
+            <option value="formal">Formal</option>
+            <option value="date">Date</option>
+            <option value="work">Work</option>
+            <option value="sport">Sport</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">Season</label>
+          <select value={season} onChange={e => setSeason(e.target.value)}
+            className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25">
+            <option value="">—</option>
+            <option value="spring">Spring</option>
+            <option value="summer">Summer</option>
+            <option value="autumn">Autumn</option>
+            <option value="winter">Winter</option>
+            <option value="all_season">All Season</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">Cover Image URL</label>
+        <input type="url" value={coverImg} onChange={e => setCoverImg(e.target.value)}
+          placeholder="https://..."
+          className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25 placeholder-gray-600" />
+      </div>
+      {error && <p className="text-xs text-red-400">{error}</p>}
+      <div className="flex items-center gap-3 pt-2">
+        <button onClick={handleSave} disabled={saving}
+          className="px-5 py-2 rounded-full bg-[#2a5c4f] hover:bg-[#3d8b76] text-sm font-medium text-white transition disabled:opacity-50">
+          {saving ? 'Saving…' : 'Save Changes'}
+        </button>
+        <button onClick={onCancel}
+          className="px-5 py-2 rounded-full bg-white/5 ring-1 ring-white/10 hover:bg-white/10 text-sm text-gray-400 hover:text-white transition">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ReviewPage({ review, fragrance = null, relatedReviews = [] }) {
   if (!review) return null;
   const author = review.profiles;
+  const user = useUser();
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
 
   return (
     <>
       <Head>
         <title>{review.fragrance_name} by {review.house} — Review | PFC</title>
         <meta name="description" content={review.review_text.slice(0, 155)} />
+        <link rel="canonical" href={`https://pakfrag.com/reviews/${review.slug}`} />
+        <meta property="og:type" content="article" />
         <meta property="og:title" content={`${review.fragrance_name} Review | PFC`} />
         <meta property="og:description" content={review.review_text.slice(0, 155)} />
+        <meta property="og:url" content={`https://pakfrag.com/reviews/${review.slug}`} />
         {review.cover_image_url && <meta property="og:image" content={review.cover_image_url} />}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Review',
+          itemReviewed: { '@type': 'Product', name: review.fragrance_name, brand: { '@type': 'Brand', name: review.house } },
+          reviewRating: { '@type': 'Rating', ratingValue: String(review.rating_overall), bestRating: '5', worstRating: '1' },
+          author: { '@type': 'Person', name: author?.display_name || 'PFC Member' },
+          ...(review.published_at && { datePublished: review.published_at.slice(0, 10) }),
+          reviewBody: review.review_text.slice(0, 500),
+          publisher: { '@type': 'Organization', name: 'Pakistan Fragrance Community', url: 'https://pakfrag.com' },
+        })}} />
       </Head>
 
       <div className="bg-black min-h-screen text-white">
@@ -100,7 +252,10 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                     {author?.display_name?.[0]?.toUpperCase() || '?'}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">{author?.display_name || 'Community Member'}</p>
+                    {author?.username
+                      ? <Link href={`/u/${author.username}`} className="text-sm font-medium text-white hover:text-[#94aea7] transition">{author.display_name || 'Community Member'}</Link>
+                      : <p className="text-sm font-medium text-white">{author?.display_name || 'Community Member'}</p>
+                    }
                     {author?.city && <p className="text-xs text-gray-500">{author.city}</p>}
                   </div>
                 </div>
@@ -110,6 +265,7 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                   {review.published_at && (
                     <span>{new Date(review.published_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   )}
+                  <ShareButton slug={review.slug} title={`${review.fragrance_name} Review — PFC`} />
                 </div>
               </div>
 
@@ -157,6 +313,23 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                   <p key={i} className="text-gray-300 leading-relaxed mb-4">{para}</p>
                 ))}
               </div>
+
+              {/* Edit review (author only) */}
+              {user?.id === review.author_id && (
+                <div className="mb-10">
+                  {!editing ? (
+                    <button onClick={() => setEditing(true)}
+                      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors">
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit this review
+                    </button>
+                  ) : (
+                    <EditReviewPanel review={review} onCancel={() => setEditing(false)} onSaved={() => router.reload()} />
+                  )}
+                </div>
+              )}
 
               {/* Detailed ratings */}
               {(review.rating_longevity || review.rating_sillage || review.rating_value) && (

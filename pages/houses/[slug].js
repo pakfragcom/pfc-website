@@ -210,6 +210,13 @@ export default function HousePage({ house, reviews = [], stats }) {
                       className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-4 py-1.5 text-xs font-semibold text-white shadow-md shadow-[#2a5c4f]/20 hover:brightness-110 transition">
                       + Write a Review
                     </Link>
+                    <Link href={`/fragrances?q=${encodeURIComponent(house.house)}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-1.5 text-xs text-gray-400 hover:text-white hover:border-white/30 transition">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h10" />
+                      </svg>
+                      Browse Fragrances
+                    </Link>
                   </div>
                 </div>
               </div>

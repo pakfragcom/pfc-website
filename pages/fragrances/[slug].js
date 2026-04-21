@@ -1,9 +1,11 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
+import { useUser, useSupabaseClient } from '../../lib/auth-context';
 
 const EASE = [0.25, 0.46, 0.45, 0.94];
 
@@ -24,6 +26,35 @@ const fadeUp = {
 export default function FragranceDetail({ fragrance, reviews = [] }) {
   if (!fragrance) return null;
 
+  const user = useUser();
+  const supabaseClient = useSupabaseClient();
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user || !supabaseClient) return;
+    supabaseClient
+      .from('fragrance_wishlist')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .eq('fragrance_id', fragrance.id)
+      .maybeSingle()
+      .then(({ data }) => setWishlisted(!!data));
+  }, [user, fragrance.id]);
+
+  async function toggleWishlist() {
+    if (!user) { window.location.href = '/auth/login'; return; }
+    setWishlistLoading(true);
+    const res = await fetch('/api/fragrances/wishlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fragrance_id: fragrance.id }),
+    });
+    const data = await res.json();
+    if (res.ok) setWishlisted(data.wishlisted);
+    setWishlistLoading(false);
+  }
+
   const avgOverall   = avg(reviews, 'rating_overall');
   const avgLongevity = avg(reviews, 'rating_longevity');
   const avgSillage   = avg(reviews, 'rating_sillage');
@@ -35,6 +66,29 @@ export default function FragranceDetail({ fragrance, reviews = [] }) {
         <title>{fragrance.name} by {fragrance.house} | PFC</title>
         <meta name="description"
           content={`${fragrance.name} by ${fragrance.house} — ${reviews.length} community review${reviews.length !== 1 ? 's' : ''} from Pakistan's fragrance community.`} />
+        <link rel="canonical" href={`https://pakfrag.com/fragrances/${fragrance.slug}`} />
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content={`${fragrance.name} by ${fragrance.house} | PFC`} />
+        <meta property="og:description" content={`${fragrance.name} by ${fragrance.house}${fragrance.concentration ? ` ${fragrance.concentration}` : ''} — ${reviews.length} community review${reviews.length !== 1 ? 's' : ''} from Pakistan.`} />
+        <meta property="og:url" content={`https://pakfrag.com/fragrances/${fragrance.slug}`} />
+        {fragrance.image_url && <meta property="og:image" content={fragrance.image_url} />}
+        {reviews.length > 0 && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: fragrance.name,
+            brand: { '@type': 'Brand', name: fragrance.house },
+            ...(fragrance.image_url && { image: fragrance.image_url }),
+            ...(fragrance.description && { description: fragrance.description }),
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: avgOverall.toFixed(1),
+              reviewCount: reviews.length,
+              bestRating: '5',
+              worstRating: '1',
+            },
+          })}} />
+        )}
       </Head>
 
       <div className="bg-black min-h-screen text-white">
@@ -88,6 +142,10 @@ export default function FragranceDetail({ fragrance, reviews = [] }) {
                       {fragrance.year_released && (
                         <span className="text-xs text-gray-600">{fragrance.year_released}</span>
                       )}
+                      <a href="#reviews"
+                        className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-gray-400 hover:text-white hover:border-white/20 transition">
+                        {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+                      </a>
                     </div>
 
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
@@ -136,7 +194,7 @@ export default function FragranceDetail({ fragrance, reviews = [] }) {
                     )}
 
                     {/* CTA */}
-                    <div className="mt-6">
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
                       <Link
                         href={`/reviews/submit?fragrance=${encodeURIComponent(fragrance.name)}&house=${encodeURIComponent(fragrance.house)}&fid=${fragrance.id}`}
                         className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2a5c4f]/20 hover:brightness-110 transition"
@@ -146,13 +204,25 @@ export default function FragranceDetail({ fragrance, reviews = [] }) {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
                       </Link>
+                      <button onClick={toggleWishlist} disabled={wishlistLoading}
+                        className={[
+                          'inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition disabled:opacity-50',
+                          wishlisted
+                            ? 'border-[#3d8b76]/50 bg-[#2a5c4f]/20 text-[#94aea7] hover:bg-[#2a5c4f]/30'
+                            : 'border-white/15 bg-transparent text-gray-400 hover:text-white hover:border-white/30',
+                        ].join(' ')}>
+                        <svg className="h-4 w-4" fill={wishlisted ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        {wishlisted ? 'Saved' : 'Want to Try'}
+                      </button>
                     </div>
                   </div>
                 </div>
               </m.div>
 
               {/* Reviews */}
-              <div>
+              <div id="reviews">
                 <h2 className="text-lg font-semibold text-white mb-6">
                   Community Reviews
                   {reviews.length > 0 && (
@@ -229,7 +299,9 @@ function ReviewEntry({ review }) {
             <span className="ml-1 text-xs text-gray-500">{review.rating_overall}</span>
           </div>
           <p className="text-xs text-gray-500">
-            {review.profiles?.display_name || 'Anonymous'}
+            {review.profiles?.username
+              ? <Link href={`/u/${review.profiles.username}`} className="text-gray-400 hover:text-white transition">{review.profiles.display_name || 'Anonymous'}</Link>
+              : review.profiles?.display_name || 'Anonymous'}
             {review.published_at && (
               <> · {new Date(review.published_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</>
             )}
@@ -301,7 +373,7 @@ export async function getStaticProps({ params }) {
 
   const { data: reviewRows } = await supabase
     .from('reviews')
-    .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, published_at, profiles(display_name)')
+    .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, published_at, profiles(display_name, username)')
     .eq('fragrance_id', fragrance.id)
     .eq('status', 'approved')
     .order('published_at', { ascending: false });
