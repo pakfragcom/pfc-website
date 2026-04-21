@@ -241,7 +241,7 @@ export default function Header() {
                     className="px-3 py-1.5 text-sm text-gray-300 hover:text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-lg">
                     Sign In
                   </Link>
-                  <Link href="/auth/signup"
+                  <Link href="/auth/login"
                     className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] text-sm font-semibold text-white shadow-md shadow-[#2a5c4f]/20 hover:brightness-110 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
                     Get Started
                   </Link>
@@ -282,7 +282,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                <Link href="/auth/signup" onClick={handleLinkClick}
+                <Link href="/auth/login" onClick={handleLinkClick}
                   className="w-full text-center rounded-xl bg-gradient-to-r from-[#2a5c4f] to-[#557d72] py-2.5 text-sm font-semibold text-white">
                   Get Started
                 </Link>

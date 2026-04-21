@@ -55,6 +55,17 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
     setActionLoading(null);
   }
 
+  async function toggleFeatured(reviewId, current) {
+    setActionLoading(reviewId);
+    await fetch('/api/admin/reviews', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: reviewId, featured: !current }),
+    });
+    await load();
+    setActionLoading(null);
+  }
+
   const filtered = reviews.filter(r => filter === 'all' || r.status === filter);
 
   const counts = {
@@ -136,6 +147,11 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ring-1 ${STATUS_COLORS[review.status]}`}>
                           {review.status}
                         </span>
+                        {review.featured && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ring-1 text-amber-300 bg-amber-500/10 ring-amber-500/20">
+                            ★ Featured
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                         <span>By {review.profiles?.display_name || 'Unknown'}</span>
@@ -145,11 +161,22 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                       <button onClick={() => setExpanded(expanded === review.id ? null : review.id)}
                         className="text-xs bg-white/8 hover:bg-white/15 text-gray-200 px-3 py-1.5 rounded-lg transition">
                         {expanded === review.id ? 'Collapse' : 'Read'}
                       </button>
+                      {review.status === 'approved' && (
+                        <button onClick={() => toggleFeatured(review.id, review.featured)}
+                          disabled={actionLoading === review.id}
+                          className={['text-xs px-3 py-1.5 rounded-lg transition disabled:opacity-50',
+                            review.featured
+                              ? 'bg-amber-500/20 hover:bg-amber-500/10 text-amber-300'
+                              : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white'
+                          ].join(' ')}>
+                          {review.featured ? '★ Featured' : '☆ Feature'}
+                        </button>
+                      )}
                       {review.status !== 'approved' && (
                         <button onClick={() => action(review.id, 'approved', null)}
                           disabled={actionLoading === review.id}

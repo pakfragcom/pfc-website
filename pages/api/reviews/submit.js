@@ -10,7 +10,6 @@ function slugify(str) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  // Auth — read session from PKCE cookies
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -41,11 +40,10 @@ export default async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-  // Validate
   const {
     fragrance_name, house, category, fragrance_id,
     rating_overall, rating_longevity, rating_sillage, rating_value,
-    review_text, occasion, season,
+    review_text, occasion, season, cover_image_url,
   } = req.body;
 
   if (!fragrance_name?.trim()) return res.status(400).json({ error: 'Fragrance name is required.' });
@@ -55,7 +53,7 @@ export default async function handler(req, res) {
   if (!review_text || review_text.trim().length < 80)
     return res.status(400).json({ error: 'Review must be at least 80 characters.' });
 
-  // Ensure profile exists (admin client bypasses RLS)
+  // Ensure profile exists
   const rawName = user.user_metadata?.full_name || user.user_metadata?.name
     || user.email?.split('@')[0] || 'User';
   const base = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 20) || 'user';
@@ -66,14 +64,69 @@ export default async function handler(req, res) {
     { onConflict: 'id', ignoreDuplicates: true }
   );
 
-  // Insert review
+  // Check role for auto-approval
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  const isPrivileged = profile?.role === 'admin' || profile?.role === 'moderator';
+
+  // Resolve house_id from fragrance_houses
+  let house_id = null;
+  const { data: houseRow } = await supabaseAdmin
+    .from('fragrance_houses')
+    .select('id')
+    .ilike('house', house.trim())
+    .maybeSingle();
+  if (houseRow) house_id = houseRow.id;
+
+  // Resolve or create fragrance record
+  let resolvedFragranceId = fragrance_id || null;
+  if (!resolvedFragranceId) {
+    const { data: existing } = await supabaseAdmin
+      .from('fragrances')
+      .select('id')
+      .ilike('name', fragrance_name.trim())
+      .ilike('house', house.trim())
+      .maybeSingle();
+    if (existing) {
+      resolvedFragranceId = existing.id;
+    } else {
+      const { data: newFrag } = await supabaseAdmin
+        .from('fragrances')
+        .insert({
+          name:     fragrance_name.trim(),
+          house:    house.trim(),
+          category,
+          slug:     slugify(fragrance_name),
+          house_id,
+          status:   'pending',
+        })
+        .select('id')
+        .single();
+      if (newFrag) resolvedFragranceId = newFrag.id;
+    }
+  }
+
+  // Backfill house_id on fragrance if missing
+  if (resolvedFragranceId && house_id) {
+    await supabaseAdmin
+      .from('fragrances')
+      .update({ house_id })
+      .eq('id', resolvedFragranceId)
+      .is('house_id', null);
+  }
+
+  const now = new Date().toISOString();
   const { error: reviewError } = await supabaseAdmin.from('reviews').insert({
     author_id:        user.id,
     slug:             slugify(fragrance_name),
     fragrance_name:   fragrance_name.trim(),
     house:            house.trim(),
     category,
-    fragrance_id:     fragrance_id || null,
+    fragrance_id:     resolvedFragranceId,
+    house_id,
     rating_overall:   Number(rating_overall),
     rating_longevity: rating_longevity ? Number(rating_longevity) : null,
     rating_sillage:   rating_sillage   ? Number(rating_sillage)   : null,
@@ -81,8 +134,11 @@ export default async function handler(req, res) {
     review_text:      review_text.trim(),
     occasion:         occasion || null,
     season:           season   || null,
+    cover_image_url:  cover_image_url?.trim() || null,
+    status:           isPrivileged ? 'approved' : 'pending',
+    published_at:     isPrivileged ? now : null,
   });
 
   if (reviewError) return res.status(400).json({ error: reviewError.message });
-  return res.status(200).json({ ok: true });
+  return res.status(200).json({ ok: true, auto_approved: isPrivileged });
 }

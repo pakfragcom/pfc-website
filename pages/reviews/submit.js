@@ -30,7 +30,7 @@ export default function SubmitReview() {
     house: prefillHouse,
     category: '',
     rating_overall: 0, rating_longevity: 0, rating_sillage: 0, rating_value: 0,
-    review_text: '', occasion: '', season: '',
+    review_text: '', occasion: '', season: '', cover_image_url: '',
   });
   const [fragrance_id, setFragranceId] = useState(prefillFid || null);
 
@@ -45,7 +45,8 @@ export default function SubmitReview() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
-  const [done, setDone]       = useState(false);
+  const [done, setDone]         = useState(false);
+  const [autoApproved, setAutoApproved] = useState(false);
 
   // ── Fragrance auto-suggest ───────────────────────────────────────
   const [suggestions, setSuggestions] = useState([]);
@@ -116,13 +117,9 @@ export default function SubmitReview() {
           <h1 className="text-xl font-bold text-white mb-2">Sign in to write a review</h1>
           <p className="text-sm text-gray-400 mb-6">Create a free PFC account to share your fragrance experiences with the community.</p>
           <div className="flex flex-col gap-3">
-            <Link href="/auth/signup?next=/reviews/submit"
-              className="w-full text-center rounded-xl bg-gradient-to-r from-[#2a5c4f] to-[#557d72] py-2.5 text-sm font-semibold text-white hover:brightness-110 transition">
-              Create Account
-            </Link>
             <Link href="/auth/login?next=/reviews/submit"
-              className="w-full text-center rounded-xl border border-white/15 py-2.5 text-sm text-gray-300 hover:text-white transition">
-              Sign In
+              className="w-full text-center rounded-xl bg-gradient-to-r from-[#2a5c4f] to-[#557d72] py-2.5 text-sm font-semibold text-white hover:brightness-110 transition">
+              Sign In to Continue
             </Link>
           </div>
         </div>
@@ -141,7 +138,9 @@ export default function SubmitReview() {
           </div>
           <h1 className="text-xl font-bold text-white mb-2">Review Submitted!</h1>
           <p className="text-sm text-gray-400 mb-6">
-            Your review is under review by our team. It&apos;ll go live once approved — usually within 24 hours.
+            {autoApproved
+              ? 'Your review is live — it has been published automatically.'
+              : "Your review is under review by our team. It’ll go live once approved — usually within 24 hours."}
           </p>
           <Link href="/reviews"
             className="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-5 py-2 text-sm text-white hover:bg-white/10 transition">
@@ -170,6 +169,7 @@ export default function SubmitReview() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Something went wrong. Please try again.'); setLoading(false); return; }
+      setAutoApproved(!!data.auto_approved);
       setDone(true);
     } catch {
       setError('Network error — please check your connection and try again.');
@@ -303,6 +303,22 @@ export default function SubmitReview() {
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-[#557d72] focus:ring-1 focus:ring-[#557d72] transition resize-none"
                   />
                   <p className="text-xs text-gray-600 mt-1">{form.review_text.length} / 80 minimum</p>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1.5">Cover Image URL <span className="text-gray-600">(optional)</span></label>
+                  <input
+                    type="url"
+                    value={form.cover_image_url}
+                    onChange={e => set('cover_image_url', e.target.value)}
+                    placeholder="https://…"
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-[#557d72] focus:ring-1 focus:ring-[#557d72] transition"
+                  />
+                  {form.cover_image_url && (
+                    <div className="mt-2 h-28 rounded-xl overflow-hidden border border-white/10">
+                      <img src={form.cover_image_url} alt="cover preview" className="w-full h-full object-cover" onError={e => e.target.style.display='none'} />
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-600 mt-1">Paste an image URL to add a cover photo to your review.</p>
                 </div>
               </Section>
 

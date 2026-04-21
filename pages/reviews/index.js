@@ -6,7 +6,7 @@ import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
 
 const CATEGORIES = [
-  { id: 'all',            label: 'All Reviews' },
+  { id: 'all',            label: 'All' },
   { id: 'designer',       label: 'Designer' },
   { id: 'middle_eastern', label: 'Middle Eastern' },
   { id: 'niche',          label: 'Niche' },
@@ -20,12 +20,12 @@ const CATEGORY_LABELS = {
   local:          'Local Brand',
 };
 
-export default function Reviews({ reviews = [], activeCategory = 'all' }) {
+export default function Reviews({ reviews = [], activeCategory = 'all', total = 0 }) {
   return (
     <>
       <Head>
-        <title>Fragrance Reviews Pakistan | PFC</title>
-        <meta name="description" content="Real fragrance reviews from Pakistan's fragrance community — Designer, Niche, Middle Eastern, and Local brands." />
+        <title>Featured Articles | PFC</title>
+        <meta name="description" content="Featured fragrance articles and in-depth reviews from Pakistan's fragrance community." />
       </Head>
 
       <div className="bg-black min-h-screen text-white">
@@ -39,22 +39,26 @@ export default function Reviews({ reviews = [], activeCategory = 'all' }) {
             </div>
             <div className="mx-auto max-w-5xl px-6 py-16 text-center relative">
               <span className="inline-block mb-4 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-400 backdrop-blur">
-                Community Reviews
+                Editorial
               </span>
               <h1 className="text-3xl font-extrabold text-white sm:text-4xl md:text-5xl">
-                Fragrance Reviews
+                Featured Articles
                 <span className="block text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r from-[#3d8b76] via-[#6b9e94] to-[#a8c4be] bg-clip-text text-transparent mt-1">
-                  From Pakistan&apos;s Community
+                  By PFC Community
                 </span>
               </h1>
               <p className="mt-4 text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
-                Honest, real-world wear tests by verified community members.
+                Hand-picked in-depth reviews and fragrance features from our community.
               </p>
-              <div className="mt-6">
+              <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
                 <Link href="/reviews/submit"
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2a5c4f]/20 hover:brightness-110 transition">
                   Write a Review
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
+                </Link>
+                <Link href="/fragrances"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-2.5 text-sm text-gray-300 hover:text-white hover:border-white/30 transition">
+                  All Fragrance Reviews
                 </Link>
               </div>
             </div>
@@ -189,11 +193,11 @@ function EmptyState() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
         </svg>
       </div>
-      <h3 className="text-white font-semibold mb-2">No reviews yet</h3>
-      <p className="text-gray-500 text-sm mb-6">Be the first to share your experience.</p>
+      <h3 className="text-white font-semibold mb-2">No featured articles yet</h3>
+      <p className="text-gray-500 text-sm mb-6">Community reviews can be featured by admins. Write a review to get started.</p>
       <Link href="/reviews/submit"
         className="inline-flex items-center rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-6 py-2.5 text-sm font-semibold text-white hover:brightness-110 transition">
-        Write the First Review
+        Write a Review
       </Link>
     </div>
   );
@@ -205,6 +209,7 @@ export async function getServerSideProps({ query }) {
     .from('reviews')
     .select('id, slug, fragrance_name, house, category, rating_overall, review_text, cover_image_url, published_at, profiles(display_name), fragrances(slug)')
     .eq('status', 'approved')
+    .eq('featured', true)
     .order('published_at', { ascending: false })
     .limit(48);
 
