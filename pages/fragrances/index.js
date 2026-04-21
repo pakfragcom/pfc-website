@@ -37,6 +37,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  const [visibleCount, setVisibleCount] = useState(40);
 
   // Sync state from URL on mount and navigation
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
     if (q && q.trim()) params.q = q.trim();
     if (sort && sort !== 'name') params.sort = sort;
     router.replace({ pathname: '/fragrances', query: params }, undefined, { shallow: true });
+    setVisibleCount(40);
   }
 
   const categoryCounts = useMemo(() => {
@@ -193,17 +195,30 @@ export default function FragrancesIndex({ fragrances = [] }) {
                   <p className="text-sm">Try a different search or category.</p>
                 </div>
               ) : (
-                <m.div
-                  key={activeCategory + query}
-                  initial="hidden" animate="show" variants={stagger}
-                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-                >
-                  {filtered.map(f => (
-                    <m.div key={f.id} variants={fadeUp}>
-                      <FragranceCard f={f} />
-                    </m.div>
-                  ))}
-                </m.div>
+                <>
+                  <m.div
+                    key={activeCategory + query + sortBy}
+                    initial="hidden" animate="show" variants={stagger}
+                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                  >
+                    {filtered.slice(0, visibleCount).map(f => (
+                      <m.div key={f.id} variants={fadeUp}>
+                        <FragranceCard f={f} />
+                      </m.div>
+                    ))}
+                  </m.div>
+                  {filtered.length > visibleCount && (
+                    <div className="mt-10 text-center">
+                      <button
+                        onClick={() => setVisibleCount(v => v + 20)}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-2.5 text-sm text-gray-400 hover:text-white hover:border-white/30 transition"
+                      >
+                        Load More
+                        <span className="text-gray-600">({filtered.length - visibleCount} remaining)</span>
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </main>

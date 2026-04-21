@@ -326,6 +326,54 @@ function AdminSection() {
   );
 }
 
+// ── My Wishlist Section ──────────────────────────────────────────────
+function MyWishlistSection({ items = [] }) {
+  if (items.length === 0) {
+    return (
+      <div>
+        <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">Want to Try</h2>
+        <div className="text-center py-12 border border-white/10 rounded-2xl">
+          <p className="text-gray-500 text-sm">No fragrances saved yet.</p>
+          <Link href="/fragrances" className="mt-3 inline-block text-sm text-[#94aea7] hover:text-white transition">
+            Browse the directory →
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm uppercase tracking-widest text-gray-500">
+          Want to Try <span className="text-gray-600 normal-case tracking-normal">({items.length})</span>
+        </h2>
+        <Link href="/fragrances" className="text-xs text-[#94aea7] hover:text-white transition">Browse more</Link>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {items.map(item => {
+          const f = item.fragrances;
+          if (!f) return null;
+          return (
+            <Link key={item.fragrance_id} href={`/fragrances/${f.slug}`}
+              className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05] p-3 transition-all">
+              <div className="h-10 w-10 rounded-lg flex-shrink-0 overflow-hidden bg-white/5 border border-white/10">
+                {f.image_url
+                  ? <img src={f.image_url} alt={f.name} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex items-center justify-center text-white/20 text-base">◈</div>
+                }
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-white leading-snug line-clamp-1 group-hover:text-white transition">{f.name}</p>
+                <p className="text-[10px] text-gray-500 line-clamp-1">{f.house}</p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── My Reviews Section ──────────────────────────────────────────────
 function MyReviewsSection({ reviews }) {
   const approved = reviews.filter(r => r.status === 'approved');
@@ -421,7 +469,7 @@ function ReviewCard({ review, pending, rejected }) {
 }
 
 // ── Main Page ──────────────────────────────────────────────
-export default function MyProfile({ profile, reviews, seller, isAdmin }) {
+export default function MyProfile({ profile, reviews, seller, isAdmin, wishlist = [] }) {
   const [editOpen, setEditOpen] = useState(false);
   const router = useRouter();
   const isWelcome = router.query.welcome === '1';
@@ -429,6 +477,13 @@ export default function MyProfile({ profile, reviews, seller, isAdmin }) {
   const initials = (profile.display_name || 'U')
     .split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const joinDate = new Date(profile.created_at).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' });
+
+  const approvedReviews = reviews.filter(r => r.status === 'approved');
+  const avgRating = approvedReviews.length
+    ? Math.round(approvedReviews.reduce((s, r) => s + Number(r.rating_overall), 0) / approvedReviews.length * 10) / 10
+    : null;
+  const catCounts = approvedReviews.reduce((acc, r) => { acc[r.category] = (acc[r.category] || 0) + 1; return acc; }, {});
+  const topCategory = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
   return (
     <>
@@ -507,6 +562,34 @@ export default function MyProfile({ profile, reviews, seller, isAdmin }) {
                   Edit Profile
                 </button>
               </div>
+
+              {/* Stats strip */}
+              {(approvedReviews.length > 0 || wishlist.length > 0) && (
+                <div className="mt-6 pt-6 border-t border-white/10 flex flex-wrap gap-6">
+                  <div>
+                    <p className="text-xl font-bold text-white">{approvedReviews.length}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Review{approvedReviews.length !== 1 ? 's' : ''}</p>
+                  </div>
+                  {avgRating !== null && (
+                    <div>
+                      <p className="text-xl font-bold text-white">{avgRating}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Rating</p>
+                    </div>
+                  )}
+                  {topCategory && (
+                    <div>
+                      <p className="text-sm font-semibold text-[#94aea7] mt-0.5">{CATEGORY_LABELS[topCategory]}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Top Category</p>
+                    </div>
+                  )}
+                  {wishlist.length > 0 && (
+                    <div>
+                      <p className="text-xl font-bold text-white">{wishlist.length}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Want to Try</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -514,6 +597,7 @@ export default function MyProfile({ profile, reviews, seller, isAdmin }) {
           <div className="max-w-4xl mx-auto px-6 mt-8 space-y-6">
             {isAdmin && <AdminSection />}
             {seller ? <SellerCard seller={seller} /> : <ClaimSellerSection />}
+            <MyWishlistSection items={wishlist} />
             <MyReviewsSection reviews={reviews} />
           </div>
         </main>
@@ -626,6 +710,13 @@ export async function getServerSideProps({ req, res }) {
     .eq('user_id', user.id)
     .maybeSingle();
 
+  // Wishlist
+  const { data: wishlist } = await supabaseAdmin
+    .from('fragrance_wishlist')
+    .select('fragrance_id, created_at, fragrances(id, name, slug, house, category, image_url)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
   const isAdmin = profile.role === 'admin';
 
   return {
@@ -634,6 +725,7 @@ export async function getServerSideProps({ req, res }) {
       reviews: reviews || [],
       seller: seller || null,
       isAdmin,
+      wishlist: wishlist || [],
     },
   };
 }

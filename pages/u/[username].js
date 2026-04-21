@@ -3,12 +3,13 @@ import Link from 'next/link';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
+import { supabaseAdmin } from '../../lib/supabase-admin';
 
 const CATEGORY_LABELS = {
   designer: 'Designer', middle_eastern: 'Middle Eastern', niche: 'Niche', local: 'Local Brand',
 };
 
-export default function UserProfile({ profile, reviews = [], sellerType = null }) {
+export default function UserProfile({ profile, reviews = [], sellerType = null, avgRating = null, topCategory = null, wishlistCount = 0 }) {
   if (!profile) return null;
 
   const joinDate = new Date(profile.created_at).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' });
@@ -62,11 +63,29 @@ export default function UserProfile({ profile, reviews = [], sellerType = null }
                 </div>
 
                 {/* Stats */}
-                <div className="flex gap-6 sm:flex-col sm:gap-2 sm:text-right">
+                <div className="flex gap-6 sm:flex-col sm:gap-3 sm:text-right flex-shrink-0">
                   <div>
                     <p className="text-2xl font-bold text-white">{reviews.length}</p>
                     <p className="text-xs text-gray-500 uppercase tracking-wide">Review{reviews.length !== 1 ? 's' : ''}</p>
                   </div>
+                  {avgRating !== null && (
+                    <div>
+                      <p className="text-2xl font-bold text-white">{avgRating}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Rating</p>
+                    </div>
+                  )}
+                  {topCategory && (
+                    <div>
+                      <p className="text-sm font-semibold text-[#94aea7]">{CATEGORY_LABELS[topCategory]}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Top Category</p>
+                    </div>
+                  )}
+                  {wishlistCount > 0 && (
+                    <div>
+                      <p className="text-2xl font-bold text-white">{wishlistCount}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Want to Try</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -151,5 +170,17 @@ export async function getStaticProps({ params }) {
     .in('status', ['active', 'grace'])
     .maybeSingle();
 
-  return { props: { profile, reviews: reviews || [], sellerType: seller?.seller_type || null }, revalidate: 300 };
+  const approvedReviews = reviews || [];
+  const avgRating = approvedReviews.length
+    ? Math.round(approvedReviews.reduce((s, r) => s + Number(r.rating_overall), 0) / approvedReviews.length * 10) / 10
+    : null;
+  const catCounts = approvedReviews.reduce((acc, r) => { acc[r.category] = (acc[r.category] || 0) + 1; return acc; }, {});
+  const topCategory = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+  const { count: wishlistCount } = await supabaseAdmin
+    .from('fragrance_wishlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', profile.id);
+
+  return { props: { profile, reviews: approvedReviews, sellerType: seller?.seller_type || null, avgRating, topCategory, wishlistCount: wishlistCount || 0 }, revalidate: 300 };
 }
