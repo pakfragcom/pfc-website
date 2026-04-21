@@ -58,7 +58,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // GA + PostHog + Sentry
               "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://us-assets.i.posthog.com",
-              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io",
+              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
               "frame-ancestors 'self'",
               "object-src 'none'",
               "base-uri 'self'",
