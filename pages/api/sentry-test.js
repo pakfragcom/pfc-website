@@ -5,6 +5,6 @@ export default function handler(req, res) {
     throw new Error('PFC Sentry server test — delete this route after confirming');
   } catch (err) {
     Sentry.captureException(err);
-    res.status(200).json({ message: 'Server error captured and sent to Sentry. Check your dashboard.' });
+    res.status(200).json({ ok: true, message: 'Server error captured and sent to Sentry.' });
   }
 }
