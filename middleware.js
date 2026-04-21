@@ -24,9 +24,11 @@ export async function middleware(request) {
     }
   );
 
-  // Refreshes the session if the access token is expired.
-  // Must use getUser() not getSession() — getSession() doesn't validate the JWT.
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Never block the request due to a session refresh failure
+  }
 
   return response;
 }

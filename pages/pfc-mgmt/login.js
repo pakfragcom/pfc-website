@@ -121,15 +121,23 @@ export default function AdminLogin() {
 }
 
 export async function getServerSideProps({ req, res }) {
-  const { isAdminAuthenticated } = require("../../lib/admin-auth");
-  if (isAdminAuthenticated(req)) {
-    return { redirect: { destination: "/pfc-mgmt", permanent: false } };
+  try {
+    const { isAdminAuthenticated } = require("../../lib/admin-auth");
+    if (isAdminAuthenticated(req)) {
+      return { redirect: { destination: "/pfc-mgmt", permanent: false } };
+    }
+  } catch (e) {
+    console.error('[pfc-mgmt/login] admin cookie check failed:', e?.message);
   }
 
-  const { resolveIdentity } = require("../../lib/admin-guard");
-  const identity = await resolveIdentity(req, res);
-  if (identity) {
-    return { redirect: { destination: "/pfc-mgmt", permanent: false } };
+  try {
+    const { resolveIdentity } = require("../../lib/admin-guard");
+    const identity = await resolveIdentity(req, res);
+    if (identity) {
+      return { redirect: { destination: "/pfc-mgmt", permanent: false } };
+    }
+  } catch (e) {
+    console.error('[pfc-mgmt/login] identity check failed:', e?.message);
   }
 
   return { props: {} };

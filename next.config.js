@@ -57,7 +57,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // GA snippet + GTM + your inline JSON-LD in _app.js
               "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
-              "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com",
+              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com",
               "frame-ancestors 'self'",
               "object-src 'none'",
               "base-uri 'self'",
