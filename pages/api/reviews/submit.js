@@ -140,5 +140,33 @@ export default async function handler(req, res) {
   });
 
   if (reviewError) return res.status(400).json({ error: reviewError.message });
+
+  // Email notification to admin (non-blocking)
+  if (!isPrivileged && process.env.RESEND_API_KEY) {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iamabdullahawan@gmail.com';
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Pakistan Fragrance Community <noreply@pakfrag.com>',
+        to: adminEmail,
+        subject: `New review pending: ${fragrance_name.trim()} by ${house.trim()}`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px">
+            <h2 style="color:#2a5c4f">New Review Pending Approval</h2>
+            <p><strong>Fragrance:</strong> ${fragrance_name.trim()}</p>
+            <p><strong>House:</strong> ${house.trim()}</p>
+            <p><strong>Rating:</strong> ${rating_overall}/5</p>
+            <p><strong>Preview:</strong> ${review_text.trim().slice(0, 200)}…</p>
+            <p><a href="https://pakfrag.com/pfc-mgmt/reviews" style="color:#557d72">Review in admin panel →</a></p>
+          </div>
+        `,
+      }),
+    }).catch(() => {}); // fire and forget
+  }
+
   return res.status(200).json({ ok: true, auto_approved: isPrivileged });
 }

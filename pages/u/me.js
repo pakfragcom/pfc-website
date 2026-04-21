@@ -41,10 +41,12 @@ function DaysChip({ days }) {
 
 // ── Edit Profile Modal ──────────────────────────────────────────────
 function EditProfileModal({ profile, onClose, onSave }) {
+  const canChangeUsername = !profile.username_changed;
   const [form, setForm] = useState({
     display_name: profile.display_name || '',
     city: profile.city || '',
     bio: profile.bio || '',
+    username: profile.username || '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -53,10 +55,16 @@ function EditProfileModal({ profile, onClose, onSave }) {
   async function submit(e) {
     e.preventDefault();
     setLoading(true); setError('');
+    const body = {
+      display_name: form.display_name,
+      city: form.city,
+      bio: form.bio,
+    };
+    if (canChangeUsername) body.username = form.username;
     const res = await fetch('/api/profile/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify(body),
     });
     if (res.ok) {
       onClose();
@@ -84,6 +92,32 @@ function EditProfileModal({ profile, onClose, onSave }) {
               className="w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25"
             />
           </div>
+
+          {/* One-time username change */}
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">
+              Username
+              {canChangeUsername
+                ? <span className="ml-1.5 text-[#94aea7]">— you can change this once</span>
+                : <span className="ml-1.5 text-gray-600">— locked after first change</span>}
+            </label>
+            <div className="flex items-center gap-0 ring-1 ring-white/10 rounded-lg overflow-hidden bg-black/40">
+              <span className="px-3 py-2 text-sm text-gray-600 select-none border-r border-white/10">pakfrag.com/u/</span>
+              <input
+                type="text"
+                value={form.username}
+                onChange={e => setForm({ ...form, username: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                disabled={!canChangeUsername}
+                maxLength={30}
+                placeholder="your-handle"
+                className="flex-1 bg-transparent px-3 py-2 text-white text-sm outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+              />
+            </div>
+            {canChangeUsername && (
+              <p className="text-[11px] text-gray-600 mt-1">Letters, numbers, hyphens. 3–30 characters. Cannot be undone.</p>
+            )}
+          </div>
+
           <div>
             <label className="text-xs text-gray-500 block mb-1">City</label>
             <select
