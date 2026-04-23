@@ -22,7 +22,7 @@ function NavLink({ href, active, badge, children }) {
 
 export default function AdminNav({ currentPage, identity, onLogout }) {
   const p = identity?.permissions ?? {};
-  const [counts, setCounts] = useState({ reviews: 0, fragrances: 0 });
+  const [counts, setCounts] = useState({ reviews: 0, fragrances: 0, orders: 0 });
 
   useEffect(() => {
     fetch('/api/admin/pending-counts')
@@ -48,6 +48,9 @@ export default function AdminNav({ currentPage, identity, onLogout }) {
           )}
           {(p.can_manage_reviews || p.is_admin) && (
             <NavLink href="/pfc-mgmt/fragrances" active={currentPage === 'fragrances'} badge={counts.fragrances}>Fragrances</NavLink>
+          )}
+          {p.is_admin && (
+            <NavLink href="/pfc-mgmt/orders" active={currentPage === 'orders'} badge={counts.orders}>Orders</NavLink>
           )}
           {p.is_admin && (
             <NavLink href="/pfc-mgmt/team" active={currentPage === 'team'}>Team</NavLink>
