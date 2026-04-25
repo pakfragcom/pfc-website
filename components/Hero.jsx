@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 import { LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion'
 
 export default function Hero() {
@@ -127,6 +128,14 @@ export default function Hero() {
             >
               Explore Pakistan&apos;s Perfumery
             </a>
+
+            {/* Directory CTA */}
+            <Link
+              href="/fragrances"
+              className="inline-flex items-center justify-center rounded-full border border-[#3d8b76]/50 bg-[#2a5c4f]/20 px-8 py-3 text-sm font-semibold uppercase tracking-wide text-[#94aea7] backdrop-blur-sm transition-all motion-safe:duration-300 hover:border-[#3d8b76] hover:bg-[#2a5c4f]/40 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            >
+              Browse Fragrance Directory
+            </Link>
           </m.div>
         </m.div>
 

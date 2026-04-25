@@ -262,6 +262,28 @@ const HOUSES = [
   ['Trussardi', 'Trussardi', 'designer'],
   ['Gisada', 'Gisada', 'designer'],
   ['Penhaligon', 'Penhaligon\'s', 'niche'],
+  // Missing houses added from skipped entries
+  ['Officine Creative Profumi', 'Officine Creative Profumi', 'niche'],
+  ['Les Indemodables', 'Les Indemodables', 'niche'],
+  ['Le Falcone Perfumes', 'Le Falcone Perfumes', 'middle_eastern'],
+  ['Salvatore Ferragamo', 'Salvatore Ferragamo', 'designer'],
+  ['The Harmonist', 'The Harmonist', 'niche'],
+  ['Issey Miyake', 'Issey Miyake', 'designer'],
+  ['Calvin Klein', 'Calvin Klein', 'designer'],
+  ['Jacques Bogart', 'Jacques Bogart', 'designer'],
+  ['Atelier Materi', 'Atelier Materi', 'niche'],
+  ['Guy Laroche', 'Guy Laroche', 'designer'],
+  ['M. Micallef', 'M. Micallef', 'niche'],
+  ['Gucci', 'Gucci', 'designer'],
+  ['Davidoff', 'Davidoff', 'designer'],
+  ['Mauboussin', 'Mauboussin', 'designer'],
+  ['Gritti', 'Gritti', 'niche'],
+  ['Arquiste', 'Arquiste', 'niche'],
+  ['Granado', 'Granado', 'designer'],
+  ['Natura', 'Natura', 'designer'],
+  ['Mallo', 'Mallo', 'niche'],
+  ['Areej', 'Areej', 'niche'],
+  ['Joop!', 'Joop!', 'designer'],
 ];
 
 // Sort longest first for greedy matching
