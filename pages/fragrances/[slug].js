@@ -67,23 +67,42 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
   return (
     <>
       <Head>
-        <title>{fragrance.name} by {fragrance.house} | PFC</title>
-        <meta name="description"
-          content={`${fragrance.name} by ${fragrance.house} — ${reviews.length} community review${reviews.length !== 1 ? 's' : ''} from Pakistan's fragrance community.`} />
+        <title>{fragrance.name} by {fragrance.house}{fragrance.concentration ? ` ${fragrance.concentration}` : ''} – Reviews in Pakistan | PakFrag</title>
+        <meta name="description" content={
+          reviews.length > 0
+            ? `Read ${reviews.length} community review${reviews.length !== 1 ? 's' : ''} of ${fragrance.name} by ${fragrance.house}${fragrance.concentration ? ` ${fragrance.concentration}` : ''}. Longevity, sillage & value scores from Pakistan.${fragrance.year_released ? ` Released ${fragrance.year_released}.` : ''}`
+            : `${fragrance.name} by ${fragrance.house}${fragrance.concentration ? ` ${fragrance.concentration}` : ''} in Pakistan's fragrance directory. Be the first to leave a review.${fragrance.year_released ? ` Released ${fragrance.year_released}.` : ''}`
+        } />
         <link rel="canonical" href={`https://pakfrag.com/fragrances/${fragrance.slug}`} />
         <meta property="og:type" content="product" />
-        <meta property="og:title" content={`${fragrance.name} by ${fragrance.house} | PFC`} />
-        <meta property="og:description" content={`${fragrance.name} by ${fragrance.house}${fragrance.concentration ? ` ${fragrance.concentration}` : ''} — ${reviews.length} community review${reviews.length !== 1 ? 's' : ''} from Pakistan.`} />
+        <meta property="og:title" content={`${fragrance.name} by ${fragrance.house}${fragrance.concentration ? ` ${fragrance.concentration}` : ''} – Reviews | PakFrag`} />
+        <meta property="og:description" content={`${fragrance.name} by ${fragrance.house}${fragrance.concentration ? ` ${fragrance.concentration}` : ''}${reviews.length > 0 ? ` — ${reviews.length} community review${reviews.length !== 1 ? 's' : ''} from Pakistan` : ' — Pakistan fragrance directory'}.`} />
         <meta property="og:url" content={`https://pakfrag.com/fragrances/${fragrance.slug}`} />
-        {fragrance.image_url && <meta property="og:image" content={fragrance.image_url} />}
-        {reviews.length > 0 && (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Product',
-            name: fragrance.name,
-            brand: { '@type': 'Brand', name: fragrance.house },
-            ...(fragrance.image_url && { image: fragrance.image_url }),
-            ...(fragrance.description && { description: fragrance.description }),
+        <meta property="og:image" content={fragrance.image_url || 'https://pakfrag.com/pfc-round.png'} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content={`${fragrance.name} by ${fragrance.house} – Reviews | PakFrag`} />
+        <meta name="twitter:description" content={`${fragrance.name} by ${fragrance.house}${reviews.length > 0 ? ` — ${reviews.length} community reviews from Pakistan` : ' — Pakistan fragrance directory'}.`} />
+        <meta name="twitter:image" content={fragrance.image_url || 'https://pakfrag.com/pfc-round.png'} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://pakfrag.com' },
+            { '@type': 'ListItem', position: 2, name: 'Fragrance Directory', item: 'https://pakfrag.com/fragrances' },
+            { '@type': 'ListItem', position: 3, name: fragrance.name, item: `https://pakfrag.com/fragrances/${fragrance.slug}` },
+          ],
+        })}} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: fragrance.name,
+          brand: { '@type': 'Brand', name: fragrance.house },
+          ...(fragrance.image_url ? { image: fragrance.image_url } : {}),
+          ...(fragrance.description ? { description: fragrance.description } : {}),
+          ...(fragrance.year_released ? { productionDate: String(fragrance.year_released) } : {}),
+          url: `https://pakfrag.com/fragrances/${fragrance.slug}`,
+          ...(reviews.length > 0 ? {
             aggregateRating: {
               '@type': 'AggregateRating',
               ratingValue: avgOverall.toFixed(1),
@@ -91,8 +110,8 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
               bestRating: '5',
               worstRating: '1',
             },
-          })}} />
-        )}
+          } : {}),
+        })}} />
       </Head>
 
       <div className="bg-black min-h-screen text-white">

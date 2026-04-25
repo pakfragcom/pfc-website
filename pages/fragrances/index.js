@@ -32,11 +32,14 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
 };
 
+const LETTERS = ['#', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
+
 export default function FragrancesIndex({ fragrances = [] }) {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('all');
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  const [activeLetter, setActiveLetter] = useState('');
   const [visibleCount, setVisibleCount] = useState(40);
 
   // Sync state from URL on mount and navigation
@@ -56,6 +59,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
     if (sort && sort !== 'name') params.sort = sort;
     router.replace({ pathname: '/fragrances', query: params }, undefined, { shallow: true });
     setVisibleCount(40);
+    setActiveLetter('');
   }
 
   const categoryCounts = useMemo(() => {
@@ -73,21 +77,66 @@ export default function FragrancesIndex({ fragrances = [] }) {
         f.name.toLowerCase().includes(q) || f.house.toLowerCase().includes(q)
       );
     }
+    if (activeLetter) {
+      if (activeLetter === '#') {
+        list = list.filter(f => !/^[a-zA-Z]/.test(f.name));
+      } else {
+        list = list.filter(f => f.name.toUpperCase().startsWith(activeLetter));
+      }
+    }
     if (sortBy === 'rating') list = [...list].sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
     else if (sortBy === 'reviews') list = [...list].sort((a, b) => (b.review_count || 0) - (a.review_count || 0));
     return list;
-  }, [fragrances, activeCategory, query, sortBy]);
+  }, [fragrances, activeCategory, query, sortBy, activeLetter]);
+
+  const letterCounts = useMemo(() => {
+    const base = activeCategory === 'all' ? fragrances : fragrances.filter(f => f.category === activeCategory);
+    const counts = {};
+    base.forEach(f => {
+      const first = f.name[0]?.toUpperCase() || '';
+      const key = /^[A-Z]$/.test(first) ? first : '#';
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return counts;
+  }, [fragrances, activeCategory]);
 
   return (
     <>
       <Head>
-        <title>Fragrance Directory Pakistan | PFC</title>
-        <meta name="description" content="Browse Pakistan's fragrance community directory — Designer, Niche, Middle Eastern, and Local fragrances with real community reviews." />
+        <title>Fragrance Directory – {fragrances.length}+ Perfumes with Reviews | PakFrag Pakistan</title>
+        <meta name="description" content={`Browse ${fragrances.length}+ fragrances in Pakistan's community-driven directory. Designer, Niche, Middle Eastern & local Pakistani perfumes — with real longevity, sillage & value ratings from verified members.`} />
         <link rel="canonical" href="https://pakfrag.com/fragrances" />
-        <meta property="og:title" content="Fragrance Directory Pakistan | PFC" />
-        <meta property="og:description" content="Browse Pakistan's fragrance community directory — Designer, Niche, Middle Eastern, and Local fragrances with real community reviews." />
+        <meta property="og:title" content={`Fragrance Directory – ${fragrances.length}+ Perfumes | PakFrag Pakistan`} />
+        <meta property="og:description" content="Browse Pakistan's community-driven fragrance directory — Designer, Niche, Middle Eastern & local brands with real longevity, sillage & value ratings." />
         <meta property="og:url" content="https://pakfrag.com/fragrances" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://pakfrag.com/pfc-round.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content={`Fragrance Directory – ${fragrances.length}+ Perfumes | PakFrag Pakistan`} />
+        <meta name="twitter:description" content="Browse Pakistan's community-driven fragrance directory — Designer, Niche, Middle Eastern & local brands with real longevity, sillage & value ratings." />
+        <meta name="twitter:image" content="https://pakfrag.com/pfc-round.png" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://pakfrag.com' },
+            { '@type': 'ListItem', position: 2, name: 'Fragrance Directory', item: 'https://pakfrag.com/fragrances' },
+          ],
+        })}} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: `Fragrance Directory – ${fragrances.length}+ Perfumes | PakFrag Pakistan`,
+          description: 'Browse designer, niche, Middle Eastern & local Pakistani fragrances with community reviews, longevity and sillage ratings.',
+          url: 'https://pakfrag.com/fragrances',
+          numberOfItems: fragrances.length,
+          provider: {
+            '@type': 'Organization',
+            name: 'Pakistan Fragrance Community',
+            url: 'https://pakfrag.com',
+          },
+        })}} />
       </Head>
 
       <div className="bg-black min-h-screen text-white">
@@ -188,6 +237,31 @@ export default function FragrancesIndex({ fragrances = [] }) {
                 </div>
               </div>
 
+              {/* A–Z index */}
+              <div className="flex flex-wrap gap-1 mb-6">
+                {LETTERS.map(letter => {
+                  const count = letterCounts[letter] || 0;
+                  const isActive = activeLetter === letter;
+                  return (
+                    <button
+                      key={letter}
+                      onClick={() => { setActiveLetter(isActive ? '' : letter); setVisibleCount(40); }}
+                      disabled={count === 0}
+                      className={[
+                        'w-7 h-7 rounded-lg text-xs font-medium transition',
+                        isActive
+                          ? 'bg-white text-black'
+                          : count > 0
+                            ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                            : 'text-gray-700 cursor-default',
+                      ].join(' ')}
+                    >
+                      {letter}
+                    </button>
+                  );
+                })}
+              </div>
+
               {/* Grid */}
               {filtered.length === 0 ? (
                 <div className="text-center py-20 text-gray-500">
@@ -197,7 +271,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
               ) : (
                 <>
                   <m.div
-                    key={activeCategory + query + sortBy}
+                    key={activeCategory + query + sortBy + activeLetter}
                     initial="hidden" animate="show" variants={stagger}
                     className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
                   >
@@ -284,10 +358,14 @@ function FragranceCard({ f }) {
         </div>
       </Link>
 
-      <div className="px-3 pb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <div className="px-3 pb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1.5">
         <Link href={reviewUrl}
-          className="block w-full text-center rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-[#2a5c4f]/30 hover:ring-[#3d8b76]/50 py-1.5 text-[10px] font-medium text-gray-400 hover:text-white transition-all duration-200">
-          + Write a Review
+          className="flex-1 text-center rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-[#2a5c4f]/30 hover:ring-[#3d8b76]/50 py-1.5 text-[10px] font-medium text-gray-400 hover:text-white transition-all duration-200">
+          + Review
+        </Link>
+        <Link href={`/order?fragrance=${encodeURIComponent(f.name)}&fid=${f.id}`}
+          className="flex-1 text-center rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-[#3d8b76]/20 hover:ring-[#3d8b76]/40 py-1.5 text-[10px] font-medium text-gray-400 hover:text-[#94aea7] transition-all duration-200">
+          Order
         </Link>
       </div>
     </div>

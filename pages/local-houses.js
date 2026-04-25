@@ -167,15 +167,20 @@ function PlatinumCard({ item }) {
           )}
 
           {/* Meta row */}
-          {item.city && (
-            <div className="mt-3 flex items-center gap-1 text-[10px] text-gray-600">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              {item.city}
-            </div>
-          )}
+          <div className="mt-3 flex items-center gap-3 text-[10px] text-gray-600">
+            {item.city && (
+              <span className="flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                {item.city}
+              </span>
+            )}
+            {item.fragrance_count > 0 && (
+              <span>{item.fragrance_count} fragrance{item.fragrance_count !== 1 ? 's' : ''}</span>
+            )}
+          </div>
         </div>
       </CardWrapper>
     </m.div>
@@ -205,9 +210,10 @@ function GoldCard({ item }) {
           <h3 className="font-semibold text-white text-sm leading-snug line-clamp-2 group-hover:text-yellow-100 transition-colors">
             {item.house}
           </h3>
-          {item.city && (
-            <p className="text-[10px] text-gray-600 mt-1">{item.city}</p>
-          )}
+          <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-600">
+            {item.city && <span>{item.city}</span>}
+            {item.fragrance_count > 0 && <span>{item.fragrance_count} fragrances</span>}
+          </div>
         </div>
       </CardWrapper>
     </m.div>
@@ -233,9 +239,14 @@ function SilverCard({ item }) {
           >
             <span style={{ color: accent + 'cc' }}>{initials(item.house)}</span>
           </div>
-          <h3 className="font-medium text-white text-xs leading-snug line-clamp-2 group-hover:text-slate-100 transition-colors">
-            {item.house}
-          </h3>
+          <div className="min-w-0">
+            <h3 className="font-medium text-white text-xs leading-snug line-clamp-2 group-hover:text-slate-100 transition-colors">
+              {item.house}
+            </h3>
+            {item.fragrance_count > 0 && (
+              <p className="text-[9px] text-gray-600 mt-0.5">{item.fragrance_count} fragrances</p>
+            )}
+          </div>
         </div>
       </CardWrapper>
     </m.div>
@@ -267,6 +278,7 @@ function SearchCard({ item }) {
             <div className="flex items-center gap-2 mt-0.5">
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
               {item.city && <span className="text-[10px] text-gray-500">{item.city}</span>}
+              {item.fragrance_count > 0 && <span className="text-[10px] text-gray-600">{item.fragrance_count} fragrances</span>}
             </div>
           </div>
         </div>
@@ -514,13 +526,26 @@ export default function LocalHousesPage({ houses = [] }) {
 }
 
 export async function getStaticProps() {
-  const { data: houses, error } = await supabase
-    .from('fragrance_houses')
-    .select('house, director, slug, tier, city')
-    .in('status', ['active', 'grace'])
-    .order('house');
+  const [{ data: houses, error }, { data: fragRows }] = await Promise.all([
+    supabase
+      .from('fragrance_houses')
+      .select('house, director, slug, tier, city')
+      .in('status', ['active', 'grace'])
+      .order('house'),
+    supabase
+      .from('fragrances')
+      .select('fragrance_houses(slug)')
+      .eq('status', 'approved'),
+  ]);
 
   if (error) console.error('[local-houses] Supabase fetch error:', error.message);
+
+  // Build slug → fragrance count map
+  const fragCountBySlug = {};
+  (fragRows || []).forEach(f => {
+    const slug = f.fragrance_houses?.slug;
+    if (slug) fragCountBySlug[slug] = (fragCountBySlug[slug] || 0) + 1;
+  });
 
   const mapped = (houses || []).map(h => ({
     house: h.house,
@@ -528,6 +553,7 @@ export async function getStaticProps() {
     slug: h.slug || null,
     tier: h.tier || 'silver',
     city: h.city || null,
+    fragrance_count: h.slug ? (fragCountBySlug[h.slug] || 0) : 0,
   }));
 
   return {

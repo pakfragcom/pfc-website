@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { supabase } from '../lib/supabase';
@@ -26,6 +27,7 @@ const inputCls = 'w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2
 const labelCls = 'block text-xs text-gray-400 mb-1.5';
 
 export default function OrderPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -48,6 +50,14 @@ export default function OrderPage() {
   const [termsChecked, setTermsChecked]       = useState(false);
 
   const searchTimer = useRef(null);
+
+  useEffect(() => {
+    const { fragrance, fid } = router.query;
+    if (fragrance) {
+      setFragranceName(fragrance);
+      if (fid) setFragranceId(fid);
+    }
+  }, [router.query]);
 
   async function handleFragranceInput(val) {
     setFragranceName(val);
