@@ -142,10 +142,13 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
                       <img src={fragrance.image_url} alt={fragrance.name}
                         className="w-full h-full object-cover" />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg className="w-16 h-16 text-white/8" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2a5 5 0 015 5v1h1a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V10a2 2 0 012-2h1V7a5 5 0 015-5zm0 2a3 3 0 00-3 3v1h6V7a3 3 0 00-3-3z"/>
-                        </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                        <span className="text-7xl font-black text-white/10 leading-none select-none">
+                          {fragrance.name[0]?.toUpperCase()}
+                        </span>
+                        <span className="text-[10px] uppercase tracking-[0.25em] text-white/10 font-medium px-6 text-center">
+                          {fragrance.house}
+                        </span>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent md:bg-gradient-to-r" />
@@ -306,9 +309,7 @@ function RelatedFragrances({ related, category }) {
                 <img src={f.image_url} alt={f.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-white/8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2a5 5 0 015 5v1h1a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V10a2 2 0 012-2h1V7a5 5 0 015-5zm0 2a3 3 0 00-3 3v1h6V7a3 3 0 00-3-3z"/>
-                  </svg>
+                  <span className="text-3xl font-black text-white/10 leading-none select-none">{f.name[0]?.toUpperCase()}</span>
                 </div>
               )}
             </div>

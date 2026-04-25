@@ -16,9 +16,9 @@ export default function Hero() {
       >
         {/* Background with cinematic zoom */}
         <m.div
-          initial={{ scale: 1.08 }}
+          initial={{ scale: 1.04 }}
           animate={{ scale: 1 }}
-          transition={{ duration: reduce ? 0 : 7.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: reduce ? 0 : 5, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 will-change-transform"
           style={{ transform: 'translateZ(0)' }}
           aria-hidden="true"
@@ -48,15 +48,15 @@ export default function Hero() {
 
         {/* Content */}
         <m.div
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduce ? 0 : 0.9, ease: 'easeOut', delay: 0.15 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: reduce ? 0 : 0.6, ease: 'easeOut', delay: 0.1 }}
           className="relative z-10 max-w-4xl px-6 text-center"
         >
           <m.span
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.7, ease: 'easeOut', delay: 0.3 }}
+            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.2 }}
             className="mb-5 inline-block rounded-full border border-white/15 bg-white/8 px-4 py-1 text-xs uppercase tracking-[0.25em] text-gray-200 backdrop-blur-sm"
           >
             Pakistan Fragrance Community
@@ -64,9 +64,9 @@ export default function Hero() {
 
           <m.h1
             id="hero-heading"
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.9, ease: [0.2, 0.8, 0.2, 1], delay: 0.45 }}
+            transition={{ duration: reduce ? 0 : 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.32 }}
             className="text-4xl font-extrabold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl"
           >
             The Home of{' '}
@@ -77,9 +77,9 @@ export default function Hero() {
 
           <m.p
             id="hero-subheading"
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.8, ease: 'easeOut', delay: 0.7 }}
+            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.46 }}
             className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
           >
             Where collectors, reviewers, and perfume lovers unite to share passion, discover rare scents,
@@ -87,9 +87,9 @@ export default function Hero() {
           </m.p>
 
           <m.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.8, ease: 'easeOut', delay: 0.95 }}
+            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.58 }}
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap"
           >
             {/* Primary */}

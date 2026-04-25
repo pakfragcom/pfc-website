@@ -25,11 +25,11 @@ const EASE = [0.25, 0.46, 0.45, 0.94];
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
+  show: { transition: { staggerChildren: 0.02, delayChildren: 0 } },
 };
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
+  hidden: { opacity: 0, y: 6 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: EASE } },
 };
 
 const LETTERS = ['#', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
@@ -271,7 +271,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
               ) : (
                 <>
                   <m.div
-                    key={activeCategory + query + sortBy + activeLetter}
+                    key={activeCategory + sortBy + activeLetter}
                     initial="hidden" animate="show" variants={stagger}
                     className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
                   >
@@ -317,10 +317,13 @@ function FragranceCard({ f }) {
             <img src={f.image_url} alt={f.name}
               className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500" />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="w-10 h-10 text-white/8" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2a5 5 0 015 5v1h1a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V10a2 2 0 012-2h1V7a5 5 0 015-5zm0 2a3 3 0 00-3 3v1h6V7a3 3 0 00-3-3z"/>
-              </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+              <span className="text-4xl font-black text-white/10 leading-none select-none">
+                {f.name[0]?.toUpperCase()}
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-white/10 font-medium px-4 text-center line-clamp-1">
+                {f.house}
+              </span>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
