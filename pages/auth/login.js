@@ -42,6 +42,24 @@ export default function Login() {
     e?.preventDefault();
     if (!email.trim()) return;
     setStage('sending'); setError('');
+
+    // Block disposable email domains before touching Supabase
+    try {
+      const check = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const { allowed, reason } = await check.json();
+      if (!allowed) {
+        setError(reason || 'Disposable email addresses are not allowed.');
+        setStage('idle');
+        return;
+      }
+    } catch {
+      // If the check fails for network reasons, allow through and let Supabase handle it
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: { shouldCreateUser: true },
