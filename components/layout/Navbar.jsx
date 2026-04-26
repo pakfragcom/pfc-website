@@ -13,7 +13,6 @@ export default function Navbar({ onLinkClick }) {
       { label: 'Fragrances',    href: '/fragrances',   external: false },
       { label: 'Reviews',       href: '/reviews',      external: false },
       { label: 'Marketplace',     href: '/marketplace',       external: false },
-      { label: 'Become a Seller', href: '/become-a-seller',  external: false },
     ],
     []
   )
