@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabase';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
@@ -132,10 +133,15 @@ function ListingCard({ listing }) {
 }
 
 export default function MarketplacePage({ listings = [], lastUpdated }) {
-  const [query, setQuery]         = useState('');
+  const router = useRouter();
+  const [query, setQuery]         = useState(router.query.q || '');
   const [condition, setCondition] = useState('ALL');
   const [city, setCity]           = useState('All Cities');
   const [sort, setSort]           = useState('newest');
+
+  useEffect(() => {
+    if (router.query.q) setQuery(router.query.q);
+  }, [router.query.q]);
 
   const filtered = useMemo(() => {
     let pool = listings;

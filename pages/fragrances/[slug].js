@@ -24,7 +24,7 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
 };
 
-export default function FragranceDetail({ fragrance, reviews = [], related = [], priceStats = null, cityLongevity = [], likeCounts = {} }) {
+export default function FragranceDetail({ fragrance, reviews = [], related = [], priceStats = null, cityLongevity = [], likeCounts = {}, activeListings = [] }) {
   if (!fragrance) return null;
 
   const user = useUser();
@@ -314,6 +314,9 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
               {/* Pakistan Price */}
               <PakistanPrice stats={priceStats} fragrance={fragrance} />
 
+              {/* Active marketplace listings */}
+              <ForSaleNow listings={activeListings} fragrance={fragrance} />
+
               {/* Climate-aware longevity */}
               <CityLongevity data={cityLongevity} fragrance={fragrance} />
 
@@ -425,6 +428,91 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
         </div>
       )}
     </>
+  );
+}
+
+const CONDITION_LABEL = {
+  sealed: 'Sealed', partial: 'Partial', decant: 'Decant', gift_set: 'Gift Set',
+};
+
+function ForSaleNow({ listings, fragrance }) {
+  if (!listings || listings.length === 0) return null;
+
+  const prices    = listings.map(l => l.price_pkr);
+  const minPrice  = Math.min(...prices);
+  const maxPrice  = Math.max(...prices);
+  const samePrice = minPrice === maxPrice;
+
+  const conditions = [...new Set(listings.map(l => l.condition))];
+
+  return (
+    <div className="mb-10 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-emerald-400/70 mb-0.5">For Sale Now</p>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-2xl font-bold text-white">
+              {samePrice
+                ? `Rs ${minPrice.toLocaleString()}`
+                : `Rs ${minPrice.toLocaleString()} – ${maxPrice.toLocaleString()}`}
+            </span>
+            <span className="text-xs text-gray-500">
+              {listings.length} listing{listings.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {conditions.map(c => (
+              <span key={c} className="text-[10px] text-gray-400 bg-white/5 border border-white/8 rounded px-1.5 py-0.5">
+                {CONDITION_LABEL[c] || c}
+              </span>
+            ))}
+          </div>
+        </div>
+        <Link
+          href={`/marketplace?q=${encodeURIComponent(fragrance.name)}`}
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-4 py-2 text-xs font-semibold text-white hover:brightness-110 transition"
+        >
+          View Listings
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {listings.slice(0, 4).map(l => (
+          <Link
+            key={l.id}
+            href={`/marketplace/${l.id}`}
+            className="flex items-center justify-between gap-3 rounded-xl bg-black/20 hover:bg-black/30 transition px-3 py-2.5"
+          >
+            <div className="min-w-0">
+              <p className="text-xs text-gray-300 truncate">
+                {CONDITION_LABEL[l.condition] || l.condition}
+                {l.fill_level_pct ? ` · ${l.fill_level_pct}%` : ''}
+                {l.city ? ` · ${l.city}` : ''}
+              </p>
+              {l.sellers?.name && (
+                <p className="text-[10px] text-gray-600 truncate">{l.sellers.name}</p>
+              )}
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-sm font-bold text-white">Rs {l.price_pkr.toLocaleString()}</p>
+              {l.is_negotiable && <p className="text-[10px] text-gray-500">nego</p>}
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {listings.length > 4 && (
+        <Link
+          href={`/marketplace?q=${encodeURIComponent(fragrance.name)}`}
+          className="mt-3 block text-center text-xs text-gray-500 hover:text-gray-300 transition"
+        >
+          +{listings.length - 4} more listing{listings.length - 4 !== 1 ? 's' : ''} →
+        </Link>
+      )}
+    </div>
   );
 }
 
@@ -752,7 +840,7 @@ export async function getStaticProps({ params }) {
 
   if (!fragrance) return { notFound: true };
 
-  const [{ data: reviewRows }, { data: relatedRows }, { data: priceRow }, { data: cityLongevityRows }] = await Promise.all([
+  const [{ data: reviewRows }, { data: relatedRows }, { data: priceRow }, { data: cityLongevityRows }, { data: listingRows }] = await Promise.all([
     supabase
       .from('reviews')
       .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, city, published_at, profiles(display_name, username)')
@@ -778,6 +866,13 @@ export async function getStaticProps({ params }) {
       .eq('fragrance_id', fragrance.id)
       .order('review_count', { ascending: false })
       .limit(6),
+    supabase
+      .from('listings')
+      .select('id, condition, fill_level_pct, price_pkr, is_negotiable, city, sellers(name, verification_tier)')
+      .eq('fragrance_id', fragrance.id)
+      .eq('status', 'active')
+      .order('price_pkr', { ascending: true })
+      .limit(10),
   ]);
 
   // Like counts for all reviews on this fragrance
@@ -819,6 +914,15 @@ export async function getStaticProps({ params }) {
       })),
       priceStats: priceRow || null,
       cityLongevity: cityLongevityRows || [],
+      activeListings: (listingRows || []).map(l => ({
+        id: l.id,
+        condition: l.condition,
+        fill_level_pct: l.fill_level_pct || null,
+        price_pkr: l.price_pkr,
+        is_negotiable: l.is_negotiable,
+        city: l.city || null,
+        sellers: l.sellers ? { name: l.sellers.name, verification_tier: l.sellers.verification_tier } : null,
+      })),
     },
     revalidate: 60,
   };

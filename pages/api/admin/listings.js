@@ -82,13 +82,22 @@ export default async function handler(req, res) {
       .from('listings')
       .update(updates)
       .eq('id', id)
-      .select('id, seller_id')
+      .select('id, seller_id, fragrance_id')
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
 
     if (status === 'active') {
-      try { await res.revalidate('/marketplace'); } catch (_) {}
+      const paths = ['/marketplace'];
+      if (data.fragrance_id) {
+        const { data: frag } = await supabaseAdmin
+          .from('fragrances')
+          .select('slug')
+          .eq('id', data.fragrance_id)
+          .single();
+        if (frag?.slug) paths.push(`/fragrances/${frag.slug}`);
+      }
+      await Promise.allSettled(paths.map(p => res.revalidate(p)));
     }
 
     return res.status(200).json({ ok: true, id: data.id });
