@@ -132,19 +132,20 @@ export default function SellPage() {
   if (done) {
     return (
       <>
-        <Head><title>Listing Posted | PakFrag</title></Head>
+        <Head><title>Listing Submitted | PakFrag</title></Head>
         <div className="bg-black min-h-screen text-white font-sans">
           <Header />
           <main className="mx-auto max-w-xl px-4 py-28 text-center">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-500/15 text-yellow-400 ring-1 ring-yellow-500/25">
               <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Listing is live!</h1>
-            <p className="text-sm text-gray-400 mb-8 max-w-sm mx-auto">
-              Your listing is now visible on the marketplace. Buyers can contact you via WhatsApp.
+            <h1 className="text-2xl font-bold text-white mb-2">Listing under review</h1>
+            <p className="text-sm text-gray-400 mb-2 max-w-sm mx-auto">
+              Your listing has been submitted and is awaiting admin approval. Usually reviewed within a few hours.
             </p>
+            <p className="text-xs text-gray-600 mb-8">You'll see it go live in the marketplace once approved.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {doneId && (
                 <Link

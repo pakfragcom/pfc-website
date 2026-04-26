@@ -80,11 +80,33 @@ export default async function handler(req, res) {
       city:           city?.trim() || null,
       description:    description?.trim() || null,
       images:         Array.isArray(images) ? images.filter(Boolean).slice(0, 5) : [],
+      status:         'pending',
     })
     .select('id')
     .single();
 
   if (insertError) return res.status(400).json({ error: insertError.message });
 
-  return res.status(200).json({ ok: true, id: listing.id });
+  // Notify admin
+  if (process.env.RESEND_API_KEY) {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'iamabdullahawan@gmail.com';
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Pakistan Fragrance Community <noreply@pakfrag.com>',
+        to: adminEmail,
+        subject: `New listing pending: ${fragrance_name.trim()} — Rs ${Number(price_pkr).toLocaleString()}`,
+        html: `<div style="font-family:sans-serif;max-width:480px">
+          <h2 style="color:#2a5c4f">Listing Pending Approval</h2>
+          <p><strong>Fragrance:</strong> ${fragrance_name.trim()} by ${house.trim()}</p>
+          <p><strong>Condition:</strong> ${condition}</p>
+          <p><strong>Price:</strong> Rs ${Number(price_pkr).toLocaleString()}</p>
+          <p><a href="https://pakfrag.com/pfc-mgmt/listings" style="color:#557d72">Review in admin panel →</a></p>
+        </div>`,
+      }),
+    }).catch(() => {});
+  }
+
+  return res.status(200).json({ ok: true, id: listing.id, pending: true });
 }
