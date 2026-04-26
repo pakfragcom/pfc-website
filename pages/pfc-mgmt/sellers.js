@@ -258,10 +258,14 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
 
   async function changeStatus(seller, status) {
     setActionLoading(seller.id);
+    // When activating a pending seller for the first time, auto-grant L1 tier
+    const extra = (status === 'active' && seller.status === 'pending' && (seller.verification_tier ?? 0) === 0)
+      ? { verification_tier: 1 }
+      : {};
     await fetch("/api/admin/sellers", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: seller.id, status }),
+      body: JSON.stringify({ id: seller.id, status, ...extra }),
     });
     await loadSellers();
     setActionLoading(null);

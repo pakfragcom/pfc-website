@@ -240,6 +240,16 @@ export default function Header() {
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
                       🧬 Scent Quiz
                     </Link>
+                    <div className="border-t border-white/10 mt-1 pt-1">
+                      <Link href="/sellers/dashboard" onClick={handleLinkClick}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-[#94aea7] hover:text-white hover:bg-white/10 transition">
+                        Seller Dashboard
+                      </Link>
+                      <Link href="/become-a-seller" onClick={handleLinkClick}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-[#94aea7] hover:text-white hover:bg-white/10 transition">
+                        Become a Seller
+                      </Link>
+                    </div>
                     <button onClick={handleSignOut}
                       className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition border-t border-white/10 mt-1">
                       Sign Out
@@ -318,7 +328,11 @@ export default function Header() {
                 <Link href="/fragrances/submit" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Submit a Fragrance</Link>
                 <Link href="/log-transaction" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Log a Transaction</Link>
                 <Link href="/onboarding/scent-quiz" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Scent Quiz</Link>
+                <Link href="/sellers/dashboard" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Seller Dashboard</Link>
               </>
+            )}
+            {!user && (
+              <Link href="/become-a-seller" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Become a Seller</Link>
             )}
 
             {/* Tools */}
