@@ -52,6 +52,12 @@ export default function AdminNav({ currentPage, identity, onLogout }) {
           {p.is_admin && (
             <NavLink href="/pfc-mgmt/orders" active={currentPage === 'orders'} badge={counts.orders}>Orders</NavLink>
           )}
+          {(p.can_manage_sellers || p.is_admin) && (
+            <NavLink href="/pfc-mgmt/transactions" active={currentPage === 'transactions'}>Transactions</NavLink>
+          )}
+          {(p.can_manage_sellers || p.is_admin) && (
+            <NavLink href="/pfc-mgmt/disputes" active={currentPage === 'disputes'}>Disputes</NavLink>
+          )}
           {p.is_admin && (
             <NavLink href="/pfc-mgmt/team" active={currentPage === 'team'}>Team</NavLink>
           )}

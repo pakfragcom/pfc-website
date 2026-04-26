@@ -232,6 +232,14 @@ export default function Header() {
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
                       Submit a Fragrance
                     </Link>
+                    <Link href="/log-transaction" onClick={handleLinkClick}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
+                      Log a Transaction
+                    </Link>
+                    <Link href="/onboarding/scent-quiz" onClick={handleLinkClick}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
+                      🧬 Scent Quiz
+                    </Link>
                     <button onClick={handleSignOut}
                       className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition border-t border-white/10 mt-1">
                       Sign Out
@@ -303,10 +311,13 @@ export default function Header() {
             <Link href="/local-houses" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Local Houses</Link>
             <Link href="/fragrances" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Fragrances</Link>
             <Link href="/reviews" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Reviews</Link>
+            <Link href="/marketplace" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Marketplace</Link>
             {user && (
               <>
                 <Link href="/reviews/submit" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Write a Review</Link>
                 <Link href="/fragrances/submit" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Submit a Fragrance</Link>
+                <Link href="/log-transaction" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Log a Transaction</Link>
+                <Link href="/onboarding/scent-quiz" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Scent Quiz</Link>
               </>
             )}
 

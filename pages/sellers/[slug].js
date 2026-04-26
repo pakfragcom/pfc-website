@@ -36,7 +36,7 @@ function ShieldIcon() {
   );
 }
 
-export default function SellerProfile({ seller }) {
+export default function SellerProfile({ seller, txStats }) {
   if (!seller) {
     return (
       <div className="bg-black min-h-screen text-white flex items-center justify-center">
@@ -190,11 +190,11 @@ export default function SellerProfile({ seller }) {
           </div>
 
           {/* Trust stats row */}
-          <div className="grid grid-cols-3 gap-4 mb-10">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             {[
-              { label: 'Verification',  value: TIER_CONFIG[tier]?.label?.split(' ')[0] || 'None' },
-              { label: 'Seller Type',   value: seller.seller_type === 'BNIB' ? 'BNIB' : seller.seller_type === 'DECANT' ? 'Decanter' : '—' },
-              { label: 'Transactions',  value: 'Coming soon' },
+              { label: 'Verification',   value: TIER_CONFIG[tier]?.label?.split(' ')[0] || 'None' },
+              { label: 'Transactions',   value: txStats?.total_transactions ?? 0 },
+              { label: 'Success Rate',   value: txStats?.total_transactions ? `${Math.round(txStats.success_rate)}%` : '—' },
             ].map(({ label, value }) => (
               <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.02] p-4 text-center">
                 <p className="text-lg font-bold text-white">{value}</p>
@@ -203,15 +203,96 @@ export default function SellerProfile({ seller }) {
             ))}
           </div>
 
-          {/* Coming soon sections */}
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-              <h2 className="text-sm font-semibold text-white mb-1">Transaction History</h2>
-              <p className="text-sm text-gray-500">Deal logging is coming soon. Buyers will be able to log verified transactions here.</p>
+          {/* Experience ratings */}
+          {txStats && txStats.total_transactions > 0 && (txStats.avg_rating_delivery || txStats.avg_rating_accuracy || txStats.avg_rating_communication) && (
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 mb-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Buyer Experience Ratings</p>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: 'Delivery',       value: txStats.avg_rating_delivery },
+                  { label: 'Item Accuracy',  value: txStats.avg_rating_accuracy },
+                  { label: 'Communication',  value: txStats.avg_rating_communication },
+                ].map(({ label, value }) => value ? (
+                  <div key={label} className="text-center">
+                    <div className="flex justify-center gap-0.5 mb-1">
+                      {[1,2,3,4,5].map(n => (
+                        <svg key={n} className={`w-3 h-3 ${n <= Math.round(value) ? 'text-[#94aea7]' : 'text-white/10'}`} fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="text-sm font-bold text-white">{Number(value).toFixed(1)}</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">{label}</p>
+                  </div>
+                ) : null)}
+              </div>
             </div>
+          )}
+
+          {/* Transaction log section */}
+          <div className="space-y-4 mb-6">
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-              <h2 className="text-sm font-semibold text-white mb-1">Active Listings</h2>
-              <p className="text-sm text-gray-500">Marketplace listings are coming soon. Verified sellers will be able to list fragrances here.</p>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-white">Transaction Record</h2>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/disputes/new"
+                    className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 px-3 py-1.5 text-xs font-medium text-amber-500/80 hover:text-amber-400 hover:border-amber-500/40 transition"
+                    title="Report a dispute with this seller"
+                  >
+                    ⚑ Dispute
+                  </Link>
+                  <Link
+                    href={`/log-transaction?seller=${seller.slug}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition"
+                  >
+                    + Log a deal
+                  </Link>
+                </div>
+              </div>
+              {txStats && txStats.total_transactions > 0 ? (
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="rounded-xl border border-emerald-500/15 bg-emerald-500/5 p-3 text-center">
+                    <p className="text-xl font-bold text-emerald-400">{txStats.successful_transactions}</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">Successful</p>
+                  </div>
+                  <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3 text-center">
+                    <p className="text-xl font-bold text-white">
+                      {txStats.avg_price_pkr ? `Rs ${Math.round(txStats.avg_price_pkr).toLocaleString()}` : '—'}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">Avg Price</p>
+                  </div>
+                  <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3 text-center">
+                    <p className="text-xl font-bold text-white">{txStats.total_items_sold ?? '—'}</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">Items Sold</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No transactions logged yet. If you&apos;ve dealt with this seller,{' '}
+                  <Link href={`/log-transaction?seller=${seller.slug}`} className="text-gray-300 hover:text-white underline underline-offset-2 transition">
+                    be the first to log one
+                  </Link>.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-white">Active Listings</h2>
+                <Link
+                  href={`/marketplace?seller=${seller.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition"
+                >
+                  Browse marketplace →
+                </Link>
+              </div>
+              <p className="text-sm text-gray-500">
+                View all active listings from this seller on the{' '}
+                <Link href="/marketplace" className="text-gray-300 hover:text-white underline underline-offset-2 transition">
+                  PakFrag marketplace
+                </Link>.
+              </p>
             </div>
           </div>
 
@@ -256,8 +337,14 @@ export async function getStaticProps({ params }) {
 
   if (!seller) return { notFound: true };
 
+  const { data: txStats } = await supabase
+    .from('seller_transaction_stats')
+    .select('total_transactions, successful_transactions, success_rate, avg_price_pkr, total_items_sold, avg_rating_delivery, avg_rating_accuracy, avg_rating_communication, avg_rating_overall, last_transaction_at')
+    .eq('seller_id', seller.id)
+    .maybeSingle();
+
   return {
-    props: { seller },
+    props: { seller, txStats: txStats || null },
     revalidate: 300,
   };
 }

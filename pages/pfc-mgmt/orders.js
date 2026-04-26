@@ -78,7 +78,7 @@ export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
     <>
       <Head><title>Orders | PFC Admin</title></Head>
       <div className="min-h-screen bg-[#0a0a0a] text-white">
-        <AdminNav identity={identity} onLogout={handleLogout} />
+        <AdminNav currentPage="orders" identity={identity} onLogout={handleLogout} />
         <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-20">
           <div className="flex items-center justify-between mb-6">
             <div>

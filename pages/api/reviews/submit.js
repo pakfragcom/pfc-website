@@ -43,7 +43,7 @@ export default async function handler(req, res) {
   const {
     fragrance_name, house, category, fragrance_id,
     rating_overall, rating_longevity, rating_sillage, rating_value,
-    review_text, occasion, season, cover_image_url,
+    review_text, occasion, season, city, cover_image_url,
   } = req.body;
 
   if (!fragrance_name?.trim()) return res.status(400).json({ error: 'Fragrance name is required.' });
@@ -134,6 +134,7 @@ export default async function handler(req, res) {
     review_text:      review_text.trim(),
     occasion:         occasion || null,
     season:           season   || null,
+    city:             city || null,
     cover_image_url:  cover_image_url?.trim() || null,
     status:           isPrivileged ? 'approved' : 'pending',
     published_at:     isPrivileged ? now : null,

@@ -41,6 +41,23 @@ export default async function handler(req, res) {
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+
+    // Trigger on-demand ISR so approved reviews appear immediately everywhere
+    if (status === 'approved') {
+      const paths = ['/', '/reviews'];
+
+      if (data?.fragrance_id) {
+        const { data: frag } = await supabaseAdmin
+          .from('fragrances')
+          .select('slug')
+          .eq('id', data.fragrance_id)
+          .single();
+        if (frag?.slug) paths.push(`/fragrances/${frag.slug}`);
+      }
+
+      await Promise.allSettled(paths.map(p => res.revalidate(p)));
+    }
+
     return res.status(200).json(data);
   }
 

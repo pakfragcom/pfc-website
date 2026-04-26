@@ -301,6 +301,111 @@ function ClaimSellerSection({ onClaimed }) {
   );
 }
 
+const FAMILY_COLORS = {
+  Oud:      'text-amber-400 bg-amber-500/10 ring-amber-500/20',
+  Woody:    'text-lime-400 bg-lime-500/10 ring-lime-500/20',
+  Fresh:    'text-sky-400 bg-sky-500/10 ring-sky-500/20',
+  Floral:   'text-pink-400 bg-pink-500/10 ring-pink-500/20',
+  Sweet:    'text-orange-400 bg-orange-500/10 ring-orange-500/20',
+  Spicy:    'text-red-400 bg-red-500/10 ring-red-500/20',
+  Citrus:   'text-yellow-400 bg-yellow-500/10 ring-yellow-500/20',
+  Oriental: 'text-purple-400 bg-purple-500/10 ring-purple-500/20',
+  Musk:     'text-gray-300 bg-white/5 ring-white/15',
+  Aquatic:  'text-cyan-400 bg-cyan-500/10 ring-cyan-500/20',
+};
+
+const BUDGET_LABELS = {
+  under_5k:  '< Rs 5k',
+  '5k_15k':  'Rs 5–15k',
+  '15k_30k': 'Rs 15–30k',
+  above_30k: 'Rs 30k+',
+};
+
+// ── Scent DNA Section ──────────────────────────────────────────────
+function ScentDNASection({ scentProfile }) {
+  if (!scentProfile) {
+    return (
+      <div className="rounded-2xl border border-[#2a5c4f]/30 bg-[#2a5c4f]/5 p-5">
+        <div className="flex items-start gap-4">
+          <div className="h-9 w-9 rounded-full bg-[#2a5c4f]/30 flex items-center justify-center flex-shrink-0 text-lg">🧬</div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-white mb-0.5">Discover your Scent DNA</p>
+            <p className="text-xs text-gray-400 mb-3">
+              Take a 2-minute quiz to get personalized fragrance recommendations picked for your taste and budget.
+            </p>
+            <Link href="/onboarding/scent-quiz"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#2a5c4f] hover:bg-[#557d72] px-4 py-2 text-xs font-semibold text-white transition">
+              Take the quiz →
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+          <span>🧬</span> Your Scent DNA
+        </h2>
+        <Link href="/onboarding/scent-quiz"
+          className="text-xs text-gray-500 hover:text-white transition">
+          Retake quiz →
+        </Link>
+      </div>
+
+      {scentProfile.preferred_families?.length > 0 && (
+        <div className="mb-4">
+          <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">Preferred Families</p>
+          <div className="flex flex-wrap gap-1.5">
+            {scentProfile.preferred_families.map(f => (
+              <span key={f} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${FAMILY_COLORS[f] || 'text-gray-400 bg-white/5 ring-white/10'}`}>
+                {f}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {scentProfile.budget_range && (
+          <div className="bg-black/30 rounded-xl p-3">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Budget</p>
+            <p className="text-sm font-medium text-white">{BUDGET_LABELS[scentProfile.budget_range] || scentProfile.budget_range}</p>
+          </div>
+        )}
+        {scentProfile.city && (
+          <div className="bg-black/30 rounded-xl p-3">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">City</p>
+            <p className="text-sm font-medium text-white">{scentProfile.city}</p>
+          </div>
+        )}
+        {scentProfile.usage_occasions?.length > 0 && (
+          <div className="bg-black/30 rounded-xl p-3">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Occasions</p>
+            <p className="text-sm font-medium text-white">{scentProfile.usage_occasions.join(', ')}</p>
+          </div>
+        )}
+      </div>
+
+      {scentProfile.current_scents && (
+        <div className="mt-3 bg-black/30 rounded-xl p-3">
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Currently wearing</p>
+          <p className="text-sm text-gray-300">{scentProfile.current_scents}</p>
+        </div>
+      )}
+
+      <div className="mt-4 pt-4 border-t border-white/5">
+        <Link href="/fragrances"
+          className="text-xs text-[#94aea7] hover:text-white transition">
+          Browse recommended fragrances →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 // ── Admin Section ──────────────────────────────────────────────
 function AdminSection() {
   return (
@@ -469,10 +574,11 @@ function ReviewCard({ review, pending, rejected }) {
 }
 
 // ── Main Page ──────────────────────────────────────────────
-export default function MyProfile({ profile, reviews, seller, isAdmin, wishlist = [] }) {
+export default function MyProfile({ profile, reviews, seller, isAdmin, wishlist = [], scentProfile = null }) {
   const [editOpen, setEditOpen] = useState(false);
   const router = useRouter();
   const isWelcome = router.query.welcome === '1';
+  const isScentDone = router.query.scent === '1';
 
   const initials = (profile.display_name || 'U')
     .split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -497,6 +603,20 @@ export default function MyProfile({ profile, reviews, seller, isAdmin, wishlist 
 
         <main className="pt-24 pb-20">
           {/* Welcome banner for first-time users */}
+          {isScentDone && (
+            <div className="max-w-4xl mx-auto px-6 mb-4 -mt-2">
+              <div className="rounded-xl border border-[#557d72]/40 bg-[#557d72]/10 px-5 py-4 flex items-center gap-3">
+                <span className="text-xl">🧬</span>
+                <div>
+                  <p className="text-sm font-semibold text-white">Scent DNA saved!</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Your recommendations are ready. Browse the fragrance directory to see what fits your profile.</p>
+                </div>
+                <Link href="/fragrances" className="ml-auto flex-shrink-0 text-xs text-[#94aea7] hover:text-white transition font-medium whitespace-nowrap">
+                  Browse →
+                </Link>
+              </div>
+            </div>
+          )}
           {isWelcome && (
             <div className="max-w-4xl mx-auto px-6 mb-0 -mt-2">
               <div className="rounded-xl border border-[#2a5c4f]/40 bg-[#2a5c4f]/10 px-5 py-4 flex items-start gap-4">
@@ -596,6 +716,7 @@ export default function MyProfile({ profile, reviews, seller, isAdmin, wishlist 
           {/* Body */}
           <div className="max-w-4xl mx-auto px-6 mt-8 space-y-6">
             {isAdmin && <AdminSection />}
+            <ScentDNASection scentProfile={scentProfile} />
             {seller ? <SellerCard seller={seller} /> : <ClaimSellerSection />}
             <MyWishlistSection items={wishlist} />
             <MyReviewsSection reviews={reviews} />
@@ -710,12 +831,19 @@ export async function getServerSideProps({ req, res }) {
     .eq('user_id', user.id)
     .maybeSingle();
 
-  // Wishlist
-  const { data: wishlist } = await supabaseAdmin
-    .from('fragrance_wishlist')
-    .select('fragrance_id, created_at, fragrances(id, name, slug, house, category, image_url)')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+  // Wishlist + scent profile (parallel)
+  const [{ data: wishlist }, { data: scentProfile }] = await Promise.all([
+    supabaseAdmin
+      .from('fragrance_wishlist')
+      .select('fragrance_id, created_at, fragrances(id, name, slug, house, category, image_url)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+    supabaseAdmin
+      .from('scent_profiles')
+      .select('preferred_families, usage_occasions, budget_range, city, current_scents')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+  ]);
 
   const isAdmin = profile.role === 'admin';
 
@@ -726,6 +854,7 @@ export async function getServerSideProps({ req, res }) {
       seller: seller || null,
       isAdmin,
       wishlist: wishlist || [],
+      scentProfile: scentProfile || null,
     },
   };
 }

@@ -24,13 +24,19 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
 };
 
-export default function FragranceDetail({ fragrance, reviews = [], related = [] }) {
+export default function FragranceDetail({ fragrance, reviews = [], related = [], priceStats = null, cityLongevity = [], likeCounts = {} }) {
   if (!fragrance) return null;
 
   const user = useUser();
   const supabaseClient = useSupabaseClient();
   const [wishlisted, setWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [likes, setLikes] = useState(likeCounts);
+  const [myLikes, setMyLikes] = useState({});
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestFile, setSuggestFile] = useState(null);
+  const [suggestLoading, setSuggestLoading] = useState(false);
+  const [suggestDone, setSuggestDone] = useState(false);
 
   useEffect(() => {
     if (!user || !supabaseClient) return;
@@ -42,6 +48,46 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
       .maybeSingle()
       .then(({ data }) => setWishlisted(!!data));
   }, [user, fragrance.id]);
+
+  useEffect(() => {
+    if (!user || !reviews.length) return;
+    const ids = reviews.map(r => r.id);
+    fetch(`/api/reviews/my-likes?ids=${ids.join(',')}`)
+      .then(r => r.ok ? r.json() : {})
+      .then(data => setMyLikes(data));
+  }, [user, reviews]);
+
+  async function toggleLike(reviewId) {
+    if (!user) { window.location.href = '/auth/login'; return; }
+    const wasLiked = !!myLikes[reviewId];
+    setMyLikes(m => ({ ...m, [reviewId]: !wasLiked }));
+    setLikes(l => ({ ...l, [reviewId]: (l[reviewId] || 0) + (wasLiked ? -1 : 1) }));
+    await fetch('/api/reviews/like', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ review_id: reviewId }),
+    });
+  }
+
+  async function handleSuggestUpload() {
+    if (!suggestFile) return;
+    setSuggestLoading(true);
+    const ext = suggestFile.name.split('.').pop();
+    const urlRes = await fetch(`/api/fragrances/suggest-image?fragrance_id=${fragrance.id}&filename=image.${ext}`);
+    if (!urlRes.ok) { setSuggestLoading(false); return; }
+    const { signedUrl, path, publicUrl } = await urlRes.json();
+
+    await fetch(signedUrl, { method: 'PUT', body: suggestFile, headers: { 'Content-Type': suggestFile.type } });
+
+    await fetch('/api/fragrances/suggest-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fragrance_id: fragrance.id, storage_path: path, image_url: publicUrl }),
+    });
+    setSuggestLoading(false);
+    setSuggestDone(true);
+    setSuggestFile(null);
+  }
 
   async function toggleWishlist() {
     if (!user) { window.location.href = '/auth/login'; return; }
@@ -137,21 +183,39 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
               >
                 <div className="flex flex-col md:flex-row gap-0">
                   {/* Image */}
-                  <div className="relative h-56 md:h-auto md:w-64 flex-shrink-0 bg-gradient-to-br from-[#2a5c4f]/20 via-black to-[#94aea7]/10">
+                  <div className="relative h-72 md:h-auto md:w-72 flex-shrink-0 overflow-hidden bg-black/60">
                     {fragrance.image_url ? (
-                      <img src={fragrance.image_url} alt={fragrance.name}
-                        className="w-full h-full object-cover" />
+                      <>
+                        <img src={fragrance.image_url} alt="" aria-hidden
+                          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-25 pointer-events-none" />
+                        <img src={fragrance.image_url} alt={fragrance.name}
+                          className="relative z-10 w-full h-full object-contain p-6 drop-shadow-2xl" />
+                      </>
                     ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                        <span className="text-7xl font-black text-white/10 leading-none select-none">
+                      <div className="w-full h-full bg-gradient-to-br from-[#2a5c4f]/20 via-black to-[#94aea7]/10 flex flex-col items-center justify-center gap-3">
+                        <span className="text-8xl font-black text-white/8 leading-none select-none">
                           {fragrance.name[0]?.toUpperCase()}
                         </span>
-                        <span className="text-[10px] uppercase tracking-[0.25em] text-white/10 font-medium px-6 text-center">
+                        <span className="text-[10px] uppercase tracking-[0.25em] text-white/15 font-medium px-6 text-center">
                           {fragrance.house}
                         </span>
+                        {user && !suggestDone && (
+                          <button onClick={() => setSuggestOpen(true)}
+                            className="mt-2 text-[10px] text-[#94aea7]/60 hover:text-[#94aea7] border border-white/8 hover:border-white/20 rounded-lg px-3 py-1.5 transition">
+                            + Suggest image
+                          </button>
+                        )}
+                        {suggestDone && (
+                          <span className="text-[10px] text-emerald-400/70">Image submitted for review</span>
+                        )}
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent md:bg-gradient-to-r" />
+                    {fragrance.image_url && user && !suggestDone && (
+                      <button onClick={() => setSuggestOpen(true)}
+                        className="absolute bottom-3 right-3 z-20 text-[10px] text-gray-600 hover:text-gray-300 bg-black/70 hover:bg-black/90 border border-white/8 rounded-lg px-2.5 py-1 transition">
+                        Replace image
+                      </button>
+                    )}
                   </div>
 
                   {/* Info */}
@@ -247,6 +311,12 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
                 </div>
               </m.div>
 
+              {/* Pakistan Price */}
+              <PakistanPrice stats={priceStats} fragrance={fragrance} />
+
+              {/* Climate-aware longevity */}
+              <CityLongevity data={cityLongevity} fragrance={fragrance} />
+
               {/* Related fragrances */}
               {related.length > 0 && (
                 <RelatedFragrances related={related} category={fragrance.category} />
@@ -278,7 +348,12 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
                   >
                     {reviews.map(review => (
                       <m.div key={review.id} variants={fadeUp}>
-                        <ReviewEntry review={review} />
+                        <ReviewEntry
+                          review={review}
+                          likeCount={likes[review.id] || 0}
+                          userLiked={!!myLikes[review.id]}
+                          onLike={() => toggleLike(review.id)}
+                        />
                       </m.div>
                     ))}
                   </m.div>
@@ -290,7 +365,236 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [] 
         </LazyMotion>
         <Footer />
       </div>
+
+      {/* Suggest image modal */}
+      {suggestOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm"
+          onClick={e => { if (e.target === e.currentTarget) { setSuggestOpen(false); setSuggestFile(null); } }}>
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f0f] p-6">
+            <h3 className="font-semibold text-white mb-1">Suggest an image</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              For <span className="text-gray-300">{fragrance.name}</span>. Admins review before it goes live.
+            </p>
+
+            {suggestDone ? (
+              <div className="text-center py-4">
+                <p className="text-emerald-400 text-sm font-medium">Submitted for review</p>
+                <p className="text-xs text-gray-500 mt-1">We'll approve or reject it shortly.</p>
+                <button onClick={() => { setSuggestOpen(false); }}
+                  className="mt-4 text-xs bg-white/8 hover:bg-white/15 text-gray-300 px-4 py-2 rounded-lg transition">
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                <label className="block w-full cursor-pointer">
+                  <div className={[
+                    'border-2 border-dashed rounded-xl p-6 text-center transition',
+                    suggestFile ? 'border-[#557d72] bg-[#557d72]/10' : 'border-white/10 hover:border-white/20'
+                  ].join(' ')}>
+                    {suggestFile ? (
+                      <div>
+                        <p className="text-sm text-white font-medium">{suggestFile.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">{(suggestFile.size / 1024).toFixed(0)} KB</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-sm text-gray-400">Click to select an image</p>
+                        <p className="text-xs text-gray-600 mt-1">JPG, PNG or WebP · max 5 MB</p>
+                      </div>
+                    )}
+                  </div>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only"
+                    onChange={e => setSuggestFile(e.target.files?.[0] || null)} />
+                </label>
+
+                <div className="flex gap-2 mt-4">
+                  <button onClick={handleSuggestUpload}
+                    disabled={!suggestFile || suggestLoading}
+                    className="flex-1 text-sm bg-[#2a5c4f] hover:bg-[#3a7c6f] disabled:opacity-40 text-white font-medium rounded-xl py-2.5 transition">
+                    {suggestLoading ? 'Uploading…' : 'Submit'}
+                  </button>
+                  <button onClick={() => { setSuggestOpen(false); setSuggestFile(null); }}
+                    className="text-sm bg-white/5 hover:bg-white/10 text-gray-400 px-4 rounded-xl transition">
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>
+  );
+}
+
+function PakistanPrice({ stats, fragrance }) {
+  if (!stats || !stats.transaction_count) {
+    return (
+      <div className="mb-10 rounded-2xl border border-white/8 bg-white/[0.02] p-5 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-gray-600 mb-0.5">Pakistan Price</p>
+          <p className="text-sm text-gray-500">No community transactions logged yet.</p>
+        </div>
+        <Link
+          href={`/log-transaction?fragrance=${encodeURIComponent(fragrance.name)}`}
+          className="shrink-0 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition"
+        >
+          Log a deal →
+        </Link>
+      </div>
+    );
+  }
+
+  const trend = stats.avg_price_30d && stats.avg_price_prev_30d
+    ? stats.avg_price_30d - stats.avg_price_prev_30d
+    : null;
+  const trendPct = trend && stats.avg_price_prev_30d
+    ? Math.round((trend / stats.avg_price_prev_30d) * 100)
+    : null;
+
+  return (
+    <div className="mb-10 rounded-2xl border border-[#2a5c4f]/30 bg-[#2a5c4f]/5 p-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-[#94aea7] mb-0.5">Pakistan Price</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-white">
+              Rs {Number(stats.avg_price_pkr).toLocaleString()}
+            </span>
+            <span className="text-xs text-gray-500">avg community price</span>
+            {trendPct !== null && (
+              <span className={`text-xs font-semibold ${trendPct > 0 ? 'text-red-400' : trendPct < 0 ? 'text-emerald-400' : 'text-gray-400'}`}>
+                {trendPct > 0 ? '↑' : trendPct < 0 ? '↓' : '→'} {Math.abs(trendPct)}% vs prev 30d
+              </span>
+            )}
+          </div>
+        </div>
+        <Link
+          href="/pakistan-fragrance-index"
+          className="shrink-0 rounded-lg border border-[#2a5c4f]/40 bg-[#2a5c4f]/10 hover:bg-[#2a5c4f]/20 px-3 py-1.5 text-xs font-medium text-[#94aea7] transition"
+        >
+          Price Index →
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Min',          value: `Rs ${Number(stats.min_price_pkr).toLocaleString()}` },
+          { label: 'Max',          value: `Rs ${Number(stats.max_price_pkr).toLocaleString()}` },
+          { label: 'Transactions', value: stats.transaction_count },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-xl bg-black/20 p-3 text-center">
+            <p className="text-sm font-bold text-white">{value}</p>
+            <p className="text-[10px] uppercase tracking-wider text-gray-600 mt-0.5">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Min-avg-max bar */}
+      <div className="mt-4">
+        <div className="relative h-1.5 rounded-full bg-white/10">
+          {stats.min_price_pkr && stats.max_price_pkr && stats.avg_price_pkr && (() => {
+            const range = stats.max_price_pkr - stats.min_price_pkr;
+            const avgPct = range > 0
+              ? ((stats.avg_price_pkr - stats.min_price_pkr) / range) * 100
+              : 50;
+            return (
+              <>
+                <div className="absolute inset-y-0 left-0 right-0 rounded-full bg-gradient-to-r from-[#2a5c4f]/40 to-[#94aea7]/40" />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-[#94aea7] shadow"
+                  style={{ left: `clamp(0%, ${avgPct}%, 100%)` }}
+                />
+              </>
+            );
+          })()}
+        </div>
+        <div className="flex justify-between text-[10px] text-gray-600 mt-1">
+          <span>Rs {Number(stats.min_price_pkr).toLocaleString()}</span>
+          <span>Rs {Number(stats.max_price_pkr).toLocaleString()}</span>
+        </div>
+      </div>
+
+      <p className="mt-3 text-[10px] text-gray-600">
+        Based on {stats.success_count} verified deal{stats.success_count !== 1 ? 's' : ''} from the community.{' '}
+        <Link href={`/log-transaction?fragrance=${encodeURIComponent(fragrance.name)}`} className="underline hover:text-gray-400 transition">
+          Log yours
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+// Longevity 1-5 → label
+const LONGEVITY_LABEL = { 1: 'Very short', 2: 'Short', 3: 'Moderate', 4: 'Long', 5: 'Very long' };
+function longevityBar(val) {
+  const pct = ((val - 1) / 4) * 100;
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-1 rounded-full bg-white/10">
+        <div className="h-full rounded-full bg-[#557d72]" style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-[10px] text-gray-400 shrink-0">{val}/5</span>
+    </div>
+  );
+}
+
+function CityLongevity({ data, fragrance }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="mb-10 rounded-2xl border border-white/8 bg-white/[0.02] px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-gray-600 mb-0.5">Longevity by City</p>
+          <p className="text-sm text-gray-500">Not enough city data yet — needs 3+ reviews per city.</p>
+        </div>
+        <Link href={`/reviews/submit?fragrance=${encodeURIComponent(fragrance.name)}&house=${encodeURIComponent(fragrance.house)}`}
+          className="shrink-0 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition">
+          Write a review →
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-10 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-gray-500 mb-0.5">Longevity by City</p>
+          <p className="text-xs text-gray-600">Community data · climate affects performance</p>
+        </div>
+        <Link href={`/reviews/submit?fragrance=${encodeURIComponent(fragrance.name)}&house=${encodeURIComponent(fragrance.house)}`}
+          className="text-xs text-gray-600 hover:text-gray-300 transition">
+          Add yours →
+        </Link>
+      </div>
+
+      <div className="space-y-3">
+        {data.map(row => (
+          <div key={row.city} className="grid grid-cols-[120px_1fr_auto] gap-3 items-center">
+            <div>
+              <p className="text-xs font-medium text-white">{row.city}</p>
+              {row.top_season && (
+                <p className="text-[10px] text-gray-600 capitalize mt-0.5">{row.top_season}</p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-gray-600 w-16 shrink-0">Longevity</span>
+                {longevityBar(Number(row.avg_longevity))}
+              </div>
+              {row.avg_sillage && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-gray-600 w-16 shrink-0">Sillage</span>
+                  {longevityBar(Number(row.avg_sillage))}
+                </div>
+              )}
+            </div>
+            <span className="text-[10px] text-gray-600 text-right">{row.review_count} reviews</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -345,7 +649,7 @@ function RatingStat({ label, value, count, large = false }) {
   );
 }
 
-function ReviewEntry({ review }) {
+function ReviewEntry({ review, likeCount = 0, userLiked = false, onLike }) {
   const stars = Math.round(review.rating_overall);
   return (
     <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
@@ -381,8 +685,8 @@ function ReviewEntry({ review }) {
 
       <p className="text-sm text-gray-300 leading-relaxed">{review.review_text}</p>
 
-      {(review.occasion || review.season) && (
-        <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex flex-wrap gap-2">
           {review.occasion && (
             <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-[10px] text-gray-500 capitalize">
               {review.occasion}
@@ -394,7 +698,23 @@ function ReviewEntry({ review }) {
             </span>
           )}
         </div>
-      )}
+
+        {/* Like button */}
+        <button
+          onClick={onLike}
+          className={[
+            'flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition',
+            userLiked
+              ? 'border-rose-500/30 bg-rose-500/10 text-rose-400'
+              : 'border-white/8 bg-transparent text-gray-600 hover:text-gray-300 hover:border-white/20',
+          ].join(' ')}
+        >
+          <svg className="h-3.5 w-3.5" fill={userLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          {likeCount > 0 && <span>{likeCount}</span>}
+        </button>
+      </div>
     </div>
   );
 }
@@ -432,10 +752,10 @@ export async function getStaticProps({ params }) {
 
   if (!fragrance) return { notFound: true };
 
-  const [{ data: reviewRows }, { data: relatedRows }] = await Promise.all([
+  const [{ data: reviewRows }, { data: relatedRows }, { data: priceRow }, { data: cityLongevityRows }] = await Promise.all([
     supabase
       .from('reviews')
-      .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, published_at, profiles(display_name, username)')
+      .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, city, published_at, profiles(display_name, username)')
       .eq('fragrance_id', fragrance.id)
       .eq('status', 'approved')
       .order('published_at', { ascending: false }),
@@ -446,7 +766,32 @@ export async function getStaticProps({ params }) {
       .eq('category', fragrance.category)
       .neq('id', fragrance.id)
       .limit(4),
+    supabase
+      .from('fragrance_price_stats')
+      .select('transaction_count, success_count, avg_price_pkr, min_price_pkr, max_price_pkr, avg_price_30d, avg_price_prev_30d, last_transaction_at')
+      .ilike('fragrance_name', fragrance.name)
+      .ilike('house', fragrance.house)
+      .maybeSingle(),
+    supabase
+      .from('review_longevity_by_city')
+      .select('city, review_count, avg_longevity, avg_sillage, top_season')
+      .eq('fragrance_id', fragrance.id)
+      .order('review_count', { ascending: false })
+      .limit(6),
   ]);
+
+  // Like counts for all reviews on this fragrance
+  const reviewIds = (reviewRows || []).map(r => r.id);
+  let likeCounts = {};
+  if (reviewIds.length) {
+    const { data: likeRows } = await supabase
+      .from('review_likes')
+      .select('review_id')
+      .in('review_id', reviewIds);
+    (likeRows || []).forEach(l => {
+      likeCounts[l.review_id] = (likeCounts[l.review_id] || 0) + 1;
+    });
+  }
 
   const serialized = {
     id:            fragrance.id,
@@ -468,10 +813,13 @@ export async function getStaticProps({ params }) {
     props: {
       fragrance: serialized,
       reviews: reviewRows || [],
+      likeCounts,
       related: (relatedRows || []).map(r => ({
         id: r.id, name: r.name, slug: r.slug, house: r.house, image_url: r.image_url || null,
       })),
+      priceStats: priceRow || null,
+      cityLongevity: cityLongevityRows || [],
     },
-    revalidate: 300,
+    revalidate: 60,
   };
 }

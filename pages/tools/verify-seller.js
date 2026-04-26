@@ -15,6 +15,13 @@ import Footer from "../../components/layout/Footer";
  * - After selecting, shows a verified card
  */
 
+const TIER_CONFIG = {
+  0: { label: 'Unverified',         cls: 'border-white/10 bg-white/5 text-gray-400' },
+  1: { label: 'Community Verified', cls: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300' },
+  2: { label: 'Document Verified',  cls: 'border-sky-500/25 bg-sky-500/10 text-sky-300' },
+  3: { label: 'PakFrag Trusted',    cls: 'border-amber-500/25 bg-amber-500/10 text-amber-300' },
+};
+
 // -------------------------- UTILITIES ---------------------------
 const normalize = (s) =>
   (s || "")
@@ -279,6 +286,12 @@ export default function VerifySellerPage({ sellers = [] }) {
                   <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300">
                     {selected.type === "BNIB" ? "BNIB — includes Decanting" : "Decanter / Vial Seller"}
                   </span>
+
+                  {selected.tier > 0 && (
+                    <span className={`rounded-full border px-3 py-1.5 text-sm font-medium ${(TIER_CONFIG[selected.tier] || TIER_CONFIG[0]).cls}`}>
+                      {(TIER_CONFIG[selected.tier] || TIER_CONFIG[0]).label}
+                    </span>
+                  )}
                 </div>
 
                 {selected.type === "BNIB" && (

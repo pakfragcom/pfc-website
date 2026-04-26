@@ -13,6 +13,7 @@ const CATEGORIES = [
   { id: 'local',          label: 'Local Brand' },
 ];
 const SEASONS   = ['Spring', 'Summer', 'Autumn', 'Winter', 'All Seasons'];
+const PAKISTAN_CITIES = ['Karachi','Lahore','Islamabad','Rawalpindi','Faisalabad','Multan','Peshawar','Quetta','Sialkot','Gujranwala','Other'];
 const OCCASIONS = ['Daily', 'Office', 'Formal', 'Casual', 'Date Night', 'Special Occasion'];
 
 export default function SubmitReview() {
@@ -30,7 +31,7 @@ export default function SubmitReview() {
     house: prefillHouse,
     category: '',
     rating_overall: 0, rating_longevity: 0, rating_sillage: 0, rating_value: 0,
-    review_text: '', occasion: '', season: '', cover_image_url: '',
+    review_text: '', occasion: '', season: '', city: '', cover_image_url: '',
   });
   const [fragrance_id, setFragranceId] = useState(prefillFid || null);
 
@@ -324,7 +325,7 @@ export default function SubmitReview() {
 
               {/* Context */}
               <Section title="Context (optional)">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs text-gray-400 mb-1.5">Occasion</label>
                     <select value={form.occasion} onChange={e => set('occasion', e.target.value)}
@@ -341,7 +342,16 @@ export default function SubmitReview() {
                       {SEASONS.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">Your City</label>
+                    <select value={form.city} onChange={e => set('city', e.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[#557d72] transition">
+                      <option value="">Select city</option>
+                      {PAKISTAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
                 </div>
+                <p className="text-[10px] text-gray-600 mt-2">City helps us show climate-aware longevity data for this fragrance.</p>
               </Section>
 
               {error && <p className="text-sm text-red-400 bg-red-500/10 rounded-xl px-4 py-3">{error}</p>}

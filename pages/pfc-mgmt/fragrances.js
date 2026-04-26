@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '../../lib/auth-context';
 import AdminNav from '../../components/admin/AdminNav';
@@ -36,6 +36,34 @@ function EditPanel({ frag, onSave, onClose }) {
   const [saving, setSaving] = useState(false);
   const [autofilling, setAutofilling] = useState(false);
   const [autoMsg, setAutoMsg] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadMsg, setUploadMsg] = useState('');
+  const fileRef = useRef(null);
+
+  async function handleImageUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadMsg('Uploading…');
+    try {
+      const urlRes = await fetch('/api/admin/fragrances/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fragrance_id: frag.id, filename: file.name }),
+      });
+      if (!urlRes.ok) throw new Error('Failed to get upload URL');
+      const { signedUrl, publicUrl } = await urlRes.json();
+      const uploadRes = await fetch(signedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!uploadRes.ok) throw new Error('Upload failed');
+      setForm(f => ({ ...f, image_url: publicUrl }));
+      setUploadMsg('✓ Uploaded');
+    } catch (err) {
+      setUploadMsg('Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
 
   function set(field) {
     return e => setForm(f => ({ ...f, [field]: e.target.value }));
@@ -124,13 +152,24 @@ function EditPanel({ frag, onSave, onClose }) {
       </div>
 
       <div>
-        <label className="block text-[10px] text-gray-500 mb-1">Image URL</label>
-        <div className="flex gap-2 items-start">
-          <input value={form.image_url} onChange={set('image_url')} placeholder="https://…" className={inputCls + ' flex-1'} />
+        <label className="block text-[10px] text-gray-500 mb-1">Image</label>
+        <div className="flex gap-2 items-center">
+          <input value={form.image_url} onChange={set('image_url')} placeholder="https://… or upload below" className={inputCls + ' flex-1'} />
           {form.image_url && (
-            <img src={form.image_url} alt="" className="w-8 h-8 rounded object-cover border border-white/10 flex-shrink-0"
+            <img src={form.image_url} alt="" className="w-8 h-8 rounded object-contain bg-white/5 border border-white/10 flex-shrink-0"
               onError={e => { e.target.style.display = 'none'; }} />
           )}
+        </div>
+        <div className="flex items-center gap-2 mt-1.5">
+          <label className={[
+            'text-[11px] px-2.5 py-1 rounded-md cursor-pointer transition',
+            uploading ? 'bg-white/5 text-gray-600' : 'bg-[#2a5c4f]/30 hover:bg-[#2a5c4f]/50 text-[#94aea7] hover:text-white'
+          ].join(' ')}>
+            {uploading ? 'Uploading…' : 'Upload photo'}
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only"
+              disabled={uploading} onChange={handleImageUpload} />
+          </label>
+          {uploadMsg && <span className="text-[11px] text-gray-500">{uploadMsg}</span>}
         </div>
       </div>
 
@@ -171,6 +210,10 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
   const [filter, setFilter] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
   const [editingId, setEditingId] = useState(null);
+  const [activeTab, setActiveTab] = useState('fragrances');
+  const [imgSubs, setImgSubs] = useState([]);
+  const [imgSubsLoading, setImgSubsLoading] = useState(false);
+  const [imgActionLoading, setImgActionLoading] = useState(null);
 
   async function load() {
     const res = await fetch('/api/admin/fragrances');
@@ -180,7 +223,37 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
     setLoading(false);
   }
 
+  async function loadImgSubs() {
+    setImgSubsLoading(true);
+    const res = await fetch('/api/admin/fragrances/image-submissions');
+    if (res.ok) setImgSubs(await res.json());
+    setImgSubsLoading(false);
+  }
+
   useEffect(() => { load(); }, []);
+  useEffect(() => { if (activeTab === 'images') loadImgSubs(); }, [activeTab]);
+
+  async function approveImg(id) {
+    setImgActionLoading(id);
+    await fetch('/api/admin/fragrances/image-submissions', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: 'approved' }),
+    });
+    await loadImgSubs();
+    setImgActionLoading(null);
+  }
+
+  async function rejectImg(id) {
+    setImgActionLoading(id);
+    await fetch('/api/admin/fragrances/image-submissions', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: 'rejected' }),
+    });
+    await loadImgSubs();
+    setImgActionLoading(null);
+  }
 
   async function handleLogout() {
     if (identity?.type === 'admin') await fetch('/api/admin/auth', { method: 'DELETE' });
@@ -249,7 +322,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
             <div>
               <h1 className="text-2xl font-bold">Fragrance Directory</h1>
               <p className="text-xs text-gray-500 mt-1">
-                Approve community-submitted fragrances. Use Edit to add images and descriptions.
+                Approve community-submitted fragrances. Use Edit to upload images.
               </p>
             </div>
             {counts.pending > 0 && (
@@ -259,6 +332,56 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
             )}
           </div>
 
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6 border-b border-white/8 pb-4">
+            {[['fragrances', 'Fragrances'], ['images', 'Image Queue']].map(([id, label]) => (
+              <button key={id} onClick={() => setActiveTab(id)}
+                className={['text-sm px-4 py-1.5 rounded-lg font-medium transition',
+                  activeTab === id ? 'bg-white text-black' : 'text-gray-400 hover:text-white'].join(' ')}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Image submissions tab */}
+          {activeTab === 'images' && (
+            <div>
+              {imgSubsLoading ? (
+                <div className="text-gray-500 text-sm py-10 text-center">Loading…</div>
+              ) : imgSubs.filter(s => s.status === 'pending').length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-gray-500 text-sm">No pending image submissions.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {imgSubs.filter(s => s.status === 'pending').map(sub => (
+                    <div key={sub.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex items-center gap-4">
+                      <img src={sub.image_url} alt=""
+                        className="w-20 h-20 rounded-xl object-contain bg-black/40 border border-white/8 flex-shrink-0"
+                        onError={e => { e.target.style.display='none'; }} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-white text-sm">{sub.fragrances?.name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{sub.fragrances?.house}</p>
+                        <p className="text-xs text-gray-600 mt-1">By {sub.profiles?.display_name || 'Unknown'} · {new Date(sub.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}</p>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button onClick={() => approveImg(sub.id)} disabled={imgActionLoading === sub.id}
+                          className="text-xs bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 px-3 py-1.5 rounded-lg transition disabled:opacity-50">
+                          Approve
+                        </button>
+                        <button onClick={() => rejectImg(sub.id)} disabled={imgActionLoading === sub.id}
+                          className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg transition disabled:opacity-50">
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'fragrances' && <>
           {/* Filters */}
           <div className="flex flex-wrap gap-2 mb-6">
             {FILTERS.map(f => (
@@ -357,6 +480,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
               ))}
             </div>
           )}
+          </>}
         </div>
       </div>
     </>

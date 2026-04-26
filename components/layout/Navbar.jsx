@@ -12,6 +12,7 @@ export default function Navbar({ onLinkClick }) {
       { label: 'Local Houses',  href: '/local-houses', external: false },
       { label: 'Fragrances',    href: '/fragrances',   external: false },
       { label: 'Reviews',       href: '/reviews',      external: false },
+      { label: 'Marketplace',   href: '/marketplace',  external: false },
       { label: 'Order',         href: '/order',        external: false },
     ],
     []

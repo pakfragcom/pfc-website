@@ -6,11 +6,11 @@ export default async function handler(req, res) {
   if (!auth.ok) return;
   if (!auth.permissions.can_manage_sellers) return res.status(403).json({ error: 'Forbidden' });
 
-  // GET — list all sellers
+  // GET — list all sellers with tier + trust score
   if (req.method === "GET") {
     const { data, error } = await supabaseAdmin
       .from("sellers")
-      .select("id, name, code, seller_type, status, subscription_expires_at, contact_whatsapp, city, added_at")
+      .select("id, name, code, seller_type, status, verification_tier, trust_score, slug, subscription_expires_at, contact_whatsapp, city, added_at, user_id")
       .order("name");
 
     if (error) return res.status(500).json({ error: error.message });
@@ -19,14 +19,20 @@ export default async function handler(req, res) {
 
   // POST — add new seller
   if (req.method === "POST") {
-    const { name, code, seller_type, contact_whatsapp, city } = req.body;
+    const { name, code, seller_type, contact_whatsapp, city, verification_tier } = req.body;
     if (!name || !code || !seller_type) {
       return res.status(400).json({ error: "name, code, and seller_type are required" });
     }
 
     const { data, error } = await supabaseAdmin
       .from("sellers")
-      .insert({ name, code, seller_type, status: "pending", contact_whatsapp, city })
+      .insert({
+        name, code, seller_type,
+        status: "pending",
+        contact_whatsapp,
+        city,
+        verification_tier: Number(verification_tier ?? 0),
+      })
       .select()
       .single();
 
@@ -34,10 +40,25 @@ export default async function handler(req, res) {
     return res.status(201).json(data);
   }
 
-  // PATCH — update a seller
+  // PATCH — update seller (status, tier, trust_score, etc.)
   if (req.method === "PATCH") {
-    const { id, ...updates } = req.body;
+    const { id, recalculate_trust, ...updates } = req.body;
     if (!id) return res.status(400).json({ error: "id is required" });
+
+    // Optionally recalculate trust score from the view before saving
+    if (recalculate_trust) {
+      const { data: scoreRow } = await supabaseAdmin
+        .from("seller_trust_scores")
+        .select("trust_score")
+        .eq("seller_id", id)
+        .maybeSingle();
+      if (scoreRow) updates.trust_score = scoreRow.trust_score;
+    }
+
+    // Ensure verification_tier is a number if provided
+    if (updates.verification_tier !== undefined) {
+      updates.verification_tier = Number(updates.verification_tier);
+    }
 
     const { data, error } = await supabaseAdmin
       .from("sellers")

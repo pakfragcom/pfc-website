@@ -12,6 +12,13 @@ const STATUS_COLORS = {
   pending: "text-blue-400 bg-blue-500/10 ring-blue-500/20",
 };
 
+const TIER_CONFIG = {
+  0: { label: 'Unverified',  cls: 'text-gray-400 bg-white/5 ring-white/15' },
+  1: { label: 'Community',   cls: 'text-emerald-400 bg-emerald-500/10 ring-emerald-500/20' },
+  2: { label: 'Document',    cls: 'text-sky-400 bg-sky-500/10 ring-sky-500/20' },
+  3: { label: 'Trusted',     cls: 'text-amber-400 bg-amber-500/10 ring-amber-500/20' },
+};
+
 function daysUntil(dateStr) {
   if (!dateStr) return null;
   const diff = new Date(dateStr) - new Date();
@@ -231,6 +238,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
   const [markPaidSeller, setMarkPaidSeller] = useState(null);
   const [showAdd, setShowAdd] = useState(router.query.modal === "add");
   const [actionLoading, setActionLoading] = useState(null);
+  const [tierLoading, setTierLoading] = useState(null);
 
   async function loadSellers() {
     const res = await fetch("/api/admin/sellers");
@@ -269,6 +277,28 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
     });
     await loadSellers();
     setActionLoading(null);
+  }
+
+  async function changeTier(seller, tier) {
+    setTierLoading(seller.id + 'tier');
+    await fetch("/api/admin/sellers", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: seller.id, verification_tier: Number(tier) }),
+    });
+    await loadSellers();
+    setTierLoading(null);
+  }
+
+  async function recalcTrust(seller) {
+    setTierLoading(seller.id + 'recalc');
+    await fetch("/api/admin/sellers", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: seller.id, recalculate_trust: true }),
+    });
+    await loadSellers();
+    setTierLoading(null);
   }
 
   const now = new Date();
@@ -396,6 +426,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                       <th className="text-left px-4 py-3">Code</th>
                       <th className="text-left px-4 py-3">Type</th>
                       <th className="text-left px-4 py-3">Status</th>
+                      <th className="text-left px-4 py-3">Tier / Trust</th>
                       <th className="text-left px-4 py-3">Expires</th>
                       <th className="text-right px-4 py-3">Actions</th>
                     </tr>
@@ -403,7 +434,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                   <tbody>
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center text-gray-600 py-10">
+                        <td colSpan={7} className="text-center text-gray-600 py-10">
                           No sellers found
                         </td>
                       </tr>
@@ -423,6 +454,39 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                               <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ring-1 ${STATUS_COLORS[seller.status] || "text-gray-400"}`}>
                                 {seller.status}
                               </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex flex-col gap-1.5 min-w-[130px]">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ring-1 ${(TIER_CONFIG[seller.verification_tier ?? 0] || TIER_CONFIG[0]).cls}`}>
+                                    L{seller.verification_tier ?? 0} {(TIER_CONFIG[seller.verification_tier ?? 0] || TIER_CONFIG[0]).label}
+                                  </span>
+                                  {seller.trust_score != null && (
+                                    <span className="text-[10px] text-gray-500">{seller.trust_score}</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <select
+                                    value={seller.verification_tier ?? 0}
+                                    disabled={tierLoading === seller.id + 'tier' || tierLoading === seller.id + 'recalc'}
+                                    onChange={(e) => changeTier(seller, e.target.value)}
+                                    className="text-[10px] bg-black/40 ring-1 ring-white/10 rounded px-1 py-0.5 text-gray-300 outline-none cursor-pointer disabled:opacity-40"
+                                  >
+                                    <option value={0}>L0 Unverified</option>
+                                    <option value={1}>L1 Community</option>
+                                    <option value={2}>L2 Document</option>
+                                    <option value={3}>L3 Trusted</option>
+                                  </select>
+                                  <button
+                                    onClick={() => recalcTrust(seller)}
+                                    disabled={tierLoading === seller.id + 'recalc' || tierLoading === seller.id + 'tier'}
+                                    title="Recalculate trust score"
+                                    className="text-[10px] text-gray-600 hover:text-gray-300 transition disabled:opacity-40 px-1"
+                                  >
+                                    {tierLoading === seller.id + 'recalc' ? '…' : '↺'}
+                                  </button>
+                                </div>
+                              </div>
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex flex-col gap-0.5">
