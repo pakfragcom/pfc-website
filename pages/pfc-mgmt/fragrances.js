@@ -20,6 +20,123 @@ const ADMIN_IDENTITY = {
   permissions: { is_admin: true, can_manage_sellers: true, can_manage_houses: true, can_manage_reviews: true },
 };
 
+function ImagePickerModal({ frag, onClose, onApplied }) {
+  const [query, setQuery] = useState(`${frag.name} ${frag.house} perfume`);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [applying, setApplying] = useState(null);
+  const [error, setError] = useState('');
+
+  async function search(q) {
+    setLoading(true);
+    setError('');
+    setResults([]);
+    try {
+      const params = new URLSearchParams({ name: frag.name, house: frag.house, q });
+      const res = await fetch(`/api/admin/fragrances/search-images?${params}`);
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Search failed'); return; }
+      setResults(data.results || []);
+      if (!data.results?.length) setError('No results — try refining the search');
+    } catch {
+      setError('Search failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { search(query); }, []);
+
+  async function applyImage(url) {
+    setApplying(url);
+    await fetch('/api/admin/fragrances', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: frag.id, image_url: url }),
+    });
+    setApplying(null);
+    onApplied();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+      <div className="bg-[#111] ring-1 ring-white/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-lg">Find Stock Image</h3>
+            <p className="text-xs text-gray-500 mt-0.5">{frag.name} · {frag.house}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-white transition text-lg leading-none">✕</button>
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && search(query)}
+            className="flex-1 bg-black/40 ring-1 ring-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-600 outline-none focus:ring-white/25"
+            placeholder="Refine search query…"
+          />
+          <button
+            onClick={() => search(query)}
+            disabled={loading}
+            className="px-4 py-2 bg-[#2a5c4f]/40 hover:bg-[#2a5c4f]/70 text-[#94aea7] hover:text-white text-sm rounded-xl transition disabled:opacity-40"
+          >
+            {loading ? '…' : 'Search'}
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+            </div>
+          )}
+
+          {error && !loading && (
+            <p className="text-sm text-amber-400 text-center py-8">{error}</p>
+          )}
+
+          {!loading && results.length > 0 && (
+            <div className="grid grid-cols-4 gap-2">
+              {results.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => applyImage(img.url)}
+                  disabled={applying !== null}
+                  className="group relative aspect-square rounded-xl overflow-hidden bg-white/5 ring-1 ring-white/10 hover:ring-white/30 transition disabled:opacity-50"
+                  title={img.title}
+                >
+                  <img
+                    src={img.thumb}
+                    alt={img.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={e => { e.target.parentElement.style.display = 'none'; }}
+                  />
+                  {applying === img.url && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    </div>
+                  )}
+                  {img.host && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-[9px] text-gray-400 px-1.5 py-0.5 truncate opacity-0 group-hover:opacity-100 transition">
+                      {img.host}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <p className="text-[10px] text-gray-600 mt-4">
+          Images from Bing Image Search. Click one to set it as the fragrance image.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function EditPanel({ frag, onSave, onClose }) {
   const [form, setForm] = useState({
     name:          frag.name          || '',
@@ -214,6 +331,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
   const [imgSubs, setImgSubs] = useState([]);
   const [imgSubsLoading, setImgSubsLoading] = useState(false);
   const [imgActionLoading, setImgActionLoading] = useState(null);
+  const [imagePickerFrag, setImagePickerFrag] = useState(null);
 
   async function load() {
     const res = await fetch('/api/admin/fragrances');
@@ -295,15 +413,20 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
     setActionLoading(null);
   }
 
-  const filtered = fragrances.filter(f => filter === 'all' || f.status === filter);
+  const filtered = fragrances.filter(f => {
+    if (filter === 'no_image') return f.status === 'approved' && !f.image_url;
+    return filter === 'all' || f.status === filter;
+  });
   const counts = {
     pending:  fragrances.filter(f => f.status === 'pending').length,
     approved: fragrances.filter(f => f.status === 'approved').length,
+    no_image: fragrances.filter(f => f.status === 'approved' && !f.image_url).length,
   };
 
   const FILTERS = [
     { id: 'pending',  label: `Pending (${counts.pending})` },
     { id: 'approved', label: `Approved (${counts.approved})` },
+    { id: 'no_image', label: `No Image (${counts.no_image})` },
     { id: 'all',      label: `All (${fragrances.length})` },
   ];
 
@@ -313,6 +436,14 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
         <title>Fragrances | PFC Admin</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
+
+      {imagePickerFrag && (
+        <ImagePickerModal
+          frag={imagePickerFrag}
+          onClose={() => setImagePickerFrag(null)}
+          onApplied={() => { setImagePickerFrag(null); load(); }}
+        />
+      )}
 
       <div className="min-h-screen bg-[#0a0a0a] text-white">
         <AdminNav currentPage="fragrances" identity={identity} onLogout={handleLogout} />
@@ -457,6 +588,13 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
                           Unpublish
                         </button>
                       )}
+                      <button
+                        onClick={() => setImagePickerFrag(frag)}
+                        className="text-xs bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 px-3 py-1.5 rounded-lg transition"
+                        title="Find stock image"
+                      >
+                        {frag.image_url ? '🔍 Image' : '+ Image'}
+                      </button>
                       <button
                         onClick={() => setEditingId(editingId === frag.id ? null : frag.id)}
                         className="text-xs bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white px-3 py-1.5 rounded-lg transition">

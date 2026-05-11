@@ -1057,7 +1057,7 @@ function useLSNumber(key, initial) {
   const [v, setV] = useState(initial);
   useEffect(() => {
     const raw = localStorage.getItem(key);
-    if (raw) setV(Number(JSON.parse(raw)));
+    if (raw) try { setV(Number(JSON.parse(raw))); } catch {}
   }, [key]);
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify(v));

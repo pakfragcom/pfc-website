@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       .from("sellers")
       .insert({
         name, code, seller_type,
-        status: "pending",
+        status: "active",
         contact_whatsapp,
         city,
         verification_tier: Number(verification_tier ?? 0),
@@ -37,6 +37,9 @@ export default async function handler(req, res) {
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+
+    try { await res.revalidate("/tools/verify-seller"); } catch (_) {}
+
     return res.status(201).json(data);
   }
 
@@ -68,6 +71,9 @@ export default async function handler(req, res) {
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+
+    try { await res.revalidate("/tools/verify-seller"); } catch (_) {}
+
     return res.status(200).json(data);
   }
 
@@ -78,6 +84,9 @@ export default async function handler(req, res) {
 
     const { error } = await supabaseAdmin.from("sellers").delete().eq("id", id);
     if (error) return res.status(500).json({ error: error.message });
+
+    try { await res.revalidate("/tools/verify-seller"); } catch (_) {}
+
     return res.status(200).json({ ok: true });
   }
 

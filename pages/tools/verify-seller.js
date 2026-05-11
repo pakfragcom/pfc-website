@@ -361,6 +361,6 @@ export async function getStaticProps() {
 
   return {
     props: { sellers: mapped },
-    revalidate: 300, // ISR: refresh every 5 minutes
+    revalidate: 60,
   };
 }

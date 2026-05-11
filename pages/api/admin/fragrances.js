@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin
       .from('fragrances')
-      .select('id, name, slug, house, category, concentration, status, created_at, submitted_by, profiles:submitted_by(display_name)')
+      .select('id, name, slug, house, category, concentration, status, image_url, created_at, submitted_by, profiles:submitted_by(display_name)')
       .order('status')
       .order('created_at', { ascending: false });
 
@@ -51,6 +51,11 @@ export default async function handler(req, res) {
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+
+    if (data.slug && (updates.image_url !== undefined || updates.status !== undefined)) {
+      try { await res.revalidate(`/fragrances/${data.slug}`); } catch (_) {}
+    }
+
     return res.status(200).json(data);
   }
 
