@@ -278,6 +278,6 @@ export async function getStaticProps({ params }) {
 
   return {
     props: { listing },
-    revalidate: 120,
+    revalidate: 3600,
   };
 }

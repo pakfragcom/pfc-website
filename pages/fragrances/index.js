@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import Header from '../../components/layout/Header';
@@ -41,6 +41,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
   const [sortBy, setSortBy] = useState('name');
   const [activeLetter, setActiveLetter] = useState('');
   const [visibleCount, setVisibleCount] = useState(40);
+  const searchDebounce = useRef(null);
 
   // Sync state from URL on mount and navigation
   useEffect(() => {
@@ -201,7 +202,12 @@ export default function FragrancesIndex({ fragrances = [] }) {
                     </svg>
                     <input
                       type="text" value={query}
-                      onChange={e => { setQuery(e.target.value); updateFilter(activeCategory, e.target.value, sortBy); }}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setQuery(val);
+                        clearTimeout(searchDebounce.current);
+                        searchDebounce.current = setTimeout(() => updateFilter(activeCategory, val, sortBy), 300);
+                      }}
                       placeholder="Search fragrances or houses…"
                       className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 ring-1 ring-white/10 text-sm text-white placeholder-gray-500 outline-none focus:ring-white/20 transition"
                     />

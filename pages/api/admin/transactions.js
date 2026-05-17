@@ -18,9 +18,11 @@ export default async function handler(req, res) {
       .from('transactions')
       .select(`
         id, fragrance_name, house, price_pkr, condition, city, outcome,
-        dispute_status, flagged, notes, created_at,
+        dispute_status, flagged, notes, review_text,
+        rating_delivery, rating_accuracy, rating_communication, created_at,
         sellers!inner(id, name, code),
-        profiles!buyer_id(id, display_name, username)
+        profiles!buyer_id(id, display_name, username),
+        transaction_items(fragrance_name, house, item_type, price_pkr, quantity, notes)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);

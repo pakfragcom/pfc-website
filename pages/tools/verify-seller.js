@@ -361,6 +361,6 @@ export async function getStaticProps() {
 
   return {
     props: { sellers: mapped },
-    revalidate: 60,
+    revalidate: 3600,
   };
 }

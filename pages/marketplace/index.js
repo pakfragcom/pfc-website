@@ -331,6 +331,6 @@ export async function getStaticProps() {
       listings: listings || [],
       lastUpdated: new Date().toISOString(),
     },
-    revalidate: 120, // refresh every 2 min — listings change more frequently than sellers
+    revalidate: 600,
   };
 }

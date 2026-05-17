@@ -129,11 +129,27 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
                         <span title="Flagged for review" className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-xs">!</span>
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-semibold text-white">{tx.fragrance_name}</span>
-                          {tx.house && <span className="text-xs text-gray-400">{tx.house}</span>}
-                          <span className="text-xs text-gray-500">{CONDITION_LABEL[tx.condition] || tx.condition}</span>
-                        </div>
+                        {/* Item display: prefer transaction_items if present, fall back to legacy columns */}
+                        {tx.transaction_items?.length > 0 ? (
+                          tx.transaction_items.length === 1 ? (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-semibold text-white">{tx.transaction_items[0].fragrance_name}</span>
+                              {tx.transaction_items[0].house && <span className="text-xs text-gray-400">{tx.transaction_items[0].house}</span>}
+                              <span className="text-xs text-gray-500">{CONDITION_LABEL[tx.transaction_items[0].item_type] || tx.transaction_items[0].item_type}</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-semibold text-white">{tx.transaction_items[0].fragrance_name}</span>
+                              <span className="text-xs text-[#94aea7] bg-[#2a5c4f]/30 ring-1 ring-[#2a5c4f]/40 rounded px-1.5 py-0.5">+{tx.transaction_items.length - 1} more</span>
+                            </div>
+                          )
+                        ) : (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-semibold text-white">{tx.fragrance_name || '—'}</span>
+                            {tx.house && <span className="text-xs text-gray-400">{tx.house}</span>}
+                            <span className="text-xs text-gray-500">{CONDITION_LABEL[tx.condition] || tx.condition}</span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-3 mt-1 flex-wrap text-xs text-gray-500">
                           <span>Seller: <span className="text-gray-300">{tx.sellers?.name}</span> <span className="font-mono">({tx.sellers?.code})</span></span>
                           <span>Buyer: <span className="text-gray-300">{tx.profiles?.display_name || 'Anonymous'}</span></span>
@@ -156,10 +172,41 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
 
                     {isOpen && (
                       <div className="px-5 pb-5 border-t border-white/8 pt-4 space-y-4">
+                        {/* Line items breakdown */}
+                        {tx.transaction_items?.length > 0 && (
+                          <div className="rounded-xl border border-white/8 overflow-hidden">
+                            <table className="w-full text-xs">
+                              <thead>
+                                <tr className="border-b border-white/8 bg-white/[0.02]">
+                                  <th className="text-left px-3 py-2 text-gray-500 font-medium">Fragrance</th>
+                                  <th className="text-left px-3 py-2 text-gray-500 font-medium">Type</th>
+                                  <th className="text-right px-3 py-2 text-gray-500 font-medium">Qty</th>
+                                  <th className="text-right px-3 py-2 text-gray-500 font-medium">Price</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {tx.transaction_items.map((item, i) => (
+                                  <tr key={i} className="border-b border-white/5 last:border-0">
+                                    <td className="px-3 py-2 text-white">{item.fragrance_name}{item.house ? <span className="text-gray-500 ml-1.5">{item.house}</span> : null}</td>
+                                    <td className="px-3 py-2 text-gray-400">{CONDITION_LABEL[item.item_type] || item.item_type}</td>
+                                    <td className="px-3 py-2 text-gray-400 text-right">{item.quantity}</td>
+                                    <td className="px-3 py-2 text-white text-right font-medium">Rs {(item.price_pkr * item.quantity).toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
                         {tx.notes && (
                           <p className="text-sm text-gray-300 bg-white/5 rounded-xl px-4 py-3">
                             <span className="text-xs text-gray-500 uppercase tracking-wider mr-2">Notes</span>
                             {tx.notes}
+                          </p>
+                        )}
+                        {tx.review_text && (
+                          <p className="text-sm text-gray-300 bg-white/5 rounded-xl px-4 py-3">
+                            <span className="text-xs text-gray-500 uppercase tracking-wider mr-2">Review</span>
+                            {tx.review_text}
                           </p>
                         )}
 

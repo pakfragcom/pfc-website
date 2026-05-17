@@ -924,6 +924,6 @@ export async function getStaticProps({ params }) {
         sellers: l.sellers ? { name: l.sellers.name, verification_tier: l.sellers.verification_tier } : null,
       })),
     },
-    revalidate: 60,
+    revalidate: 3600,
   };
 }

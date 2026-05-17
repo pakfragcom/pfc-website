@@ -115,5 +115,6 @@ export default async function handler(req, res) {
   // Determine primary matching family for "Because you like X" label
   const primaryFamily = families[0] || null;
 
+  res.setHeader('Cache-Control', 'private, max-age=300, stale-while-revalidate=600');
   return res.status(200).json({ recommendations: top, primaryFamily, families });
 }

@@ -491,6 +491,10 @@ export default function LogTransaction({ sellers = [] }) {
               {/* Seller chip */}
               <SellerChip seller={selectedSeller} onClear={() => { setSelectedSeller(null); setStep(1); }} />
 
+              <p className="text-xs text-gray-500 -mt-1">
+                Bought multiple fragrances from this seller? Add them all here — they'll be logged as one order.
+              </p>
+
               {/* Item rows */}
               {items.map((item, i) => (
                 <ItemRow
@@ -513,9 +517,12 @@ export default function LogTransaction({ sellers = [] }) {
                 <button
                   type="button"
                   onClick={addItem}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 py-4 text-sm text-gray-500 hover:border-white/30 hover:text-gray-300 transition"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#2a5c4f]/50 bg-[#2a5c4f]/10 hover:bg-[#2a5c4f]/20 py-3.5 text-sm font-medium text-[#94aea7] hover:text-white transition"
                 >
-                  + Add another item
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add another fragrance to this order
                 </button>
               )}
 

@@ -10,5 +10,10 @@ Sentry.init({
     /^Network request failed/,
     /^Failed to fetch/,
     /^Load failed/,
+    // Instagram in-app browser Android (their own WebView JS, not our code)
+    /Java object is gone/,
+    /enableDidUserTypeOnKeyboardLogging/,
+    // iOS Safari / WKWebView message handler (Google gtag.js, not our code)
+    /webkit\.messageHandlers/,
   ],
 });
