@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '../components/layout/Header';
@@ -89,8 +90,24 @@ function RecommendationStrip() {
 
 export default function Home({ latestReviews = [], stats = {}, topRated = [] }) {
   return (
-    <div className="bg-black text-white font-sans">
-      <Header />
+    <>
+      <Head>
+        <title>PakFrag — Pakistan's Fragrance Community | Reviews, Verified Sellers & Marketplace</title>
+        <meta name="description" content="Pakistan's trusted fragrance community. Browse 500+ perfume reviews, verify sellers, shop the marketplace, and track fragrance prices — all in one place." />
+        <link rel="canonical" href="https://pakfrag.com" />
+        <meta property="og:title" content="PakFrag — Pakistan's Fragrance Community" />
+        <meta property="og:description" content="Pakistan's trusted fragrance community. Browse 500+ perfume reviews, verify sellers, shop the marketplace, and track fragrance prices." />
+        <meta property="og:url" content="https://pakfrag.com" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://pakfrag.com/pfc-round.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content="PakFrag — Pakistan's Fragrance Community" />
+        <meta name="twitter:description" content="Pakistan's trusted fragrance community. Browse 500+ perfume reviews, verify sellers, shop the marketplace, and track fragrance prices." />
+        <meta name="twitter:image" content="https://pakfrag.com/pfc-round.png" />
+      </Head>
+      <div className="bg-black text-white font-sans">
+        <Header />
       <Hero />
       <StatsBar stats={stats} />
       <Intro />
@@ -98,7 +115,8 @@ export default function Home({ latestReviews = [], stats = {}, topRated = [] }) 
       <SplitBlock topRated={topRated} />
       <LatestReviews reviews={latestReviews} />
       <Footer />
-    </div>
+      </div>
+    </>
   );
 }
 

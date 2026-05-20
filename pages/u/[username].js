@@ -20,6 +20,25 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
       <Head>
         <title>{profile.display_name} — Fragrance Reviews | PFC</title>
         <meta name="description" content={`${profile.display_name}'s fragrance reviews on PFC — Pakistan's fragrance community.${profile.city ? ` Based in ${profile.city}.` : ''}`} />
+        <link rel="canonical" href={`https://pakfrag.com/u/${profile.username}`} />
+        <meta property="og:title" content={`${profile.display_name} — Fragrance Reviews | PFC`} />
+        <meta property="og:description" content={`${profile.display_name}'s fragrance reviews on PFC — Pakistan's fragrance community.${profile.city ? ` Based in ${profile.city}.` : ''}`} />
+        <meta property="og:url" content={`https://pakfrag.com/u/${profile.username}`} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:image" content={profile.avatar_url || 'https://pakfrag.com/pfc-round.png'} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content={`${profile.display_name} — Fragrance Reviews | PFC`} />
+        <meta name="twitter:description" content={`${profile.display_name}'s fragrance reviews on PFC.${profile.city ? ` Based in ${profile.city}.` : ''}`} />
+        <meta name="twitter:image" content={profile.avatar_url || 'https://pakfrag.com/pfc-round.png'} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Person',
+          name: profile.display_name,
+          url: `https://pakfrag.com/u/${profile.username}`,
+          ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
+          ...(profile.city ? { address: { '@type': 'PostalAddress', addressLocality: profile.city, addressCountry: 'PK' } } : {}),
+        })}} />
       </Head>
 
       <div className="bg-black min-h-screen text-white">

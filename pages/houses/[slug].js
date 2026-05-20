@@ -98,7 +98,13 @@ export default function HousePage({ house, reviews = [], stats }) {
         <meta property="og:description" content={pageDesc} />
         <meta property="og:url" content={`https://pakfrag.com/houses/${house.slug}`} />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content={house.logo_url || 'https://pakfrag.com/pfc-round.png'} />
         <link rel="canonical" href={`https://pakfrag.com/houses/${house.slug}`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
+        <meta name="twitter:image" content={house.logo_url || 'https://pakfrag.com/pfc-round.png'} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}

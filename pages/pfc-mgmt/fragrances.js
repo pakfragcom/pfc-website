@@ -130,7 +130,7 @@ function ImagePickerModal({ frag, onClose, onApplied }) {
         </div>
 
         <p className="text-[10px] text-gray-600 mt-4">
-          Images from Bing Image Search. Click one to set it as the fragrance image.
+          Images from Google Image Search. Click one to set it as the fragrance image.
         </p>
       </div>
     </div>

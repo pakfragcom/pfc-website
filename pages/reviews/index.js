@@ -52,6 +52,20 @@ export default function Reviews({ reviews = [], featured = [] }) {
         <meta property="og:description" content="Fragrance reviews from Pakistan's community — real opinions on Designer, Niche, Middle Eastern, and Local fragrances." />
         <meta property="og:url" content="https://pakfrag.com/reviews" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://pakfrag.com/pfc-round.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content="Community Reviews | PFC" />
+        <meta name="twitter:description" content="Fragrance reviews from Pakistan's community — real opinions on Designer, Niche, Middle Eastern, and Local fragrances." />
+        <meta name="twitter:image" content="https://pakfrag.com/pfc-round.png" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://pakfrag.com' },
+            { '@type': 'ListItem', position: 2, name: 'Reviews', item: 'https://pakfrag.com/reviews' },
+          ],
+        })}} />
       </Head>
 
       <div className="bg-black min-h-screen text-white">

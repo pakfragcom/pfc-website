@@ -61,6 +61,12 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
         <meta property="og:description" content={description} />
         <meta property="og:url" content="https://pakfrag.com/pakistan-fragrance-index" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://pakfrag.com/pfc-round.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content="Pakistan Fragrance Price Index | PakFrag" />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content="https://pakfrag.com/pfc-round.png" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Dataset',

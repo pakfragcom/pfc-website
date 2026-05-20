@@ -61,6 +61,11 @@ export default function ListingDetail({ listing }) {
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="product" />
         {listing.images?.[0] && <meta property="og:image" content={listing.images[0]} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content={`${listing.fragrance_name} (${condConf.label}) — Rs ${listing.price_pkr?.toLocaleString()}`} />
+        <meta name="twitter:description" content={description} />
+        {listing.images?.[0] && <meta name="twitter:image" content={listing.images[0]} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Product',
