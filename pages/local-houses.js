@@ -328,6 +328,25 @@ export default function LocalHousesPage({ houses = [] }) {
       <Head>
         <title>Pakistani Fragrance Houses | PFC</title>
         <meta name="description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses — Platinum, Gold & Silver tiers. Browse local brands and find your next signature scent.`} />
+        <link rel="canonical" href="https://pakfrag.com/local-houses" />
+        <meta property="og:title" content="Pakistani Fragrance Houses | PFC" />
+        <meta property="og:description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses — Platinum, Gold & Silver tiers. Browse local brands and find your next signature scent.`} />
+        <meta property="og:url" content="https://pakfrag.com/local-houses" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://pakfrag.com/pfc-round.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content="Pakistani Fragrance Houses | PFC" />
+        <meta name="twitter:description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses. Browse local Pakistani perfume brands.`} />
+        <meta name="twitter:image" content="https://pakfrag.com/pfc-round.png" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://pakfrag.com' },
+            { '@type': 'ListItem', position: 2, name: 'Pakistani Fragrance Houses', item: 'https://pakfrag.com/local-houses' },
+          ],
+        })}} />
       </Head>
 
       <div className="bg-black min-h-screen text-white">

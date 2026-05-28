@@ -204,9 +204,12 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
         <meta property="og:title" content={`${review.fragrance_name} Review | PFC`} />
         <meta property="og:description" content={review.review_text.slice(0, 155)} />
         <meta property="og:url" content={`https://pakfrag.com/reviews/${review.slug}`} />
-        <meta property="og:image" content={review.cover_image_url || 'https://pakfrag.com/og-image.jpg'} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content={review.cover_image_url || 'https://pakfrag.com/og-image.jpg'} />
+        <meta name="twitter:site" content="@pakfragcom" />
+        <meta name="twitter:title" content={`${review.fragrance_name} Review | PFC`} />
+        <meta name="twitter:description" content={review.review_text.slice(0, 155)} />
+        <meta name="twitter:image" content={review.cover_image_url || 'https://pakfrag.com/pfc-round.png'} />
+        <meta property="og:image" content={review.cover_image_url || 'https://pakfrag.com/pfc-round.png'} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Review',
