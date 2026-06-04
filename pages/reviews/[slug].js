@@ -455,6 +455,6 @@ export async function getStaticProps({ params }) {
 
   return {
     props: { review, fragrance, relatedReviews },
-    revalidate: 300,
+    revalidate: 3600,
   };
 }

@@ -721,6 +721,6 @@ export async function getStaticProps() {
         type: s.seller_type, slug: s.slug || null,
       })),
     },
-    revalidate: 300,
+    revalidate: 3600,
   };
 }

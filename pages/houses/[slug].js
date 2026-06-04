@@ -355,6 +355,6 @@ export async function getStaticProps({ params }) {
       reviews: reviews || [],
       stats,
     },
-    revalidate: 300,
+    revalidate: 3600,
   }
 }

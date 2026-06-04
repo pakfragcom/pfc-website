@@ -345,6 +345,6 @@ export async function getStaticProps({ params }) {
 
   return {
     props: { seller, txStats: txStats || null },
-    revalidate: 300,
+    revalidate: 3600,
   };
 }

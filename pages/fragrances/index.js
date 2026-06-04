@@ -413,5 +413,5 @@ export async function getStaticProps() {
     };
   });
 
-  return { props: { fragrances }, revalidate: 300 };
+  return { props: { fragrances }, revalidate: 3600 };
 }

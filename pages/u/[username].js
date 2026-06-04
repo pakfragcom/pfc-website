@@ -201,5 +201,5 @@ export async function getStaticProps({ params }) {
     .select('*', { count: 'exact', head: true })
     .eq('user_id', profile.id);
 
-  return { props: { profile, reviews: approvedReviews, sellerType: seller?.seller_type || null, avgRating, topCategory, wishlistCount: wishlistCount || 0 }, revalidate: 300 };
+  return { props: { profile, reviews: approvedReviews, sellerType: seller?.seller_type || null, avgRating, topCategory, wishlistCount: wishlistCount || 0 }, revalidate: 3600 };
 }

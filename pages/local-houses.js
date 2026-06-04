@@ -577,6 +577,6 @@ export async function getStaticProps() {
 
   return {
     props: { houses: mapped },
-    revalidate: 300,
+    revalidate: 3600,
   };
 }

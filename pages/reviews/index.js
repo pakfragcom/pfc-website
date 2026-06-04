@@ -301,6 +301,6 @@ export async function getStaticProps() {
 
   return {
     props: { reviews: rest, featured },
-    revalidate: 300,
+    revalidate: 3600,
   };
 }
