@@ -27,17 +27,35 @@ function daysUntil(dateStr) {
 
 function DaysChip({ days }) {
   if (days === null) return <span className="text-gray-600">—</span>;
-  if (days < 0) return <span className="text-red-400 text-xs">{Math.abs(days)}d ago</span>;
-  if (days <= 7) return <span className="text-red-400 text-xs font-medium">{days}d left</span>;
-  if (days <= 14) return <span className="text-orange-400 text-xs font-medium">{days}d left</span>;
+  if (days < 0)   return <span className="text-red-400 text-xs">{Math.abs(days)}d overdue</span>;
+  if (days <= 7)  return <span className="text-red-400 text-xs font-medium">{days}d left</span>;
+  if (days <= 30) return <span className="text-amber-400 text-xs font-medium">{days}d left</span>;
   return <span className="text-gray-400 text-xs">{days}d left</span>;
+}
+
+function SubscriptionDots({ expiresAt }) {
+  if (!expiresAt) return (
+    <div className="flex gap-1">{[0,1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-white/10" />)}</div>
+  );
+  const now = new Date();
+  const expires = new Date(expiresAt);
+  const PERIOD_MS = 122 * 24 * 60 * 60 * 1000;
+  const starts = new Date(expires.getTime() - PERIOD_MS);
+  const filled = Math.min(4, Math.max(1, Math.ceil(((now - starts) / PERIOD_MS) * 4)));
+  const isExpired = now > expires;
+  const dotColor = isExpired || filled >= 4 ? 'bg-red-500' : filled === 3 ? 'bg-amber-400' : 'bg-emerald-500';
+  return (
+    <div className="flex gap-1" title={isExpired ? 'Expired' : `Month ${filled} of 4`}>
+      {[1,2,3,4].map(i => <div key={i} className={`w-2 h-2 rounded-full ${i <= filled ? dotColor : 'bg-white/10'}`} />)}
+    </div>
+  );
 }
 
 // ── Mark Paid Modal ──────────────────────────────────────────────
 function MarkPaidModal({ seller, onClose, onSuccess }) {
   const [form, setForm] = useState({
-    amount_pkr: seller.seller_type === "BNIB" ? "10000" : "6000",
-    duration_months: seller.seller_type === "BNIB" ? "4" : "3",
+    amount_pkr: seller.seller_type === "BNIB" ? "10000" : "5000",
+    duration_months: "4",
     payment_method: "bank_transfer",
     payment_reference: "",
   });
@@ -305,38 +323,41 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
     setTierLoading(null);
   }
 
-  const now = new Date();
-  const in14 = new Date(); in14.setDate(in14.getDate() + 14);
-
   const filtered = useMemo(() => {
     let list = sellers;
-
-    if (filter === "grace") list = list.filter((s) => s.status === "grace");
-    else if (filter === "expired") list = list.filter((s) => s.status === "expired");
-    else if (filter === "pending") list = list.filter((s) => s.status === "pending");
-    else if (filter === "expiring") list = list.filter((s) => {
-      if (!s.subscription_expires_at) return false;
-      const exp = new Date(s.subscription_expires_at);
-      return exp <= in14 && exp >= now && s.status === "active";
-    });
-
+    if (filter === "active")   list = list.filter((s) => s.status === "active");
+    else if (filter === "grace")    list = list.filter((s) => s.status === "grace");
+    else if (filter === "expired")  list = list.filter((s) => s.status === "expired");
+    else if (filter === "pending")  list = list.filter((s) => s.status === "pending");
+    else if (filter === "expiring") list = list.filter((s) => { const d = daysUntil(s.subscription_expires_at); return d !== null && d >= 0 && d <= 30; });
     if (search) {
       const q = search.toLowerCase();
-      list = list.filter((s) =>
-        s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q)
-      );
+      list = list.filter((s) => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q));
     }
-
     return list;
   }, [sellers, filter, search]);
 
+  const counts = useMemo(() => ({
+    active:   sellers.filter(s => s.status === 'active').length,
+    grace:    sellers.filter(s => s.status === 'grace').length,
+    expired:  sellers.filter(s => s.status === 'expired').length,
+    pending:  sellers.filter(s => s.status === 'pending').length,
+    expiring: sellers.filter(s => { const d = daysUntil(s.subscription_expires_at); return d !== null && d >= 0 && d <= 30; }).length,
+  }), [sellers]);
+
+  const renewalRevenue = useMemo(() =>
+    sellers
+      .filter(s => { const d = daysUntil(s.subscription_expires_at); return d !== null && d >= 0 && d <= 30; })
+      .reduce((sum, s) => sum + (s.seller_type === 'BNIB' ? 10000 : 5000), 0)
+  , [sellers]);
+
   const FILTERS = [
-    { id: "all", label: `All (${sellers.length})` },
-    { id: "active", label: `Active (${sellers.filter((s) => s.status === "active").length})` },
-    { id: "grace", label: `Grace (${sellers.filter((s) => s.status === "grace").length})` },
-    { id: "expired", label: `Expired (${sellers.filter((s) => s.status === "expired").length})` },
-    { id: "pending", label: `Pending (${sellers.filter((s) => s.status === "pending").length})` },
-    { id: "expiring", label: "Expiring Soon" },
+    { id: "all",      label: `All (${sellers.length})` },
+    { id: "active",   label: `Active (${counts.active})` },
+    { id: "grace",    label: `Grace (${counts.grace})` },
+    { id: "expired",  label: `Expired (${counts.expired})` },
+    { id: "pending",  label: `Pending (${counts.pending})` },
+    { id: "expiring", label: `Expiring 30d (${counts.expiring})` },
   ];
 
   if (!identity.permissions.can_manage_sellers && !identity.permissions.is_admin) {
@@ -390,6 +411,26 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
             </button>
           </div>
 
+          {/* Summary bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="bg-white/[0.02] ring-1 ring-white/8 rounded-xl px-4 py-3">
+              <p className="text-xl font-bold text-white">{counts.active}</p>
+              <p className="text-xs text-gray-500 mt-0.5">Active</p>
+            </div>
+            <div className={`ring-1 rounded-xl px-4 py-3 ${counts.expiring > 0 ? 'bg-amber-500/5 ring-amber-500/20' : 'bg-white/[0.02] ring-white/8'}`}>
+              <p className={`text-xl font-bold ${counts.expiring > 0 ? 'text-amber-400' : 'text-white'}`}>{counts.expiring}</p>
+              <p className="text-xs text-gray-500 mt-0.5">Expiring in 30 days</p>
+            </div>
+            <div className={`ring-1 rounded-xl px-4 py-3 ${counts.expired + counts.grace > 0 ? 'bg-red-500/5 ring-red-500/20' : 'bg-white/[0.02] ring-white/8'}`}>
+              <p className={`text-xl font-bold ${counts.expired + counts.grace > 0 ? 'text-red-400' : 'text-white'}`}>{counts.expired + counts.grace}</p>
+              <p className="text-xs text-gray-500 mt-0.5">Expired / Grace</p>
+            </div>
+            <div className="bg-emerald-500/5 ring-1 ring-emerald-500/15 rounded-xl px-4 py-3">
+              <p className="text-xl font-bold text-emerald-400">Rs {renewalRevenue.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-0.5">Due renewals</p>
+            </div>
+          </div>
+
           {/* Search + filter */}
           <div className="flex flex-col sm:flex-row gap-3 mb-5">
             <input
@@ -431,7 +472,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                       <th className="text-left px-4 py-3">Type</th>
                       <th className="text-left px-4 py-3">Status</th>
                       <th className="text-left px-4 py-3">Tier / Trust</th>
-                      <th className="text-left px-4 py-3">Expires</th>
+                      <th className="text-left px-4 py-3">Subscription</th>
                       <th className="text-right px-4 py-3">Actions</th>
                     </tr>
                   </thead>
@@ -493,7 +534,8 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="flex flex-col gap-0.5">
+                              <div className="flex flex-col gap-1.5">
+                                <SubscriptionDots expiresAt={seller.subscription_expires_at} />
                                 <span className="text-gray-400 text-xs">
                                   {seller.subscription_expires_at
                                     ? new Date(seller.subscription_expires_at).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })
