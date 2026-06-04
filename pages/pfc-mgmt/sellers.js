@@ -71,10 +71,10 @@ function MarkPaidModal({ seller, onClose, onSuccess }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ seller_id: seller.id, ...form }),
     });
+    const d = await res.json();
     if (res.ok) {
-      onSuccess();
+      onSuccess(d);
     } else {
-      const d = await res.json();
       setError(d.error || "Failed");
       setLoading(false);
     }
@@ -262,8 +262,12 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
     const res = await fetch("/api/admin/sellers");
     if (res.status === 401) { router.push("/pfc-mgmt/login"); return; }
     const data = await res.json();
-    setSellers(data);
+    if (Array.isArray(data)) setSellers(data);
     setLoading(false);
+  }
+
+  function patchLocal(updated) {
+    setSellers(prev => prev.map(s => s.id === updated.id ? { ...s, ...updated } : s));
   }
 
   useEffect(() => { loadSellers(); }, []);
@@ -276,50 +280,48 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
 
   async function changeStatus(seller, status) {
     setActionLoading(seller.id);
-    // When activating a pending seller for the first time, auto-grant L1 tier
     const extra = (status === 'active' && seller.status === 'pending' && (seller.verification_tier ?? 0) === 0)
-      ? { verification_tier: 1 }
-      : {};
-    await fetch("/api/admin/sellers", {
+      ? { verification_tier: 1 } : {};
+    const res = await fetch("/api/admin/sellers", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: seller.id, status, ...extra }),
     });
-    await loadSellers();
+    if (res.ok) { const d = await res.json(); patchLocal(d); }
     setActionLoading(null);
   }
 
   async function deleteSeller(seller) {
     if (!confirm(`Delete ${seller.name}? This cannot be undone.`)) return;
     setActionLoading(seller.id);
-    await fetch("/api/admin/sellers", {
+    const res = await fetch("/api/admin/sellers", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: seller.id }),
     });
-    await loadSellers();
+    if (res.ok) setSellers(prev => prev.filter(s => s.id !== seller.id));
     setActionLoading(null);
   }
 
   async function changeTier(seller, tier) {
     setTierLoading(seller.id + 'tier');
-    await fetch("/api/admin/sellers", {
+    const res = await fetch("/api/admin/sellers", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: seller.id, verification_tier: Number(tier) }),
     });
-    await loadSellers();
+    if (res.ok) { const d = await res.json(); patchLocal(d); }
     setTierLoading(null);
   }
 
   async function recalcTrust(seller) {
     setTierLoading(seller.id + 'recalc');
-    await fetch("/api/admin/sellers", {
+    const res = await fetch("/api/admin/sellers", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: seller.id, recalculate_trust: true }),
     });
-    await loadSellers();
+    if (res.ok) { const d = await res.json(); patchLocal(d); }
     setTierLoading(null);
   }
 
@@ -385,7 +387,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
         <MarkPaidModal
           seller={markPaidSeller}
           onClose={() => setMarkPaidSeller(null)}
-          onSuccess={() => { setMarkPaidSeller(null); loadSellers(); }}
+          onSuccess={(updated) => { setMarkPaidSeller(null); patchLocal(updated); }}
         />
       )}
 
