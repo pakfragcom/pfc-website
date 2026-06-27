@@ -1,4 +1,4 @@
-// pages/local-houses.js
+// pages/mbp.js
 import { useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -328,10 +328,10 @@ export default function LocalHousesPage({ houses = [] }) {
       <Head>
         <title>Pakistani Fragrance Houses | PFC</title>
         <meta name="description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses — Platinum, Gold & Silver tiers. Browse local brands and find your next signature scent.`} />
-        <link rel="canonical" href="https://pakfrag.com/local-houses" />
+        <link rel="canonical" href="https://pakfrag.com/mbp" />
         <meta property="og:title" content="Pakistani Fragrance Houses | PFC" />
         <meta property="og:description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses — Platinum, Gold & Silver tiers. Browse local brands and find your next signature scent.`} />
-        <meta property="og:url" content="https://pakfrag.com/local-houses" />
+        <meta property="og:url" content="https://pakfrag.com/mbp" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://pakfrag.com/pfc-round.png" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -344,7 +344,7 @@ export default function LocalHousesPage({ houses = [] }) {
           '@type': 'BreadcrumbList',
           itemListElement: [
             { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://pakfrag.com' },
-            { '@type': 'ListItem', position: 2, name: 'Pakistani Fragrance Houses', item: 'https://pakfrag.com/local-houses' },
+            { '@type': 'ListItem', position: 2, name: 'Pakistani Fragrance Houses', item: 'https://pakfrag.com/mbp' },
           ],
         })}} />
       </Head>
@@ -557,7 +557,7 @@ export async function getStaticProps() {
       .eq('status', 'approved'),
   ]);
 
-  if (error) console.error('[local-houses] Supabase fetch error:', error.message);
+  if (error) console.error('[mbp] Supabase fetch error:', error.message);
 
   // Build slug → fragrance count map
   const fragCountBySlug = {};

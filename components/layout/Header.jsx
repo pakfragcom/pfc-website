@@ -314,7 +314,7 @@ export default function Header() {
 
           <div className="space-y-4 text-center text-sm uppercase tracking-wide">
             <Link href="/" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Home</Link>
-            <Link href="/local-houses" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Local Houses</Link>
+            <Link href="/mbp" onClick={handleLinkClick} className="block hover:text-gray-300 transition">MBP</Link>
             <Link href="/fragrances" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Fragrances</Link>
             <Link href="/reviews" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Reviews</Link>
             <Link href="/marketplace" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Marketplace</Link>

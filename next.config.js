@@ -17,6 +17,12 @@ const nextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      { source: '/local-houses', destination: '/mbp', permanent: true },
+    ];
+  },
+
   async headers() {
     return [
       // 1) Immutable build assets

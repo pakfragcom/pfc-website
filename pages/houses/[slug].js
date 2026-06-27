@@ -76,7 +76,7 @@ export default function HousePage({ house, reviews = [], stats }) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://pakfrag.com' },
-          { '@type': 'ListItem', position: 2, name: 'Local Houses', item: 'https://pakfrag.com/local-houses' },
+          { '@type': 'ListItem', position: 2, name: 'Pakistani Fragrance Houses', item: 'https://pakfrag.com/mbp' },
           { '@type': 'ListItem', position: 3, name: house.house, item: `https://pakfrag.com/houses/${house.slug}` },
         ],
       },
@@ -127,7 +127,7 @@ export default function HousePage({ house, reviews = [], stats }) {
               <nav className="flex items-center gap-2 text-xs text-gray-600 mb-6" aria-label="Breadcrumb">
                 <Link href="/" className="hover:text-gray-400 transition">Home</Link>
                 <span>/</span>
-                <Link href="/local-houses" className="hover:text-gray-400 transition">Local Houses</Link>
+                <Link href="/mbp" className="hover:text-gray-400 transition">MBP</Link>
                 <span>/</span>
                 <span className="text-gray-400">{house.house}</span>
               </nav>

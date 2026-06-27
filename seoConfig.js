@@ -16,11 +16,11 @@ const seoConfig = {
       "Read authentic fragrance reviews from Pakistan's fragrance community. Designer, Middle Eastern, niche, and local Pakistani brands reviewed by real members.",
     url: siteUrl + "/reviews",
   },
-  "/local-houses": {
+  "/mbp": {
     title: "Pakistani Fragrance Houses & Local Brands Directory | PFC",
     description:
       "Browse 125+ PFC-verified Pakistani fragrance houses. Read community reviews for each brand, discover Creative Directors, and find your next signature scent.",
-    url: siteUrl + "/local-houses",
+    url: siteUrl + "/mbp",
   },
   "/tools/verify-seller": {
     title: "Verify a Fragrance Seller Pakistan - PFC Trusted Seller Check",

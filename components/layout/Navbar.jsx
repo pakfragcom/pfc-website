@@ -9,7 +9,7 @@ export default function Navbar({ onLinkClick }) {
   const ITEMS = useMemo(
     () => [
       { label: 'Home',          href: '/',             external: false },
-      { label: 'Local Houses',  href: '/local-houses', external: false },
+      { label: 'MBP',           href: '/mbp',          external: false },
       { label: 'Fragrances',    href: '/fragrances',   external: false },
       { label: 'Reviews',       href: '/reviews',      external: false },
       { label: 'Marketplace',     href: '/marketplace',       external: false },

@@ -34,7 +34,7 @@ export default function NotFound() {
           </Link>
 
           <Link
-            href="/local-houses"
+            href="/mbp"
             className="rounded-full border border-white/20 px-6 py-2.5 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             Fragrance Houses
