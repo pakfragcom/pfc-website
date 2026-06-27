@@ -150,10 +150,13 @@ function PlatinumCard({ item }) {
         <div className="p-5">
           {/* Logo mark */}
           <div
-            className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 text-white font-bold text-lg flex-shrink-0"
+            className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 text-white font-bold text-lg flex-shrink-0 overflow-hidden"
             style={{ backgroundColor: accent + '33', border: `1px solid ${accent}55` }}
           >
-            <span style={{ color: accent + 'ee' }}>{initials(item.house)}</span>
+            {item.logo_url
+              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1.5" />
+              : <span style={{ color: accent + 'ee' }}>{initials(item.house)}</span>
+            }
           </div>
 
           {/* Name */}
@@ -202,10 +205,13 @@ function GoldCard({ item }) {
         <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${cfg.shimmer}`} />
         <div className="p-4">
           <div
-            className="w-14 h-14 rounded-xl flex items-center justify-center mb-3 flex-shrink-0 font-semibold text-base"
+            className="w-14 h-14 rounded-xl flex items-center justify-center mb-3 flex-shrink-0 font-semibold text-base overflow-hidden"
             style={{ backgroundColor: accent + '2a', border: `1px solid ${accent}44` }}
           >
-            <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
+            {item.logo_url
+              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1.5" />
+              : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
+            }
           </div>
           <h3 className="font-semibold text-white text-sm leading-snug line-clamp-2 group-hover:text-yellow-100 transition-colors">
             {item.house}
@@ -234,10 +240,13 @@ function SilverCard({ item }) {
       >
         <div className="flex items-center gap-3">
           <div
-            className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-semibold"
+            className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-semibold overflow-hidden"
             style={{ backgroundColor: accent + '22', border: `1px solid ${accent}33` }}
           >
-            <span style={{ color: accent + 'cc' }}>{initials(item.house)}</span>
+            {item.logo_url
+              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1" />
+              : <span style={{ color: accent + 'cc' }}>{initials(item.house)}</span>
+            }
           </div>
           <div className="min-w-0">
             <h3 className="font-medium text-white text-xs leading-snug line-clamp-2 group-hover:text-slate-100 transition-colors">
@@ -268,10 +277,13 @@ function SearchCard({ item }) {
       >
         <div className="flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 font-semibold"
+            className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 font-semibold overflow-hidden"
             style={{ backgroundColor: accent + '2a', border: `1px solid ${accent}44` }}
           >
-            <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
+            {item.logo_url
+              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1.5" />
+              : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
+            }
           </div>
           <div className="min-w-0">
             <h3 className="font-semibold text-white text-sm line-clamp-1">{item.house}</h3>
@@ -548,7 +560,7 @@ export async function getStaticProps() {
   const [{ data: houses, error }, { data: fragRows }] = await Promise.all([
     supabase
       .from('fragrance_houses')
-      .select('house, director, slug, tier, city')
+      .select('house, director, slug, tier, city, logo_url')
       .in('status', ['active', 'grace'])
       .order('house'),
     supabase
@@ -572,6 +584,7 @@ export async function getStaticProps() {
     slug: h.slug || null,
     tier: h.tier || 'silver',
     city: h.city || null,
+    logo_url: h.logo_url || null,
     fragrance_count: h.slug ? (fragCountBySlug[h.slug] || 0) : 0,
   }));
 
