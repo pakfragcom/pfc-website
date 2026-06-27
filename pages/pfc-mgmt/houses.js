@@ -12,7 +12,9 @@ function EditModal({ house, onClose, onSuccess }) {
     instagram: house.instagram || '',
     website: house.website || '',
     city: house.city || '',
+    logo_url: house.logo_url || '',
   });
+  const [logoError, setLogoError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,7 +24,7 @@ function EditModal({ house, onClose, onSuccess }) {
     const res = await fetch('/api/admin/houses', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: house.id, ...form }),
+      body: JSON.stringify({ id: house.id, ...form, logo_url: form.logo_url || null }),
     });
     if (res.ok) { onSuccess(); }
     else { const d = await res.json(); setError(d.error || 'Failed'); setLoading(false); }
@@ -92,6 +94,35 @@ function EditModal({ house, onClose, onSuccess }) {
             />
           </div>
 
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">Logo URL <span className="text-gray-600">(paste any image URL — shown on MBP page &amp; house profile)</span></label>
+            <input
+              type="url"
+              value={form.logo_url}
+              onChange={e => { setForm({ ...form, logo_url: e.target.value }); setLogoError(false); }}
+              placeholder="https://example.com/logo.png"
+              className="w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25"
+            />
+            {form.logo_url && (
+              <div className="mt-2 flex items-center gap-3">
+                <div className="w-16 h-16 rounded-xl bg-white/5 ring-1 ring-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
+                  {logoError ? (
+                    <span className="text-[10px] text-gray-600 text-center px-1">Failed to load</span>
+                  ) : (
+                    <img
+                      src={form.logo_url}
+                      alt="Logo preview"
+                      className="w-full h-full object-contain p-1.5"
+                      onError={() => setLogoError(true)}
+                      onLoad={() => setLogoError(false)}
+                    />
+                  )}
+                </div>
+                <p className="text-xs text-gray-500">{logoError ? 'Image could not be loaded — check the URL.' : 'Looks good! This is how it will appear on cards.'}</p>
+              </div>
+            )}
+          </div>
+
           {error && <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>}
 
           <div className="flex gap-3 pt-2">
@@ -146,6 +177,7 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
 
   const withProfile = houses.filter(h => h.description).length;
   const withCity = houses.filter(h => h.city).length;
+  const withLogo = houses.filter(h => h.logo_url).length;
 
   if (!identity.permissions.can_manage_houses && !identity.permissions.is_admin) {
     return (
@@ -185,7 +217,8 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
               <h1 className="text-2xl font-bold">House Profiles</h1>
               <p className="text-sm text-gray-500 mt-1">
                 {withProfile} / {houses.length} have descriptions &nbsp;·&nbsp;
-                {withCity} / {houses.length} have city
+                {withCity} / {houses.length} have city &nbsp;·&nbsp;
+                {withLogo} / {houses.length} have logos
               </p>
             </div>
             <div className="text-xs text-gray-600 text-right max-w-xs">
@@ -218,14 +251,23 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
             <div className="space-y-2">
               {filtered.map(house => (
                 <div key={house.id} className="flex items-center gap-4 rounded-xl bg-white/[0.03] ring-1 ring-white/8 px-4 py-3 hover:bg-white/5 transition">
-                  {/* Status dot */}
-                  <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${house.status === 'active' ? 'bg-emerald-400' : house.status === 'grace' ? 'bg-yellow-400' : 'bg-red-400'}`} />
+                  {/* Logo thumbnail or status dot */}
+                  {house.logo_url ? (
+                    <div className="w-8 h-8 rounded-lg bg-white/5 ring-1 ring-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
+                      <img src={house.logo_url} alt="" className="w-full h-full object-contain p-0.5" />
+                    </div>
+                  ) : (
+                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${house.status === 'active' ? 'bg-emerald-400' : house.status === 'grace' ? 'bg-yellow-400' : 'bg-red-400'}`} />
+                  )}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm text-white">{house.house}</span>
                       {house.description && (
                         <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded">profile</span>
+                      )}
+                      {house.logo_url && (
+                        <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded">logo</span>
                       )}
                     </div>
                     <p className="text-xs text-gray-600 mt-0.5 truncate">

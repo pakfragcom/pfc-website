@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin
       .from('fragrance_houses')
-      .select('id, house, slug, director, city, status, description, established_year, instagram, website, subscription_expires_at')
+      .select('id, house, slug, director, city, status, description, established_year, instagram, website, logo_url, subscription_expires_at')
       .order('house');
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   // PATCH — update house profile fields
   if (req.method === 'PATCH') {
-    const { id, description, established_year, instagram, website, city, status } = req.body;
+    const { id, description, established_year, instagram, website, city, status, logo_url } = req.body;
     if (!id) return res.status(400).json({ error: 'id required' });
 
     const updates = {};
@@ -28,6 +28,7 @@ export default async function handler(req, res) {
     if (website !== undefined) updates.website = website || null;
     if (city !== undefined) updates.city = city || null;
     if (status !== undefined) updates.status = status;
+    if (logo_url !== undefined) updates.logo_url = logo_url || null;
 
     const { data, error } = await supabaseAdmin
       .from('fragrance_houses')
