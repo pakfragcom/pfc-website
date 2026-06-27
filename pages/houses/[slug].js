@@ -307,15 +307,7 @@ export default function HousePage({ house, reviews = [], stats }) {
 }
 
 export async function getStaticPaths() {
-  const { data } = await supabase
-    .from('fragrance_houses')
-    .select('slug')
-    .in('status', ['active', 'grace'])
-
-  return {
-    paths: (data || []).map(h => ({ params: { slug: h.slug } })),
-    fallback: 'blocking',
-  }
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({ params }) {

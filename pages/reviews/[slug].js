@@ -411,11 +411,7 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
 }
 
 export async function getStaticPaths() {
-  const { data } = await supabase.from('reviews').select('slug').eq('status', 'approved').limit(100);
-  return {
-    paths: (data || []).map(r => ({ params: { slug: r.slug } })),
-    fallback: 'blocking',
-  };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({ params }) {

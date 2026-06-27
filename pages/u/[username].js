@@ -159,11 +159,7 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
 }
 
 export async function getStaticPaths() {
-  const { data } = await supabase.from('profiles').select('username').limit(100);
-  return {
-    paths: (data || []).map(p => ({ params: { username: p.username } })),
-    fallback: 'blocking',
-  };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({ params }) {

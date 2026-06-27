@@ -815,15 +815,7 @@ function avg(reviews, field) {
 }
 
 export async function getStaticPaths() {
-  const { data } = await supabase
-    .from('fragrances')
-    .select('slug')
-    .eq('status', 'approved');
-
-  return {
-    paths: (data || []).map(f => ({ params: { slug: f.slug } })),
-    fallback: 'blocking',
-  };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({ params }) {

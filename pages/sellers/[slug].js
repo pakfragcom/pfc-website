@@ -315,16 +315,7 @@ export default function SellerProfile({ seller, txStats }) {
 }
 
 export async function getStaticPaths() {
-  const { data } = await supabase
-    .from('sellers')
-    .select('slug')
-    .in('status', ['active', 'grace'])
-    .not('slug', 'is', null);
-
-  return {
-    paths: (data || []).map(s => ({ params: { slug: s.slug } })),
-    fallback: 'blocking',
-  };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({ params }) {
