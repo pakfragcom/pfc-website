@@ -349,11 +349,12 @@ export async function getStaticProps() {
 
   const slugMap = new Map();
   (fragrances || []).forEach(f => {
+    if (!f.name || !f.house) return;
     slugMap.set(`${f.name.toLowerCase().trim()}|${f.house.toLowerCase().trim()}`, f.slug);
   });
 
   const entries = (rows || []).map(r => {
-    const key = `${r.fragrance_name.toLowerCase().trim()}|${r.house.toLowerCase().trim()}`;
+    const key = `${(r.fragrance_name || '').toLowerCase().trim()}|${(r.house || '').toLowerCase().trim()}`;
     const trend_pct = r.avg_price_30d && r.avg_price_prev_30d && r.avg_price_prev_30d > 0
       ? Math.round(((r.avg_price_30d - r.avg_price_prev_30d) / r.avg_price_prev_30d) * 100)
       : null;

@@ -560,7 +560,7 @@ export async function getStaticProps() {
   const [{ data: houses, error }, { data: fragRows }] = await Promise.all([
     supabase
       .from('fragrance_houses')
-      .select('house, director, slug, tier, city, logo_url')
+      .select('house, director, slug, tier, city')
       .in('status', ['active', 'grace'])
       .order('house'),
     supabase
@@ -584,7 +584,7 @@ export async function getStaticProps() {
     slug: h.slug || null,
     tier: h.tier || 'silver',
     city: h.city || null,
-    logo_url: h.logo_url || null,
+    logo_url: h.logo_url || null, // populated after logo_url column is added to fragrance_houses
     fragrance_count: h.slug ? (fragCountBySlug[h.slug] || 0) : 0,
   }));
 
