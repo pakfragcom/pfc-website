@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Link from 'next/link'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 
@@ -13,9 +12,8 @@ const CONTACT_ITEMS = [
     ),
     label: 'WhatsApp',
     description: 'Fastest way to reach us — for brand listings, partnerships, and general questions.',
-    href: 'https://wa.me/923001234567',
+    href: 'https://wa.me/923000772012',
     cta: 'Message on WhatsApp',
-    external: true,
   },
   {
     icon: (
@@ -25,9 +23,8 @@ const CONTACT_ITEMS = [
     ),
     label: 'Email',
     description: 'For detailed inquiries, MBP partnership proposals, or media requests.',
-    href: 'mailto:hello@pakfrag.com',
-    cta: 'Send an Email',
-    external: true,
+    href: 'mailto:pakfrag@gmail.com',
+    cta: 'pakfrag@gmail.com',
   },
   {
     icon: (
@@ -37,17 +34,9 @@ const CONTACT_ITEMS = [
     ),
     label: 'Instagram',
     description: 'Follow our community updates, featured fragrances, and new brand listings.',
-    href: 'https://instagram.com/pakfrag',
-    cta: '@pakfrag',
-    external: true,
+    href: 'https://instagram.com/pakfragcom_mbp',
+    cta: '@pakfragcom_mbp',
   },
-]
-
-const MBP_TIERS = [
-  { name: 'Diamond', symbol: '◆', color: 'text-sky-400', bg: 'bg-sky-500/10', price: 'Rs 24,000 / quarter', perks: 'Full-width hero card, website CTA, premium placement at top of /mbp' },
-  { name: 'Platinum', symbol: '◈', color: 'text-gray-300', bg: 'bg-white/8', price: 'Rs 12,000 / quarter', perks: 'Featured 3-column card with logo, description, and website link' },
-  { name: 'Gold', symbol: '✦', color: 'text-amber-400', bg: 'bg-amber-500/10', price: 'Rs 6,000 / quarter', perks: 'Compact card in the Gold section with logo and brand name' },
-  { name: 'Emerging', symbol: '★', color: 'text-emerald-400', bg: 'bg-emerald-500/10', price: 'Free', perks: 'Listed in the Emerging Brands directory — no fee required' },
 ]
 
 export default function Contact() {
@@ -76,7 +65,7 @@ export default function Contact() {
           </div>
 
           {/* Contact channels */}
-          <div className="grid gap-4 sm:grid-cols-3 mb-16">
+          <div className="grid gap-4 sm:grid-cols-3">
             {CONTACT_ITEMS.map(item => (
               <a
                 key={item.label}
@@ -99,34 +88,7 @@ export default function Contact() {
             ))}
           </div>
 
-          {/* MBP Listings */}
-          <div className="rounded-2xl bg-white/[0.03] ring-1 ring-white/10 p-6 sm:p-8 mb-16">
-            <p className="text-xs uppercase tracking-widest text-[#94aea7] mb-2">MBP Partnership</p>
-            <h2 className="text-2xl font-bold text-white mb-2">List Your Brand</h2>
-            <p className="text-gray-400 text-sm mb-8 max-w-lg">
-              The <Link href="/mbp" className="text-[#94aea7] hover:text-white transition">Made by Pakistan</Link> directory showcases local fragrance houses to thousands of fragrance enthusiasts. Select a tier that fits your brand.
-            </p>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {MBP_TIERS.map(tier => (
-                <div key={tier.name} className={`rounded-xl ${tier.bg} ring-1 ring-white/8 p-4`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-lg ${tier.color}`}>{tier.symbol}</span>
-                    <span className={`font-semibold text-sm ${tier.color}`}>{tier.name}</span>
-                    <span className="ml-auto text-xs text-gray-500">{tier.price}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 leading-relaxed">{tier.perks}</p>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-6 text-xs text-gray-600">
-              Tiers are fixed per quarter (3 months). Contact us on WhatsApp to get started — we&apos;ll set up your listing within 24 hours.
-            </p>
-          </div>
-
-          {/* Footer note */}
-          <p className="text-center text-sm text-gray-600">
+          <p className="mt-10 text-center text-sm text-gray-600">
             Response time is typically within a few hours during business hours (PKT).
           </p>
 
