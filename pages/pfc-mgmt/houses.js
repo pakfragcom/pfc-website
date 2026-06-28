@@ -13,6 +13,7 @@ function EditModal({ house, onClose, onSuccess }) {
     website: house.website || '',
     city: house.city || '',
     logo_url: house.logo_url || '',
+    tier: house.tier || 'emerging',
   });
   const [logoError, setLogoError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ function EditModal({ house, onClose, onSuccess }) {
     const res = await fetch('/api/admin/houses', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: house.id, ...form, logo_url: form.logo_url || null }),
+      body: JSON.stringify({ id: house.id, ...form, logo_url: form.logo_url || null, tier: form.tier }),
     });
     if (res.ok) { onSuccess(); }
     else { const d = await res.json(); setError(d.error || 'Failed'); setLoading(false); }
@@ -70,6 +71,20 @@ function EditModal({ house, onClose, onSuccess }) {
                 className="w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">MBP Tier <span className="text-gray-600">(fixed per quarter · controls placement on /mbp)</span></label>
+            <select
+              value={form.tier}
+              onChange={e => setForm({ ...form, tier: e.target.value })}
+              className="w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25 appearance-none"
+            >
+              <option value="diamond">◆ Diamond — Rs 24,000 / quarter</option>
+              <option value="platinum">◈ Platinum — Rs 12,000 / quarter</option>
+              <option value="gold">✦ Gold — Rs 6,000 / quarter</option>
+              <option value="emerging">★ Emerging — Free</option>
+            </select>
           </div>
 
           <div>
@@ -178,6 +193,8 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
   const withProfile = houses.filter(h => h.description).length;
   const withCity = houses.filter(h => h.city).length;
   const withLogo = houses.filter(h => h.logo_url).length;
+  const tierCounts = { diamond: 0, platinum: 0, gold: 0, emerging: 0 };
+  houses.forEach(h => { if (tierCounts[h.tier] !== undefined) tierCounts[h.tier]++; });
 
   if (!identity.permissions.can_manage_houses && !identity.permissions.is_admin) {
     return (
@@ -216,9 +233,8 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
             <div>
               <h1 className="text-2xl font-bold">House Profiles</h1>
               <p className="text-sm text-gray-500 mt-1">
-                {withProfile} / {houses.length} have descriptions &nbsp;·&nbsp;
-                {withCity} / {houses.length} have city &nbsp;·&nbsp;
-                {withLogo} / {houses.length} have logos
+                {withProfile}/{houses.length} descriptions &nbsp;·&nbsp; {withLogo}/{houses.length} logos &nbsp;·&nbsp;
+                ◆ {tierCounts.diamond} &nbsp;◈ {tierCounts.platinum} &nbsp;✦ {tierCounts.gold} &nbsp;★ {tierCounts.emerging}
               </p>
             </div>
             <div className="text-xs text-gray-600 text-right max-w-xs">
@@ -263,8 +279,18 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm text-white">{house.house}</span>
+                      {house.tier && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                          house.tier === 'diamond'  ? 'bg-sky-500/10 text-sky-400' :
+                          house.tier === 'platinum' ? 'bg-white/8 text-gray-300' :
+                          house.tier === 'gold'     ? 'bg-amber-500/10 text-amber-400' :
+                          'bg-emerald-500/10 text-emerald-500'
+                        }`}>
+                          {house.tier === 'diamond' ? '◆' : house.tier === 'platinum' ? '◈' : house.tier === 'gold' ? '✦' : '★'} {house.tier}
+                        </span>
+                      )}
                       {house.description && (
-                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded">profile</span>
+                        <span className="text-[10px] bg-white/5 text-gray-500 px-1.5 py-0.5 rounded">profile</span>
                       )}
                       {house.logo_url && (
                         <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded">logo</span>

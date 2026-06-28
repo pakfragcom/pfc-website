@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase';
 
 const normalize = (s) =>
   (s || '').toString().trim().toLowerCase()
-    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
+    .normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ');
 
 function levenshtein(a, b) {
   a = normalize(a); b = normalize(b);
@@ -41,117 +41,226 @@ function fuzzyRank(query, item) {
   return tokenScore + editScore / 3;
 }
 
-// Deterministic accent color from house name
 const ACCENTS = [
-  '#2a5c4f', '#3d6b5e', '#1e4d40', '#4a7c6f',
-  '#5c4a2a', '#6b5e3d', '#4d3d1e', '#7c6f4a',
-  '#2a3d5c', '#3d4a6b', '#1e2d4d', '#4a5e7c',
-  '#5c2a3d', '#6b3d4a', '#4d1e2d', '#7c4a5e',
+  '#2a5c4f','#3d6b5e','#1e4d40','#4a7c6f',
+  '#5c4a2a','#6b5e3d','#4d3d1e','#7c6f4a',
+  '#2a3d5c','#3d4a6b','#1e2d4d','#4a5e7c',
+  '#5c2a3d','#6b3d4a','#4d1e2d','#7c4a5e',
 ];
-
 function accentColor(name) {
   let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < (name || '').length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return ACCENTS[h % ACCENTS.length];
 }
-
 function initials(name) {
-  const words = name.trim().split(/\s+/);
+  const words = (name || '').trim().split(/\s+/);
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
   return (words[0][0] + words[1][0]).toUpperCase();
 }
 
-// ─── ANIMATION VARIANTS ──────────────────────────────────────────────────────
+// ─── ANIMATION ───────────────────────────────────────────────────────────────
 
 const EASE = [0.25, 0.46, 0.45, 0.94];
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } } };
+const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } } };
 
-const staggerContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.04, delayChildren: 0.05 } },
+// ─── TIER CONFIG ─────────────────────────────────────────────────────────────
+
+const TIER = {
+  diamond: {
+    label: 'Diamond', icon: '◆',
+    desc: "Pakistan's most prestigious fragrance houses",
+    badge: 'bg-sky-500/10 text-sky-300 ring-1 ring-sky-400/30',
+    border: 'border-sky-400/25 hover:border-sky-400/50',
+    shimmer: 'from-sky-400/50 via-sky-300/20 to-transparent',
+    line: 'bg-gradient-to-r from-sky-400/50 to-transparent',
+    countColor: 'text-sky-400/60',
+    glow: 'shadow-sky-500/10',
+  },
+  platinum: {
+    label: 'Platinum', icon: '◈',
+    desc: 'Premium certified fragrance houses',
+    badge: 'bg-white/8 text-gray-200 ring-1 ring-white/20',
+    border: 'border-white/15 hover:border-white/30',
+    shimmer: 'from-white/30 via-white/10 to-transparent',
+    line: 'bg-gradient-to-r from-white/40 to-transparent',
+    countColor: 'text-gray-400/60',
+    glow: 'shadow-white/5',
+  },
+  gold: {
+    label: 'Gold', icon: '✦',
+    desc: 'Established fragrance houses',
+    badge: 'bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/25',
+    border: 'border-amber-500/20 hover:border-amber-400/40',
+    shimmer: 'from-amber-400/40 via-amber-300/15 to-transparent',
+    line: 'bg-gradient-to-r from-amber-400/50 to-transparent',
+    countColor: 'text-amber-400/60',
+    glow: '',
+  },
+  emerging: {
+    label: 'Emerging', icon: '★',
+    desc: 'Rising Pakistani fragrance brands to watch',
+    badge: 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20',
+    border: 'border-emerald-500/15 hover:border-emerald-400/30',
+    shimmer: 'from-emerald-400/25 to-transparent',
+    line: 'bg-gradient-to-r from-emerald-400/30 to-transparent',
+    countColor: 'text-emerald-400/60',
+    glow: '',
+  },
 };
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
-};
+// ─── SPONSOR CAROUSEL ────────────────────────────────────────────────────────
 
-// ─── TIER HEADER ─────────────────────────────────────────────────────────────
-
-function TierHeader({ tier, count }) {
-  const cfg = TIER_CFG[tier];
+function SponsorCarousel({ sponsors }) {
+  if (!sponsors?.length) return null;
+  const items = [...sponsors, ...sponsors];
   return (
-    <div className="flex items-center gap-4 mb-6">
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ${cfg.badge}`}>
-        {cfg.icon} {cfg.label}
-      </span>
-      <div className={`flex-1 h-px ${cfg.line}`} />
-      <span className={`text-xs font-medium ${cfg.countColor}`}>{count}</span>
+    <div className="border-y border-white/8 bg-white/[0.015] py-5 overflow-hidden">
+      <p className="text-center text-[10px] uppercase tracking-[0.25em] text-gray-600 mb-4">Proud Partners</p>
+      <div
+        className="flex gap-5 w-max"
+        style={{ animation: 'mbp-marquee 35s linear infinite' }}
+        onMouseEnter={e => (e.currentTarget.style.animationPlayState = 'paused')}
+        onMouseLeave={e => (e.currentTarget.style.animationPlayState = 'running')}
+      >
+        {items.map((s, i) => (
+          <a
+            key={i}
+            href={s.website_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 hover:ring-white/25 hover:bg-white/8 transition-all flex-shrink-0 group"
+          >
+            {s.logo_url
+              ? <img src={s.logo_url} alt={s.brand_name} className="h-5 w-auto object-contain opacity-70 group-hover:opacity-100 transition" />
+              : <span className="text-sm font-medium text-gray-400 group-hover:text-white transition whitespace-nowrap">{s.brand_name}</span>
+            }
+            {s.tagline && <span className="text-[10px] text-gray-600 hidden sm:block">{s.tagline}</span>}
+          </a>
+        ))}
+      </div>
+      <style jsx>{`
+        @keyframes mbp-marquee {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
     </div>
   );
 }
 
-const TIER_CFG = {
-  platinum: {
-    label: 'Platinum',
-    icon: '♛',
-    badge: 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30',
-    line: 'bg-gradient-to-r from-amber-500/40 to-transparent',
-    countColor: 'text-amber-400/60',
-    border: 'border-amber-500/20 hover:border-amber-400/40',
-    shimmer: 'from-amber-400/30 to-transparent',
-    logo: 'bg-amber-500/10',
-  },
-  gold: {
-    label: 'Gold',
-    icon: '✦',
-    badge: 'bg-yellow-500/10 text-yellow-400 ring-1 ring-yellow-500/20',
-    line: 'bg-gradient-to-r from-yellow-500/30 to-transparent',
-    countColor: 'text-yellow-400/60',
-    border: 'border-yellow-500/15 hover:border-yellow-400/35',
-    shimmer: 'from-yellow-400/20 to-transparent',
-    logo: 'bg-yellow-500/10',
-  },
-  silver: {
-    label: 'Silver',
-    icon: '◈',
-    badge: 'bg-slate-400/10 text-slate-300 ring-1 ring-slate-400/20',
-    line: 'bg-gradient-to-r from-slate-400/30 to-transparent',
-    countColor: 'text-slate-400/60',
-    border: 'border-slate-400/15 hover:border-slate-300/30',
-    shimmer: 'from-slate-300/15 to-transparent',
-    logo: 'bg-slate-500/10',
-  },
-};
+// ─── SECTION HEADER ──────────────────────────────────────────────────────────
 
-// ─── CARD COMPONENTS ─────────────────────────────────────────────────────────
+function TierHeader({ tier, count }) {
+  const cfg = TIER[tier];
+  return (
+    <div className="flex items-center gap-4 mb-7">
+      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider flex-shrink-0 ${cfg.badge}`}>
+        {cfg.icon} {cfg.label}
+      </span>
+      <div className={`flex-1 h-px ${cfg.line}`} />
+      <span className={`text-xs font-medium ${cfg.countColor} flex-shrink-0`}>{count}</span>
+    </div>
+  );
+}
 
-function PlatinumCard({ item }) {
-  const cfg = TIER_CFG.platinum;
+// ─── DIAMOND CARD (full-width) ────────────────────────────────────────────────
+
+function DiamondCard({ item }) {
   const accent = accentColor(item.house);
   const CardWrapper = item.slug ? Link : 'div';
   const wrapperProps = item.slug ? { href: `/houses/${item.slug}` } : {};
 
   return (
     <m.div variants={fadeUp}>
+      <div className={`relative rounded-2xl border ${TIER.diamond.border} bg-white/[0.03] overflow-hidden group shadow-lg ${TIER.diamond.glow}`}>
+        <div className={`absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r ${TIER.diamond.shimmer}`} />
+        <div className="flex flex-col sm:flex-row items-start gap-6 p-6 sm:p-8">
+
+          {/* Logo */}
+          <CardWrapper {...wrapperProps} className="flex-shrink-0 block">
+            <div
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center font-bold text-2xl overflow-hidden ring-1"
+              style={{ backgroundColor: accent + '25', borderColor: accent + '50', ringColor: accent + '30' }}
+            >
+              {item.logo_url
+                ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-2" />
+                : <span style={{ color: accent + 'ee' }} className="text-xl">{initials(item.house)}</span>
+              }
+            </div>
+          </CardWrapper>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <CardWrapper {...wrapperProps} className="block">
+                <h3 className="text-xl font-bold text-white group-hover:text-sky-200 transition leading-tight">{item.house}</h3>
+              </CardWrapper>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${TIER.diamond.badge}`}>◆ Diamond</span>
+            </div>
+
+            {item.by && item.by !== '—' && (
+              <p className="text-xs text-gray-500 mb-2">by {item.by}{item.city ? ` · ${item.city}` : ''}</p>
+            )}
+
+            {item.description ? (
+              <p className="text-sm text-gray-400 leading-relaxed line-clamp-2 mb-4 max-w-xl">{item.description}</p>
+            ) : (
+              <p className="text-sm text-gray-600 italic mb-4">Premier Pakistani fragrance house.</p>
+            )}
+
+            <div className="flex items-center gap-3 flex-wrap">
+              {item.website && (
+                <a
+                  href={item.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 text-sm font-medium ring-1 ring-sky-500/30 transition"
+                >
+                  Visit Website ↗
+                </a>
+              )}
+              {item.slug && (
+                <Link href={`/houses/${item.slug}`} className="text-xs text-gray-600 hover:text-gray-400 transition">
+                  View Profile →
+                </Link>
+              )}
+              {item.fragrance_count > 0 && (
+                <span className="text-xs text-gray-600">{item.fragrance_count} fragrances</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </m.div>
+  );
+}
+
+// ─── PLATINUM CARD (3-col) ────────────────────────────────────────────────────
+
+function PlatinumCard({ item }) {
+  const accent = accentColor(item.house);
+  const CardWrapper = item.slug ? Link : 'div';
+  const wrapperProps = item.slug ? { href: `/houses/${item.slug}` } : {};
+
+  return (
+    <m.div variants={fadeUp} className="h-full">
       <CardWrapper
         {...wrapperProps}
-        className={`group relative block rounded-[20px] border bg-white/[0.03] overflow-hidden transition-all duration-300 ${cfg.border}`}
+        className={`group relative flex flex-col h-full rounded-[20px] border bg-white/[0.03] overflow-hidden transition-all duration-300 ${TIER.platinum.border}`}
       >
-        {/* Top shimmer line */}
-        <div className={`absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r ${cfg.shimmer}`} />
-
-        {/* Hover arrow */}
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <svg className="w-4 h-4 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className={`absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r ${TIER.platinum.shimmer}`} />
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-60 transition-opacity">
+          <svg className="w-3.5 h-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
           </svg>
         </div>
 
-        <div className="p-5">
-          {/* Logo mark */}
+        <div className="p-5 flex flex-col flex-1">
           <div
-            className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 text-white font-bold text-lg flex-shrink-0 overflow-hidden"
-            style={{ backgroundColor: accent + '33', border: `1px solid ${accent}55` }}
+            className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 font-bold text-lg flex-shrink-0 overflow-hidden"
+            style={{ backgroundColor: accent + '28', border: `1px solid ${accent}45` }}
           >
             {item.logo_url
               ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1.5" />
@@ -159,29 +268,29 @@ function PlatinumCard({ item }) {
             }
           </div>
 
-          {/* Name */}
-          <h3 className="font-semibold text-white text-sm leading-snug line-clamp-2 group-hover:text-amber-100 transition-colors">
+          <h3 className="font-semibold text-white text-sm leading-snug line-clamp-2 group-hover:text-gray-100 transition mb-1">
             {item.house}
           </h3>
-
-          {/* Tagline / director */}
-          {item.by && item.by !== '—' && (
-            <p className="text-[11px] text-gray-500 mt-1 line-clamp-1">{item.by}</p>
+          {item.city && <p className="text-[11px] text-gray-500 mb-2">{item.city}</p>}
+          {item.description && (
+            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed flex-1 mb-3">{item.description}</p>
           )}
 
-          {/* Meta row */}
-          <div className="mt-3 flex items-center gap-3 text-[10px] text-gray-600">
-            {item.city && (
-              <span className="flex items-center gap-1">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                {item.city}
-              </span>
-            )}
-            {item.fragrance_count > 0 && (
-              <span>{item.fragrance_count} fragrance{item.fragrance_count !== 1 ? 's' : ''}</span>
+          <div className="mt-auto flex items-center justify-between pt-2">
+            {item.fragrance_count > 0
+              ? <span className="text-[10px] text-gray-600">{item.fragrance_count} fragrances</span>
+              : <span />
+            }
+            {item.website && (
+              <a
+                href={item.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="text-xs text-gray-500 hover:text-white transition"
+              >
+                Website ↗
+              </a>
             )}
           </div>
         </div>
@@ -189,9 +298,10 @@ function PlatinumCard({ item }) {
     </m.div>
   );
 }
+
+// ─── GOLD CARD (4-col) ────────────────────────────────────────────────────────
 
 function GoldCard({ item }) {
-  const cfg = TIER_CFG.gold;
   const accent = accentColor(item.house);
   const CardWrapper = item.slug ? Link : 'div';
   const wrapperProps = item.slug ? { href: `/houses/${item.slug}` } : {};
@@ -200,60 +310,37 @@ function GoldCard({ item }) {
     <m.div variants={fadeUp}>
       <CardWrapper
         {...wrapperProps}
-        className={`group relative block rounded-2xl border bg-white/[0.025] overflow-hidden transition-all duration-300 ${cfg.border}`}
+        className={`group relative block rounded-xl border bg-white/[0.025] overflow-hidden transition-all duration-300 ${TIER.gold.border}`}
       >
-        <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${cfg.shimmer}`} />
+        <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${TIER.gold.shimmer}`} />
         <div className="p-4">
           <div
-            className="w-14 h-14 rounded-xl flex items-center justify-center mb-3 flex-shrink-0 font-semibold text-base overflow-hidden"
-            style={{ backgroundColor: accent + '2a', border: `1px solid ${accent}44` }}
-          >
-            {item.logo_url
-              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1.5" />
-              : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
-            }
-          </div>
-          <h3 className="font-semibold text-white text-sm leading-snug line-clamp-2 group-hover:text-yellow-100 transition-colors">
-            {item.house}
-          </h3>
-          <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-600">
-            {item.city && <span>{item.city}</span>}
-            {item.fragrance_count > 0 && <span>{item.fragrance_count} fragrances</span>}
-          </div>
-        </div>
-      </CardWrapper>
-    </m.div>
-  );
-}
-
-function SilverCard({ item }) {
-  const cfg = TIER_CFG.silver;
-  const accent = accentColor(item.house);
-  const CardWrapper = item.slug ? Link : 'div';
-  const wrapperProps = item.slug ? { href: `/houses/${item.slug}` } : {};
-
-  return (
-    <m.div variants={fadeUp}>
-      <CardWrapper
-        {...wrapperProps}
-        className={`group relative block rounded-[14px] border bg-white/[0.02] overflow-hidden transition-all duration-300 ${cfg.border} p-3`}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-semibold overflow-hidden"
-            style={{ backgroundColor: accent + '22', border: `1px solid ${accent}33` }}
+            className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 font-semibold text-base flex-shrink-0 overflow-hidden"
+            style={{ backgroundColor: accent + '22', border: `1px solid ${accent}38` }}
           >
             {item.logo_url
               ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1" />
-              : <span style={{ color: accent + 'cc' }}>{initials(item.house)}</span>
+              : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
             }
           </div>
-          <div className="min-w-0">
-            <h3 className="font-medium text-white text-xs leading-snug line-clamp-2 group-hover:text-slate-100 transition-colors">
-              {item.house}
-            </h3>
-            {item.fragrance_count > 0 && (
-              <p className="text-[9px] text-gray-600 mt-0.5">{item.fragrance_count} fragrances</p>
+          <h3 className="font-semibold text-white text-xs leading-snug line-clamp-2 group-hover:text-amber-100 transition mb-1">
+            {item.house}
+          </h3>
+          <div className="flex items-center justify-between mt-1.5">
+            <div className="text-[10px] text-gray-500 space-y-0.5">
+              {item.city && <p>{item.city}</p>}
+              {item.fragrance_count > 0 && <p className="text-gray-600">{item.fragrance_count} fragrances</p>}
+            </div>
+            {item.website && (
+              <a
+                href={item.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="text-[11px] text-gray-600 hover:text-amber-400 transition"
+              >
+                ↗
+              </a>
             )}
           </div>
         </div>
@@ -262,9 +349,9 @@ function SilverCard({ item }) {
   );
 }
 
-// Search result card — generic across tiers
-function SearchCard({ item }) {
-  const cfg = TIER_CFG[item.tier] || TIER_CFG.silver;
+// ─── EMERGING ROW (list) ─────────────────────────────────────────────────────
+
+function EmergingRow({ item }) {
   const accent = accentColor(item.house);
   const CardWrapper = item.slug ? Link : 'div';
   const wrapperProps = item.slug ? { href: `/houses/${item.slug}` } : {};
@@ -273,58 +360,106 @@ function SearchCard({ item }) {
     <m.div variants={fadeUp}>
       <CardWrapper
         {...wrapperProps}
-        className={`group relative block rounded-2xl border bg-white/[0.03] overflow-hidden transition-all duration-300 ${cfg.border} p-4`}
+        className={`group flex items-center gap-4 rounded-xl border bg-white/[0.02] hover:bg-white/[0.04] px-4 py-3 transition-all duration-200 ${TIER.emerging.border}`}
       >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 font-semibold overflow-hidden"
-            style={{ backgroundColor: accent + '2a', border: `1px solid ${accent}44` }}
-          >
-            {item.logo_url
-              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1.5" />
-              : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
-            }
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-semibold text-white text-sm line-clamp-1">{item.house}</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
-              {item.city && <span className="text-[10px] text-gray-500">{item.city}</span>}
-              {item.fragrance_count > 0 && <span className="text-[10px] text-gray-600">{item.fragrance_count} fragrances</span>}
-            </div>
-          </div>
+        <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-semibold overflow-hidden"
+          style={{ backgroundColor: accent + '18', border: `1px solid ${accent}28` }}
+        >
+          {item.logo_url
+            ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-0.5" />
+            : <span style={{ color: accent + 'bb' }}>{initials(item.house)}</span>
+          }
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-white group-hover:text-emerald-200 transition line-clamp-1">{item.house}</p>
+          {item.city && <p className="text-[10px] text-gray-600 mt-0.5">{item.city}</p>}
+        </div>
+
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {item.fragrance_count > 0 && (
+            <span className="text-[10px] text-gray-600">{item.fragrance_count}</span>
+          )}
+          {item.website && (
+            <a
+              href={item.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="text-xs text-gray-600 hover:text-emerald-400 transition"
+            >
+              ↗
+            </a>
+          )}
         </div>
       </CardWrapper>
     </m.div>
   );
 }
 
-// ─── AD BANNER ───────────────────────────────────────────────────────────────
+// ─── SEARCH RESULT CARD ──────────────────────────────────────────────────────
 
-function AdBanner() {
+function SearchCard({ item }) {
+  const cfg = TIER[item.tier] || TIER.emerging;
+  const accent = accentColor(item.house);
+  const CardWrapper = item.slug ? Link : 'div';
+  const wrapperProps = item.slug ? { href: `/houses/${item.slug}` } : {};
+
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-5 mb-12 flex items-center justify-between gap-4">
-      <div>
-        <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-1">Sponsored</p>
-        <p className="text-sm text-gray-500">Advertisement space available — contact PFC admins.</p>
-      </div>
-      <div className="flex-shrink-0 text-gray-700 text-xs hidden sm:block">Ad</div>
-    </div>
+    <m.div variants={fadeUp}>
+      <CardWrapper
+        {...wrapperProps}
+        className={`group flex items-center gap-3 rounded-xl border bg-white/[0.03] hover:bg-white/[0.05] px-4 py-3 transition-all ${cfg.border}`}
+      >
+        <div
+          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 font-semibold text-sm overflow-hidden"
+          style={{ backgroundColor: accent + '22', border: `1px solid ${accent}44` }}
+        >
+          {item.logo_url
+            ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1" />
+            : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
+          }
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white line-clamp-1">{item.house}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${cfg.badge}`}>{cfg.icon} {cfg.label}</span>
+            {item.city && <span className="text-[10px] text-gray-500">{item.city}</span>}
+            {item.fragrance_count > 0 && <span className="text-[10px] text-gray-600">{item.fragrance_count} fragrances</span>}
+          </div>
+        </div>
+        {item.website && (
+          <a
+            href={item.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="text-xs text-gray-600 hover:text-white transition flex-shrink-0"
+          >
+            ↗
+          </a>
+        )}
+      </CardWrapper>
+    </m.div>
   );
 }
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
-export default function LocalHousesPage({ houses = [] }) {
+export default function MBPPage({ houses = [], sponsors = [] }) {
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
 
+  const diamond  = useMemo(() => houses.filter(h => h.tier === 'diamond'),  [houses]);
   const platinum = useMemo(() => houses.filter(h => h.tier === 'platinum'), [houses]);
   const gold     = useMemo(() => houses.filter(h => h.tier === 'gold'),     [houses]);
-  const silver   = useMemo(() => houses.filter(h => h.tier === 'silver'),   [houses]);
+  const emerging = useMemo(() => houses.filter(h => h.tier === 'emerging'), [houses]);
 
-  const filtered = useMemo(() => {
-    if (!query) return [];
+  const totalCities = useMemo(() => new Set(houses.map(h => h.city).filter(Boolean)).size, [houses]);
+
+  const searchResults = useMemo(() => {
+    if (!query.trim()) return [];
     return houses
       .map(item => ({ item, score: fuzzyRank(query, item) }))
       .filter(x => x.score < 6.5)
@@ -338,25 +473,25 @@ export default function LocalHousesPage({ houses = [] }) {
   return (
     <>
       <Head>
-        <title>Pakistani Fragrance Houses | PFC</title>
-        <meta name="description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses — Platinum, Gold & Silver tiers. Browse local brands and find your next signature scent.`} />
+        <title>Pakistan's Fragrance Brands | PFC</title>
+        <meta name="description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance brands — Diamond, Platinum, Gold & Emerging. The definitive showcase of local perfume houses.`} />
         <link rel="canonical" href="https://pakfrag.com/mbp" />
-        <meta property="og:title" content="Pakistani Fragrance Houses | PFC" />
-        <meta property="og:description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses — Platinum, Gold & Silver tiers. Browse local brands and find your next signature scent.`} />
+        <meta property="og:title" content="Pakistan's Fragrance Brands | PFC" />
+        <meta property="og:description" content={`${houses.length}+ PFC-verified Pakistani fragrance brands. Diamond, Platinum, Gold & Emerging tiers.`} />
         <meta property="og:url" content="https://pakfrag.com/mbp" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://pakfrag.com/pfc-round.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@pakfragcom" />
-        <meta name="twitter:title" content="Pakistani Fragrance Houses | PFC" />
-        <meta name="twitter:description" content={`Discover ${houses.length}+ PFC-verified Pakistani fragrance houses. Browse local Pakistani perfume brands.`} />
+        <meta name="twitter:title" content="Pakistan's Fragrance Brands | PFC" />
+        <meta name="twitter:description" content={`${houses.length}+ PFC-verified Pakistani fragrance brands.`} />
         <meta name="twitter:image" content="https://pakfrag.com/pfc-round.png" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'BreadcrumbList',
           itemListElement: [
             { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://pakfrag.com' },
-            { '@type': 'ListItem', position: 2, name: 'Pakistani Fragrance Houses', item: 'https://pakfrag.com/mbp' },
+            { '@type': 'ListItem', position: 2, name: "Pakistan's Fragrance Brands", item: 'https://pakfrag.com/mbp' },
           ],
         })}} />
       </Head>
@@ -367,96 +502,61 @@ export default function LocalHousesPage({ houses = [] }) {
         <LazyMotion features={domAnimation}>
           <main className="pt-24 pb-20">
 
-            {/* ── Hero ─────────────────────────────────────────────── */}
-            <div className="relative overflow-hidden border-b border-white/10 mb-12">
+            {/* ── Hero ─────────────────────────────────────────────────── */}
+            <div className="relative overflow-hidden border-b border-white/8">
               <div className="pointer-events-none absolute inset-0">
-                <div className="absolute left-1/2 -translate-x-1/2 top-0 h-72 w-[700px] rounded-full bg-[#2a5c4f]/10 blur-3xl" />
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-48 w-48 rounded-full bg-amber-500/5 blur-3xl" />
+                <div className="absolute left-1/2 -translate-x-1/2 -top-10 h-80 w-[900px] rounded-full bg-[#2a5c4f]/8 blur-3xl" />
+                <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-sky-500/4 blur-3xl" />
+                <div className="absolute left-0 bottom-0 h-48 w-48 rounded-full bg-amber-500/4 blur-3xl" />
               </div>
 
-              <div className="mx-auto max-w-5xl px-6 py-16 text-center relative">
-                <m.span
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: EASE }}
-                  className="inline-block mb-4 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-400 backdrop-blur"
-                >
-                  PFC-Verified Directory
-                </m.span>
+              <div className="max-w-5xl mx-auto px-6 py-16 sm:py-20 relative">
+                <m.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: EASE }}>
 
-                <m.h1
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.55, ease: EASE, delay: 0.07 }}
-                  className="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl"
-                >
-                  Local
-                  <span className="block bg-gradient-to-r from-[#3d8b76] via-[#6b9e94] to-[#a8c4be] bg-clip-text text-transparent mt-1">
-                    Houses
-                  </span>
-                </m.h1>
+                  <p className="text-[11px] uppercase tracking-[0.25em] text-[#94aea7] mb-5">PFC · Made in Pakistan</p>
 
-                <m.p
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: EASE, delay: 0.14 }}
-                  className="mt-4 text-gray-400 max-w-lg mx-auto text-sm sm:text-base"
-                >
-                  Pakistan&apos;s most complete directory of home-grown fragrance houses, verified and tiered by the PFC community.
-                </m.p>
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-[1.1] mb-5">
+                    Pakistan&apos;s<br />
+                    <span className="bg-gradient-to-r from-[#3d8b76] via-[#6b9e94] to-[#a8c4be] bg-clip-text text-transparent">
+                      Fragrance Brands
+                    </span>
+                  </h1>
 
-                {/* Stats row */}
-                <m.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: EASE, delay: 0.21 }}
-                  className="mt-8 flex flex-wrap justify-center gap-6"
-                >
-                  {[
-                    { label: 'Total Houses', value: houses.length, color: 'text-white' },
-                    { label: 'Platinum', value: platinum.length, color: 'text-amber-300' },
-                    { label: 'Gold', value: gold.length, color: 'text-yellow-400' },
-                    { label: 'Silver', value: silver.length, color: 'text-slate-300' },
-                  ].map(stat => (
-                    <div key={stat.label} className="text-center">
-                      <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                      <div className="text-[11px] text-gray-600 uppercase tracking-wider mt-0.5">{stat.label}</div>
-                    </div>
-                  ))}
-                </m.div>
-              </div>
-            </div>
+                  <p className="text-gray-400 text-base sm:text-lg max-w-lg mb-10 leading-relaxed">
+                    The definitive showcase of PFC-verified local perfume houses — from established names to rising voices in Pakistani perfumery.
+                  </p>
 
-            <div className="mx-auto max-w-6xl px-6">
+                  {/* Stats */}
+                  <div className="flex flex-wrap gap-8 mb-10">
+                    {[
+                      { value: houses.length, label: 'Verified Brands', color: 'text-white' },
+                      { value: totalCities,   label: 'Cities',          color: 'text-[#94aea7]' },
+                      { value: diamond.length + platinum.length, label: 'Premium Partners', color: 'text-sky-300' },
+                    ].map(s => (
+                      <div key={s.label}>
+                        <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+                        <p className="text-[11px] text-gray-500 uppercase tracking-wider mt-0.5">{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
 
-              {/* ── Search ───────────────────────────────────────────── */}
-              <m.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, ease: EASE, delay: 0.1 }}
-                className="mb-10"
-              >
-                <div className="relative max-w-xl mx-auto">
-                  <label htmlFor="houseSearch" className="sr-only">Search fragrance houses</label>
-                  <div className="flex items-center gap-3 bg-white/[0.04] ring-1 ring-white/10 rounded-2xl px-4 py-3 focus-within:ring-white/20 transition">
-                    <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  {/* Search */}
+                  <div className="relative max-w-sm">
+                    <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" />
                     </svg>
                     <input
                       ref={inputRef}
-                      id="houseSearch"
                       type="text"
                       value={query}
                       onChange={e => setQuery(e.target.value)}
-                      placeholder='Search by house name or director…'
-                      className="w-full bg-transparent text-white placeholder:text-gray-500 focus:outline-none text-sm"
-                      autoComplete="off"
+                      placeholder="Search brands…"
+                      className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white/6 ring-1 ring-white/12 text-sm text-white placeholder-gray-500 outline-none focus:ring-white/22 transition"
                     />
                     {query && (
                       <button
                         onClick={() => setQuery('')}
-                        className="text-gray-500 hover:text-white transition flex-shrink-0"
-                        aria-label="Clear search"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -464,88 +564,96 @@ export default function LocalHousesPage({ houses = [] }) {
                       </button>
                     )}
                   </div>
-                </div>
-              </m.div>
 
-              {/* ── Search Results ───────────────────────────────────── */}
-              {isSearching && (
-                <m.div
-                  initial="hidden"
-                  animate="show"
-                  variants={staggerContainer}
-                  className="mb-12"
-                >
-                  {filtered.length > 0 ? (
-                    <>
-                      <p className="text-xs text-gray-500 mb-4">{filtered.length} result{filtered.length !== 1 ? 's' : ''} for &quot;{query}&quot;</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {filtered.map(item => <SearchCard key={item.house} item={item} />)}
-                      </div>
-                    </>
+                </m.div>
+              </div>
+            </div>
+
+            {/* ── Sponsor Carousel ─────────────────────────────────────── */}
+            <SponsorCarousel sponsors={sponsors} />
+
+            {/* ── Main Content ─────────────────────────────────────────── */}
+            <div className="max-w-5xl mx-auto px-6 mt-14">
+
+              {isSearching ? (
+                /* Search results */
+                <m.div initial="hidden" animate="show" variants={stagger}>
+                  <p className="text-xs text-gray-500 mb-5">
+                    {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &quot;{query}&quot;
+                  </p>
+                  {searchResults.length === 0 ? (
+                    <div className="text-center py-16">
+                      <p className="text-white font-medium mb-1">No brands found</p>
+                      <p className="text-sm text-gray-500">Try a different name or check spelling.</p>
+                    </div>
                   ) : (
-                    <div className="text-center py-16 text-gray-500">
-                      <p className="font-medium text-white mb-1">No results for &quot;{query}&quot;</p>
-                      <p className="text-sm">Try a shorter name or check your spelling.</p>
+                    <div className="space-y-2">
+                      {searchResults.map(item => <SearchCard key={item.slug || item.house} item={item} />)}
                     </div>
                   )}
                 </m.div>
-              )}
 
-              {/* ── Tier Grids (hidden while searching) ─────────────── */}
-              {!isSearching && (
-                <>
-                  <AdBanner />
+              ) : (
+                /* Tier sections */
+                <m.div initial="hidden" animate="show" variants={stagger} className="space-y-16">
+
+                  {/* Diamond */}
+                  {diamond.length > 0 && (
+                    <section>
+                      <TierHeader tier="diamond" count={diamond.length} />
+                      <div className="space-y-4">
+                        {diamond.map(item => <DiamondCard key={item.slug || item.house} item={item} />)}
+                      </div>
+                    </section>
+                  )}
 
                   {/* Platinum */}
                   {platinum.length > 0 && (
-                    <section className="mb-14">
+                    <section>
                       <TierHeader tier="platinum" count={platinum.length} />
-                      <m.div
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, amount: 0.05 }}
-                        variants={staggerContainer}
-                        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                      >
-                        {platinum.map(item => <PlatinumCard key={item.house} item={item} />)}
+                      <m.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                        {platinum.map(item => <PlatinumCard key={item.slug || item.house} item={item} />)}
                       </m.div>
                     </section>
                   )}
 
                   {/* Gold */}
                   {gold.length > 0 && (
-                    <section className="mb-14">
+                    <section>
                       <TierHeader tier="gold" count={gold.length} />
-                      <m.div
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, amount: 0.05 }}
-                        variants={staggerContainer}
-                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-                      >
-                        {gold.map(item => <GoldCard key={item.house} item={item} />)}
+                      <m.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {gold.map(item => <GoldCard key={item.slug || item.house} item={item} />)}
                       </m.div>
                     </section>
                   )}
 
-                  {/* Silver */}
-                  {silver.length > 0 && (
-                    <section className="mb-14">
-                      <TierHeader tier="silver" count={silver.length} />
-                      <m.div
-                        initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, amount: 0.05 }}
-                        variants={staggerContainer}
-                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5"
-                      >
-                        {silver.map(item => <SilverCard key={item.house} item={item} />)}
+                  {/* Emerging */}
+                  {emerging.length > 0 && (
+                    <section>
+                      <TierHeader tier="emerging" count={emerging.length} />
+                      <m.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {emerging.map(item => <EmergingRow key={item.slug || item.house} item={item} />)}
                       </m.div>
                     </section>
                   )}
-                </>
+
+                  {/* Get Listed CTA */}
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.015] p-10 text-center">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-gray-600 mb-2">Want to be featured?</p>
+                    <h3 className="text-xl font-bold text-white mb-2">List Your Fragrance Brand</h3>
+                    <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto leading-relaxed">
+                      Join Pakistan&apos;s most trusted fragrance community. Diamond, Platinum &amp; Gold placements available quarterly.
+                    </p>
+                    <a
+                      href="https://pakfrag.com/contact"
+                      className="inline-flex items-center gap-2 bg-[#2a5c4f] hover:bg-[#3a7a6a] text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition"
+                    >
+                      Get in Touch
+                    </a>
+                  </div>
+
+                </m.div>
               )}
-
             </div>
           </main>
         </LazyMotion>
@@ -556,22 +664,28 @@ export default function LocalHousesPage({ houses = [] }) {
   );
 }
 
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+
 export async function getStaticProps() {
-  const [{ data: houses, error }, { data: fragRows }] = await Promise.all([
+  const [{ data: houses, error }, { data: fragRows }, { data: sponsors }] = await Promise.all([
     supabase
       .from('fragrance_houses')
-      .select('house, director, slug, tier, city')
+      .select('house, director, slug, tier, city, logo_url, website, description')
       .in('status', ['active', 'grace'])
       .order('house'),
     supabase
       .from('fragrances')
       .select('fragrance_houses(slug)')
       .eq('status', 'approved'),
+    supabase
+      .from('mbp_sponsors')
+      .select('brand_name, logo_url, website_url, tagline')
+      .eq('active', true)
+      .order('sort_order'),
   ]);
 
   if (error) console.error('[mbp] Supabase fetch error:', error.message);
 
-  // Build slug → fragrance count map
   const fragCountBySlug = {};
   (fragRows || []).forEach(f => {
     const slug = f.fragrance_houses?.slug;
@@ -579,17 +693,22 @@ export async function getStaticProps() {
   });
 
   const mapped = (houses || []).map(h => ({
-    house: h.house,
-    by: h.director?.trim() || '—',
-    slug: h.slug || null,
-    tier: h.tier || 'silver',
-    city: h.city || null,
-    logo_url: h.logo_url || null, // populated after logo_url column is added to fragrance_houses
+    house:           h.house,
+    by:              h.director?.trim() || '—',
+    slug:            h.slug || null,
+    tier:            h.tier || 'emerging',
+    city:            h.city || null,
+    logo_url:        h.logo_url || null,
+    website:         h.website || null,
+    description:     h.description || null,
     fragrance_count: h.slug ? (fragCountBySlug[h.slug] || 0) : 0,
   }));
 
   return {
-    props: { houses: mapped },
+    props: {
+      houses:   mapped,
+      sponsors: sponsors || [],
+    },
     revalidate: 3600,
   };
 }
