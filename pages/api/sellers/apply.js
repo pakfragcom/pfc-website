@@ -19,6 +19,10 @@ function slugify(str) {
     .replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function genCode(length = 8) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -94,10 +98,10 @@ export default async function handler(req, res) {
         subject: `New seller application: ${name.trim()}`,
         html: `<div style="font-family:sans-serif;max-width:480px">
           <h2 style="color:#2a5c4f">New Seller Application</h2>
-          <p><strong>Name:</strong> ${name.trim()}</p>
-          <p><strong>City:</strong> ${city.trim()}</p>
-          <p><strong>Type:</strong> ${seller_type}</p>
-          <p><strong>WhatsApp:</strong> ${whatsapp.trim()}</p>
+          <p><strong>Name:</strong> ${escHtml(name.trim())}</p>
+          <p><strong>City:</strong> ${escHtml(city.trim())}</p>
+          <p><strong>Type:</strong> ${escHtml(seller_type)}</p>
+          <p><strong>WhatsApp:</strong> ${escHtml(whatsapp.trim())}</p>
           <p><a href="https://pakfrag.com/pfc-mgmt/sellers" style="color:#557d72">Review in admin panel →</a></p>
         </div>`,
       }),

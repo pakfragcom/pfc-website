@@ -32,6 +32,10 @@ function buildSupabase(req, res) {
 
 const VALID_CONDITIONS = ['sealed', 'partial', 'decant', 'gift_set'];
 
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -99,8 +103,8 @@ export default async function handler(req, res) {
         subject: `New listing pending: ${fragrance_name.trim()} — Rs ${Number(price_pkr).toLocaleString()}`,
         html: `<div style="font-family:sans-serif;max-width:480px">
           <h2 style="color:#2a5c4f">Listing Pending Approval</h2>
-          <p><strong>Fragrance:</strong> ${fragrance_name.trim()} by ${house.trim()}</p>
-          <p><strong>Condition:</strong> ${condition}</p>
+          <p><strong>Fragrance:</strong> ${escHtml(fragrance_name.trim())} by ${escHtml(house.trim())}</p>
+          <p><strong>Condition:</strong> ${escHtml(condition)}</p>
           <p><strong>Price:</strong> Rs ${Number(price_pkr).toLocaleString()}</p>
           <p><a href="https://pakfrag.com/pfc-mgmt/listings" style="color:#557d72">Review in admin panel →</a></p>
         </div>`,

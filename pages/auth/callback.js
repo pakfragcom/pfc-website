@@ -1,8 +1,14 @@
 import { createServerClient } from '@supabase/ssr';
 
+function safeNext(next) {
+  if (!next || typeof next !== 'string') return '/';
+  if (!next.startsWith('/') || next.startsWith('//')) return '/';
+  return next;
+}
+
 export async function getServerSideProps({ req, res, query }) {
   const code = query.code;
-  const next = query.next || '/';
+  const next = safeNext(query.next);
 
   if (!code) {
     return { redirect: { destination: '/auth/login', permanent: false } };

@@ -2,6 +2,10 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 
 const REQUIRED = ['fragrance_name', 'type', 'requester_name', 'whatsapp'];
 
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -55,11 +59,11 @@ export default async function handler(req, res) {
         from: 'PFC Orders <noreply@pakfrag.com>',
         to: adminEmail,
         subject: `New order request: ${body.fragrance_name} (${body.type.toUpperCase()})`,
-        html: `<p><strong>${body.requester_name}</strong> requested <strong>${body.fragrance_name}</strong> (${body.type.toUpperCase()}, qty ${body.quantity || 1})</p>
-               <p>WhatsApp: ${body.whatsapp}</p>
-               ${body.city ? `<p>City: ${body.city}</p>` : ''}
-               ${body.budget ? `<p>Budget: ${body.budget}</p>` : ''}
-               ${isGift ? `<p>🎁 Gift for: ${body.gift_recipient_name || '—'} | Occasion: ${body.gift_occasion || '—'}</p>` : ''}
+        html: `<p><strong>${escHtml(body.requester_name)}</strong> requested <strong>${escHtml(body.fragrance_name)}</strong> (${escHtml(body.type.toUpperCase())}, qty ${parseInt(body.quantity) || 1})</p>
+               <p>WhatsApp: ${escHtml(body.whatsapp)}</p>
+               ${body.city ? `<p>City: ${escHtml(body.city)}</p>` : ''}
+               ${body.budget ? `<p>Budget: ${escHtml(body.budget)}</p>` : ''}
+               ${isGift ? `<p>Gift for: ${escHtml(body.gift_recipient_name || '—')} | Occasion: ${escHtml(body.gift_occasion || '—')}</p>` : ''}
                <p><a href="https://pakfrag.com/pfc-mgmt/orders">View in admin panel →</a></p>`,
       }),
     }).catch(() => {});

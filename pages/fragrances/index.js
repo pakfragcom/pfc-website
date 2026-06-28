@@ -54,13 +54,16 @@ export default function FragrancesIndex({ fragrances = [] }) {
   }, [router.query.category, router.query.q, router.query.sort]);
 
   function updateFilter(cat, q, sort) {
-    const params = {};
-    if (cat && cat !== 'all') params.category = cat;
-    if (q && q.trim()) params.q = q.trim();
-    if (sort && sort !== 'name') params.sort = sort;
-    router.replace({ pathname: '/fragrances', query: params }, undefined, { shallow: true });
     setVisibleCount(40);
     setActiveLetter('');
+    clearTimeout(searchDebounce.current);
+    searchDebounce.current = setTimeout(() => {
+      const params = {};
+      if (cat && cat !== 'all') params.category = cat;
+      if (q && q.trim()) params.q = q.trim();
+      if (sort && sort !== 'name') params.sort = sort;
+      router.replace({ pathname: '/fragrances', query: params }, undefined, { shallow: true });
+    }, 200);
   }
 
   const categoryCounts = useMemo(() => {
@@ -205,8 +208,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
                       onChange={e => {
                         const val = e.target.value;
                         setQuery(val);
-                        clearTimeout(searchDebounce.current);
-                        searchDebounce.current = setTimeout(() => updateFilter(activeCategory, val, sortBy), 300);
+                        updateFilter(activeCategory, val, sortBy);
                       }}
                       placeholder="Search fragrances or houses…"
                       className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 ring-1 ring-white/10 text-sm text-white placeholder-gray-500 outline-none focus:ring-white/20 transition"

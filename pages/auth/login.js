@@ -6,6 +6,12 @@ import { useSupabaseClient, useAuth } from '../../lib/auth-context';
 
 // States: 'idle' | 'sending' | 'code_sent' | 'verifying' | 'error'
 
+function safeNext(next) {
+  if (!next || typeof next !== 'string') return '/';
+  if (!next.startsWith('/') || next.startsWith('//')) return '/';
+  return next;
+}
+
 export default function Login() {
   const router = useRouter();
   const supabase = useSupabaseClient();
@@ -21,7 +27,7 @@ export default function Login() {
   const cooldownRef = useRef(null);
 
   useEffect(() => {
-    if (user) router.replace(router.query.next || '/');
+    if (user) router.replace(safeNext(router.query.next));
   }, [user]);
 
   useEffect(() => {
@@ -72,7 +78,7 @@ export default function Login() {
   }
 
   async function redirectAfterLogin() {
-    const next = router.query.next || '/';
+    const next = safeNext(router.query.next);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -161,7 +167,7 @@ export default function Login() {
     setOauthLoading(provider); setError('');
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${router.query.next || '/'}` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext(router.query.next))}` },
     });
     if (error) { setError(error.message); setOauthLoading(''); }
   }
