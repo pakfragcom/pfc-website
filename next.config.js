@@ -20,6 +20,7 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/local-houses', destination: '/mbp', permanent: true },
+      { source: '/verify', destination: '/tools/verify-seller', permanent: false },
     ];
   },
 
