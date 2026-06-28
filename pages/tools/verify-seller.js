@@ -1,19 +1,9 @@
 // pages/tools/verify-seller.js
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { trackEvent } from "../../lib/analytics";
-import { supabase } from "../../lib/supabase";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
-
-/**
- * VERIFIED SELLER PORTAL CHECK (Search-Only)
- * - Data fetched from Supabase via getStaticProps (ISR every 5 min)
- * - BNIB pass includes decant selling (explicitly shown in UI)
- * - Search by name OR verification code (fuzzy)
- * - Shows suggestions ONLY when typing; no full list rendering
- * - After selecting, shows a verified card
- */
 
 const TIER_CONFIG = {
   0: { label: 'Unverified',         cls: 'border-white/10 bg-white/5 text-gray-400' },
@@ -21,49 +11,6 @@ const TIER_CONFIG = {
   2: { label: 'Document Verified',  cls: 'border-sky-500/25 bg-sky-500/10 text-sky-300' },
   3: { label: 'PakFrag Trusted',    cls: 'border-amber-500/25 bg-amber-500/10 text-amber-300' },
 };
-
-// -------------------------- UTILITIES ---------------------------
-const normalize = (s) =>
-  (s || "")
-    .toString()
-    .trim()
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ");
-
-function levenshtein(a, b) {
-  a = normalize(a);
-  b = normalize(b);
-  const m = a.length, n = b.length;
-  if (!m) return n;
-  if (!n) return m;
-  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
-    }
-  }
-  return dp[m][n];
-}
-
-function fuzzyRank(query, item) {
-  const q = normalize(query);
-  const name = normalize(item.name);
-  const code = normalize(item.code);
-  if (!q) return 9999;
-  if (name.includes(q) || code.includes(q)) return 0;
-  const tokens = q.split(" ").filter(Boolean);
-  const tokenHits = tokens.reduce(
-    (acc, t) => acc + (name.includes(t) || code.includes(t) ? 1 : 0), 0
-  );
-  const tokenScore = tokens.length ? (tokens.length - tokenHits) * 0.75 : 2;
-  const editScore = Math.min(levenshtein(q, name.slice(0, q.length)), levenshtein(q, code));
-  return tokenScore + editScore / 3;
-}
 
 function copyToClipboard(text) {
   try { navigator.clipboard.writeText(text); } catch {}
@@ -90,23 +37,15 @@ const CopyIcon = () => (
 );
 
 // --------------------------- PAGE -------------------------------
-export default function VerifySellerPage({ sellers = [] }) {
+export default function VerifySellerPage() {
   const [query, setQuery] = useState("");
   const [activeType, setActiveType] = useState("ALL");
   const [selected, setSelected] = useState(null);
   const [copied, setCopied] = useState(null);
+  const [results, setResults] = useState([]);
+  const [searching, setSearching] = useState(false);
   const inputRef = useRef(null);
-
-  const filteredDirectory = useMemo(() => {
-    const pool = activeType === "ALL" ? sellers : sellers.filter((s) => s.type === activeType);
-    if (!query) return [];
-    return pool
-      .map((item) => ({ item, score: fuzzyRank(query, item) }))
-      .filter((x) => x.score < 6.5)
-      .sort((a, b) => a.score - b.score)
-      .slice(0, 25)
-      .map((x) => x.item);
-  }, [query, activeType, sellers]);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     if (copied) {
@@ -115,17 +54,26 @@ export default function VerifySellerPage({ sellers = [] }) {
     }
   }, [copied]);
 
+  // Debounced server-side search — seller list never sent to client
   useEffect(() => {
-    if (!query) return;
-    const t = setTimeout(() => {
-      trackEvent("seller_search", {
-        query_length: query.length,
-        result_count: filteredDirectory.length,
-        seller_type: activeType,
-      });
-    }, 800);
-    return () => clearTimeout(t);
-  }, [query, filteredDirectory.length, activeType]);
+    clearTimeout(debounceRef.current);
+    if (!query || query.trim().length < 2) { setResults([]); return; }
+    setSearching(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: query.trim(), type: activeType });
+        const res = await fetch(`/api/sellers/search?${params}`);
+        const data = await res.json();
+        setResults(Array.isArray(data) ? data : []);
+        trackEvent("seller_search", { query_length: query.length, result_count: data.length, seller_type: activeType });
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [query, activeType]);
 
   const handlePick = (item) => {
     setSelected(item);
@@ -228,9 +176,9 @@ export default function VerifySellerPage({ sellers = [] }) {
           </div>
 
           {/* Suggestions dropdown */}
-          {query && filteredDirectory.length > 0 && (
+          {query && query.trim().length >= 2 && results.length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-2 z-10 max-h-72 overflow-auto rounded-2xl border border-white/10 bg-[#111] shadow-2xl">
-              {filteredDirectory.map((item) => {
+              {results.map((item) => {
                 const isBNIB = item.type === "BNIB";
                 return (
                   <button
@@ -259,7 +207,7 @@ export default function VerifySellerPage({ sellers = [] }) {
           )}
 
           {/* No results */}
-          {query && filteredDirectory.length === 0 && (
+          {query && query.trim().length >= 2 && !searching && results.length === 0 && (
             <div className="mt-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 px-5 py-4">
               <p className="text-sm font-semibold text-amber-300">Not found</p>
               <p className="mt-1 text-sm text-amber-200/70">
@@ -373,28 +321,3 @@ export default function VerifySellerPage({ sellers = [] }) {
   );
 }
 
-export async function getStaticProps() {
-  const { data: sellers, error } = await supabase
-    .from("sellers")
-    .select("name, code, seller_type, slug, verification_tier")
-    .in("status", ["active", "grace"])
-    .order("name");
-
-  if (error) {
-    console.error("[verify-seller] Supabase fetch error:", error.message);
-  }
-
-  // Map seller_type → type so existing component logic works unchanged
-  const mapped = (sellers || []).map((s) => ({
-    name: s.name,
-    code: s.code,
-    type: s.seller_type,
-    slug: s.slug || null,
-    tier: s.verification_tier ?? 0,
-  }));
-
-  return {
-    props: { sellers: mapped },
-    revalidate: 3600,
-  };
-}
