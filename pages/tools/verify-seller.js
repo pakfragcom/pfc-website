@@ -162,8 +162,21 @@ export default function VerifySellerPage({ sellers = [] }) {
             Verify a Seller
           </h1>
           <p className="mt-4 text-base text-gray-400 max-w-lg">
-            Search by name or verification code. BNIB status includes decanting privileges.
+            Search by name or verification code to confirm a seller&apos;s status and what they are authorised to sell.
           </p>
+          {/* Type legend */}
+          <div className="mt-5 flex flex-wrap gap-3">
+            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/8 px-3 py-2 text-xs">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+              <span className="text-emerald-300 font-medium">BNIB Seller</span>
+              <span className="text-gray-500">— can sell sealed bottles AND decants</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-blue-500/20 bg-blue-500/8 px-3 py-2 text-xs">
+              <span className="h-2 w-2 rounded-full bg-blue-400 shrink-0" />
+              <span className="text-blue-300 font-medium">Decant Seller</span>
+              <span className="text-gray-500">— decants &amp; vials only, not BNIB</span>
+            </div>
+          </div>
         </div>
 
         {/* Filter tabs */}
@@ -217,28 +230,31 @@ export default function VerifySellerPage({ sellers = [] }) {
           {/* Suggestions dropdown */}
           {query && filteredDirectory.length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-2 z-10 max-h-72 overflow-auto rounded-2xl border border-white/10 bg-[#111] shadow-2xl">
-              {filteredDirectory.map((item) => (
-                <button
-                  key={item.type + item.code}
-                  onClick={() => handlePick(item)}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-white/5 transition first:rounded-t-2xl last:rounded-b-2xl group"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/20">
-                      <CheckIcon />
-                    </span>
-                    <div>
-                      <div className="text-sm font-medium text-[#F5F5F7]">{item.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {item.type === "BNIB" ? "BNIB — includes Decanting" : "Decanter / Vial Seller"}
+              {filteredDirectory.map((item) => {
+                const isBNIB = item.type === "BNIB";
+                return (
+                  <button
+                    key={item.type + item.code}
+                    onClick={() => handlePick(item)}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-white/5 transition first:rounded-t-2xl last:rounded-b-2xl group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-1 ${isBNIB ? 'bg-emerald-500/15 text-emerald-400 ring-emerald-500/20' : 'bg-blue-500/15 text-blue-400 ring-blue-500/20'}`}>
+                        <CheckIcon />
+                      </span>
+                      <div>
+                        <div className="text-sm font-medium text-[#F5F5F7]">{item.name}</div>
+                        <div className={`text-xs ${isBNIB ? 'text-emerald-500/70' : 'text-blue-500/70'}`}>
+                          {isBNIB ? "BNIB — sealed bottles + decants" : "Decants & vials only"}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <span className="ml-4 shrink-0 font-mono text-xs text-gray-400 group-hover:text-gray-200 transition">
-                    {item.code}
-                  </span>
-                </button>
-              ))}
+                    <span className="ml-4 shrink-0 font-mono text-xs text-gray-400 group-hover:text-gray-200 transition">
+                      {item.code}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -256,13 +272,13 @@ export default function VerifySellerPage({ sellers = [] }) {
 
         {/* Selected result */}
         {selected && (
-          <div className="mt-6 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-6">
+          <div className={`mt-6 rounded-2xl border p-6 ${selected.type === 'BNIB' ? 'border-emerald-500/25 bg-emerald-500/5' : 'border-blue-500/25 bg-blue-500/5'}`}>
             <div className="flex items-start gap-4">
-              <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
+              <span className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-1 ${selected.type === 'BNIB' ? 'bg-emerald-500/20 text-emerald-400 ring-emerald-500/30' : 'bg-blue-500/20 text-blue-400 ring-blue-500/30'}`}>
                 <CheckIcon />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-widest text-emerald-500 mb-1">
+                <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${selected.type === 'BNIB' ? 'text-emerald-500' : 'text-blue-500'}`}>
                   Verified
                 </p>
                 <h2 className="text-2xl font-bold text-[#F5F5F7] truncate">{selected.name}</h2>
@@ -283,9 +299,15 @@ export default function VerifySellerPage({ sellers = [] }) {
                     </button>
                   </span>
 
-                  <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300">
-                    {selected.type === "BNIB" ? "BNIB — includes Decanting" : "Decanter / Vial Seller"}
-                  </span>
+                  {selected.type === "BNIB" ? (
+                    <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300">
+                      BNIB Seller
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1.5 text-sm text-blue-300">
+                      Decant Seller
+                    </span>
+                  )}
 
                   {selected.tier > 0 && (
                     <span className={`rounded-full border px-3 py-1.5 text-sm font-medium ${(TIER_CONFIG[selected.tier] || TIER_CONFIG[0]).cls}`}>
@@ -294,10 +316,22 @@ export default function VerifySellerPage({ sellers = [] }) {
                   )}
                 </div>
 
-                {selected.type === "BNIB" && (
+                {selected.type === "BNIB" ? (
                   <p className="mt-4 text-sm text-gray-400">
-                    BNIB status automatically grants decant selling privileges.
+                    This seller is authorised to sell sealed / BNIB bottles and decants.
                   </p>
+                ) : (
+                  <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/8 px-4 py-3">
+                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-300">Not eligible to sell BNIB</p>
+                      <p className="text-xs text-amber-200/70 mt-0.5">
+                        This seller is verified for decants and vials only. If they offer sealed / BNIB bottles, do not transact — report to PFC admins.
+                      </p>
+                    </div>
+                  </div>
                 )}
 
                 {selected.slug && (
