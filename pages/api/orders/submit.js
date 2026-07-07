@@ -1,10 +1,7 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
+import { escHtml, firstTooLong } from '../../../lib/validate';
 
 const REQUIRED = ['fragrance_name', 'type', 'requester_name', 'whatsapp'];
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -21,6 +18,19 @@ export default async function handler(req, res) {
   if (!validTypes.includes(body.type)) {
     return res.status(400).json({ error: 'Invalid type' });
   }
+
+  const lengthError = firstTooLong([
+    ['Fragrance name', body.fragrance_name, 200],
+    ['Budget', body.budget, 50],
+    ['Requester name', body.requester_name, 100],
+    ['WhatsApp number', body.whatsapp, 30],
+    ['City', body.city, 100],
+    ['Referral source', body.referral_source, 200],
+    ['Gift recipient name', body.gift_recipient_name, 100],
+    ['Gift occasion', body.gift_occasion, 100],
+    ['Gift message', body.gift_message, 500],
+  ]);
+  if (lengthError) return res.status(400).json({ error: lengthError });
 
   const isGift = body.type === 'gift';
 

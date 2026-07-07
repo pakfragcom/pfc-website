@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
+import { escHtml, firstTooLong } from '../../../lib/validate';
 
 function buildSupabase(req, res) {
   return createServerClient(
@@ -32,10 +33,6 @@ function buildSupabase(req, res) {
 
 const VALID_CONDITIONS = ['sealed', 'partial', 'decant', 'gift_set'];
 
-function escHtml(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -65,6 +62,15 @@ export default async function handler(req, res) {
   if (!house?.trim())                        return res.status(400).json({ error: 'Brand / house is required.' });
   if (!VALID_CONDITIONS.includes(condition)) return res.status(400).json({ error: 'Invalid condition.' });
   if (!price_pkr || Number(price_pkr) <= 0) return res.status(400).json({ error: 'Price must be greater than 0.' });
+
+  const lengthError = firstTooLong([
+    ['Fragrance name', fragrance_name, 200],
+    ['Brand / house', house, 200],
+    ['Concentration', concentration, 50],
+    ['Description', description, 2000],
+    ['City', city, 100],
+  ]);
+  if (lengthError) return res.status(400).json({ error: lengthError });
 
   const { data: listing, error: insertError } = await supabaseAdmin
     .from('listings')

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
+import { escHtml, firstTooLong } from '../../../lib/validate';
 
 function buildClient(req) {
   return createServerClient(
@@ -17,10 +18,6 @@ function buildClient(req) {
 function slugify(str) {
   return str.toLowerCase().trim()
     .replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '');
-}
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function genCode(length = 8) {
@@ -52,6 +49,15 @@ export default async function handler(req, res) {
   if (!city?.trim()) return res.status(400).json({ error: 'City is required.' });
   if (!whatsapp?.trim()) return res.status(400).json({ error: 'WhatsApp number is required.' });
   if (!seller_type) return res.status(400).json({ error: 'Seller type is required.' });
+
+  const lengthError = firstTooLong([
+    ['Name', name, 100],
+    ['City', city, 100],
+    ['WhatsApp number', whatsapp, 30],
+    ['Bio', bio, 1000],
+    ['Instagram handle', instagram, 100],
+  ]);
+  if (lengthError) return res.status(400).json({ error: lengthError });
 
   // Generate unique slug
   const baseSlug = slugify(name.trim()) || 'seller';

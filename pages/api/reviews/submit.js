@@ -1,9 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+import { escHtml, firstTooLong } from '../../../lib/validate';
 
 function slugify(str) {
   return str.toLowerCase().trim()
@@ -56,6 +53,15 @@ export default async function handler(req, res) {
   if (!rating_overall)         return res.status(400).json({ error: 'Please give an overall rating.' });
   if (!review_text || review_text.trim().length < 80)
     return res.status(400).json({ error: 'Review must be at least 80 characters.' });
+  if (review_text.trim().length > 5000)
+    return res.status(400).json({ error: 'Review must be 5000 characters or fewer.' });
+
+  const lengthError = firstTooLong([
+    ['Fragrance name', fragrance_name, 200],
+    ['House / brand', house, 200],
+    ['Cover image URL', cover_image_url, 500],
+  ]);
+  if (lengthError) return res.status(400).json({ error: lengthError });
 
   // Ensure profile exists
   const rawName = user.user_metadata?.full_name || user.user_metadata?.name

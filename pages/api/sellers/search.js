@@ -3,7 +3,10 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
-  const q = (req.query.q || '').trim();
+  // Strip characters with special meaning in a PostgREST filter string
+  // (comma separates OR clauses, parens/dots/asterisks are operator syntax)
+  // before interpolating into .or() below.
+  const q = (req.query.q || '').trim().replace(/[,().*]/g, ' ').slice(0, 100);
   const type = req.query.type || 'ALL';
 
   // Require at least 2 chars — prevents full-list fishing with a single wildcard
