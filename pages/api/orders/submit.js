@@ -1,10 +1,15 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { escHtml, firstTooLong } from '../../../lib/validate';
+import { isRateLimited, getClientIp } from '../../../lib/rate-limit';
 
 const REQUIRED = ['fragrance_name', 'type', 'requester_name', 'whatsapp'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+
+  if (isRateLimited(`orders:${getClientIp(req)}`, { windowMs: 10 * 60_000, max: 5 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again in a few minutes.' });
+  }
 
   const body = req.body || {};
 

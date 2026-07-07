@@ -1,4 +1,3 @@
-import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 
 // Programmatic scrapers — block these outright
@@ -59,35 +58,13 @@ export async function middleware(request) {
     }
   }
 
-  // Supabase session refresh (existing behaviour)
-  let response = NextResponse.next({ request: { headers: request.headers } });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  try {
-    await supabase.auth.getUser();
-  } catch {
-    // Never block the request due to a session refresh failure
-  }
-
-  return response;
+  // No Supabase session refresh here: every route that actually needs the
+  // session (pfc-mgmt guard, u/me, and every session-dependent API route)
+  // builds its own createServerClient with getAll/setAll and calls
+  // auth.getUser() itself, which refreshes and rewrites the cookie on that
+  // same request. Doing it again here was a redundant Supabase round-trip on
+  // every single page view, including anonymous visits to static ISR pages.
+  return NextResponse.next();
 }
 
 export const config = {

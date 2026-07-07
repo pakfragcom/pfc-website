@@ -1,43 +1,24 @@
-import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
+import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { isRateLimited } from '../../../lib/rate-limit';
 
 export default async function handler(req, res) {
   if (req.method !== 'PATCH') return res.status(405).end();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return Object.entries(req.cookies).map(([name, value]) => ({ name, value }));
-        },
-        setAll(cookiesToSet) {
-          const existing = res.getHeader('Set-Cookie');
-          const arr = existing ? (Array.isArray(existing) ? existing : [existing]) : [];
-          res.setHeader('Set-Cookie', [
-            ...arr,
-            ...cookiesToSet.map(({ name, value, options = {} }) => {
-              let s = `${name}=${value}; Path=${options.path || '/'}`;
-              if (options.httpOnly) s += '; HttpOnly';
-              if (options.secure) s += '; Secure';
-              if (options.sameSite) s += `; SameSite=${options.sameSite}`;
-              if (options.maxAge !== undefined) s += `; Max-Age=${options.maxAge}`;
-              return s;
-            }),
-          ]);
-        },
-      },
-    }
-  );
+  const supabase = createApiSupabaseClient(req, res);
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (isRateLimited(`reviews-edit:${user.id}`, { windowMs: 15 * 60_000, max: 10 })) {
+    return res.status(429).json({ error: 'Too many edits. Please try again later.' });
+  }
 
   const { id, review_text, rating_overall, rating_longevity, rating_sillage, rating_value, occasion, season, cover_image_url } = req.body;
 
   if (!id) return res.status(400).json({ error: 'Review ID required' });
   if (!review_text || review_text.trim().length < 80) return res.status(400).json({ error: 'Review must be at least 80 characters' });
+  if (review_text.trim().length > 5000) return res.status(400).json({ error: 'Review must be 5000 characters or fewer' });
   if (!rating_overall || Number(rating_overall) < 1 || Number(rating_overall) > 5) return res.status(400).json({ error: 'Overall rating must be between 1 and 5' });
 
   const { data: existing } = await supabaseAdmin

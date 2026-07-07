@@ -63,8 +63,9 @@ const nextConfig = {
               "media-src 'self' https: blob:",
               "font-src 'self' https: data:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              // GA + PostHog + Sentry
-              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://us-assets.i.posthog.com",
+              // GA + PostHog + Sentry — no 'unsafe-inline': GA bootstrap now loads from /gtag-init.js (same-origin);
+              // JSON-LD <script type="application/ld+json"> blocks are exempt from script-src enforcement
+              "script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://us-assets.i.posthog.com",
               "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
               "frame-ancestors 'self'",
               "object-src 'none'",

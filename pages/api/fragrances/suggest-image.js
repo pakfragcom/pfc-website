@@ -1,23 +1,10 @@
-import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
-
-function buildClient(req) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() { return Object.entries(req.cookies).map(([name, value]) => ({ name, value })); },
-        setAll() {},
-      },
-    }
-  );
-}
+import { createApiSupabaseClient } from '../../../lib/server-supabase';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     // Return a signed upload URL for authenticated users
-    const supabase = buildClient(req);
+    const supabase = createApiSupabaseClient(req, res);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -43,7 +30,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     // Confirm the submission after upload
-    const supabase = buildClient(req);
+    const supabase = createApiSupabaseClient(req, res);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 

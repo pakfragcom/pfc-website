@@ -1,38 +1,18 @@
-import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
+import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { isRateLimited } from '../../../lib/rate-limit';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return Object.entries(req.cookies).map(([name, value]) => ({ name, value }));
-        },
-        setAll(cookiesToSet) {
-          const existing = res.getHeader('Set-Cookie');
-          const arr = existing ? (Array.isArray(existing) ? existing : [existing]) : [];
-          res.setHeader('Set-Cookie', [
-            ...arr,
-            ...cookiesToSet.map(({ name, value, options = {} }) => {
-              let s = `${name}=${value}; Path=${options.path || '/'}`;
-              if (options.httpOnly) s += '; HttpOnly';
-              if (options.secure) s += '; Secure';
-              if (options.sameSite) s += `; SameSite=${options.sameSite}`;
-              if (options.maxAge !== undefined) s += `; Max-Age=${options.maxAge}`;
-              return s;
-            }),
-          ]);
-        },
-      },
-    }
-  );
+  const supabase = createApiSupabaseClient(req, res);
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (isRateLimited(`claim-seller:${user.id}`, { windowMs: 10 * 60_000, max: 8 })) {
+    return res.status(429).json({ error: 'Too many attempts. Please try again later.' });
+  }
 
   const { code } = req.body;
   if (!code || typeof code !== 'string' || !code.trim()) {

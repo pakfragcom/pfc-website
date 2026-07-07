@@ -1,19 +1,7 @@
-import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { escHtml, firstTooLong } from '../../../lib/validate';
-
-function buildClient(req) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() { return Object.entries(req.cookies).map(([name, value]) => ({ name, value })); },
-        setAll() {},
-      },
-    }
-  );
-}
+import { isRateLimited } from '../../../lib/rate-limit';
+import { createApiSupabaseClient } from '../../../lib/server-supabase';
 
 function slugify(str) {
   return str.toLowerCase().trim()
@@ -28,9 +16,13 @@ function genCode(length = 8) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const supabase = buildClient(req);
+  const supabase = createApiSupabaseClient(req, res);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (isRateLimited(`sellers-apply:${user.id}`, { windowMs: 60 * 60_000, max: 3 })) {
+    return res.status(429).json({ error: 'Too many attempts. Please try again later.' });
+  }
 
   // Prevent duplicate applications
   const { data: existing } = await supabaseAdmin

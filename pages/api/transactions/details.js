@@ -1,39 +1,10 @@
-import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
-
-function buildSupabase(req, res) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return Object.entries(req.cookies).map(([name, value]) => ({ name, value }));
-        },
-        setAll(cookiesToSet) {
-          const existing = res.getHeader('Set-Cookie');
-          const arr = existing ? (Array.isArray(existing) ? existing : [existing]) : [];
-          res.setHeader('Set-Cookie', [
-            ...arr,
-            ...cookiesToSet.map(({ name, value, options = {} }) => {
-              let s = `${name}=${value}; Path=${options.path || '/'}`;
-              if (options.httpOnly) s += '; HttpOnly';
-              if (options.secure) s += '; Secure';
-              if (options.sameSite) s += `; SameSite=${options.sameSite}`;
-              if (options.maxAge !== undefined) s += `; Max-Age=${options.maxAge}`;
-              return s;
-            }),
-          ]);
-        },
-      },
-    }
-  );
-}
+import { createApiSupabaseClient } from '../../../lib/server-supabase';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
-  const supabase = buildSupabase(req, res);
+  const supabase = createApiSupabaseClient(req, res);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: 'Not authenticated' });
 
