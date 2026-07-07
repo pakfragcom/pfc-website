@@ -9,19 +9,14 @@ class MyDocument extends Document {
       <Html lang="en" className="dark">
         <Head>
           {/* Preconnects */}
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
           <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
           <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="" />
 
-          {/* Geist Sans — PFC design system font */}
-          <link
-            href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap"
-            rel="stylesheet"
-          />
-
           {/* Preload LCP image (hero) */}
           <link rel="preload" as="image" href={hero} />
+
+          {/* Preload the self-hosted Geist Sans variable font */}
+          <link rel="preload" as="font" href="/fonts/Geist-Variable.woff2" type="font/woff2" crossOrigin="anonymous" />
         </Head>
         <body className="bg-black text-white antialiased">
           <Main />

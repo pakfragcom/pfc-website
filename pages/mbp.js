@@ -118,8 +118,7 @@ function SponsorCarousel({ sponsors }) {
     <div className="border-y border-white/8 bg-white/[0.015] py-5 overflow-hidden">
       <p className="text-center text-[10px] uppercase tracking-[0.25em] text-gray-600 mb-4">Proud Partners</p>
       <div
-        className="flex gap-5 w-max"
-        style={{ animation: 'mbp-marquee 35s linear infinite' }}
+        className="mbp-marquee-track flex gap-5 w-max"
         onMouseEnter={e => (e.currentTarget.style.animationPlayState = 'paused')}
         onMouseLeave={e => (e.currentTarget.style.animationPlayState = 'running')}
       >
@@ -132,7 +131,7 @@ function SponsorCarousel({ sponsors }) {
             className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 hover:ring-white/25 hover:bg-white/8 transition-all flex-shrink-0 group"
           >
             {s.logo_url
-              ? <img src={s.logo_url} alt={s.brand_name} className="h-5 w-auto object-contain opacity-70 group-hover:opacity-100 transition" />
+              ? <img src={s.logo_url} alt={s.brand_name} width={80} height={20} className="h-5 w-auto object-contain opacity-70 group-hover:opacity-100 transition" />
               : <span className="text-sm font-medium text-gray-400 group-hover:text-white transition whitespace-nowrap">{s.brand_name}</span>
             }
             {s.tagline && <span className="text-[10px] text-gray-600 hidden sm:block">{s.tagline}</span>}
@@ -143,6 +142,14 @@ function SponsorCarousel({ sponsors }) {
         @keyframes mbp-marquee {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        .mbp-marquee-track {
+          animation: mbp-marquee 35s linear infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .mbp-marquee-track {
+            animation: none;
+          }
         }
       `}</style>
     </div>

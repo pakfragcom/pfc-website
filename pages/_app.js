@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { AnimatePresence, LazyMotion, domAnimation, m } from 'framer-motion';
+import { AnimatePresence, LazyMotion, domAnimation, m, MotionConfig } from 'framer-motion';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { AuthProvider } from '../lib/auth-context';
@@ -23,6 +23,10 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
+  // Path only, no query string — shallow query-param updates (e.g. /fragrances
+  // filter/sort clicks) shouldn't retrigger the page-transition animation,
+  // but distinct pages under the same dynamic route still should.
+  const routeKey = router.asPath.split('?')[0];
 
   useEffect(() => {
     // Track pageview on initial load
@@ -36,6 +40,7 @@ export default function App({ Component, pageProps }) {
     <PostHogProvider client={posthog}>
     <AuthProvider>
       <LazyMotion features={domAnimation}>
+      <MotionConfig reducedMotion="user">
       <div>
         <SEO />
 
@@ -64,11 +69,11 @@ export default function App({ Component, pageProps }) {
         <ErrorBoundary>
           <AnimatePresence mode="wait" initial={false}>
             <m.div
-              key={router.asPath}
-              initial={{ opacity: 0, y: 10 }}
+              key={routeKey}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } }}
-              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              exit={{ opacity: 0, transition: { duration: 0.1, ease: 'easeIn' } }}
+              transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <Component {...pageProps} />
             </m.div>
@@ -76,6 +81,7 @@ export default function App({ Component, pageProps }) {
         </ErrorBoundary>
         <ScrollToTop />
       </div>
+      </MotionConfig>
       </LazyMotion>
     </AuthProvider>
     </PostHogProvider>

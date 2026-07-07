@@ -62,7 +62,8 @@ const nextConfig = {
               "img-src 'self' data: blob: https:",
               "media-src 'self' https: blob:",
               "font-src 'self' https: data:",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              // Geist is self-hosted via next/font — no external font stylesheet needed
+              "style-src 'self' 'unsafe-inline'",
               // GA + PostHog + Sentry — no 'unsafe-inline': GA bootstrap now loads from /gtag-init.js (same-origin);
               // JSON-LD <script type="application/ld+json"> blocks are exempt from script-src enforcement
               "script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://us-assets.i.posthog.com",

@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Geist', '-apple-system', 'BlinkMacSystemFont', 'ui-sans-serif', 'sans-serif'],
+        sans: ['Geist Sans', '-apple-system', 'BlinkMacSystemFont', 'ui-sans-serif', 'sans-serif'],
       },
       colors: {
         offwhite: '#F5F5F7',

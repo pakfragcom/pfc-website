@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Self-hosted Geist Sans (variable font). Not loaded via next/font/local —
+   that package triggers an ERR_UNSUPPORTED_DIR_IMPORT under this project's
+   Next/Node combination during the build's page-data-collection step
+   (a Node-native ESM resolution issue with next/font's package exports, not
+   specific to any one page). Plain @font-face avoids it entirely. */
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Prevent horizontal scroll from blurs */
 body {
   overflow-x: hidden;
@@ -14,7 +27,7 @@ body {
 
   body {
     @apply bg-black text-white antialiased;
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, ui-sans-serif, sans-serif;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, ui-sans-serif, sans-serif;
     letter-spacing: -0.01em;
   }
 
@@ -120,9 +133,13 @@ img {
   }
 }
 
-/* Smooth focus transition for all interactive elements */
+/* Default visible keyboard-focus ring for every interactive element.
+   Components with their own focus-visible:ring-* utility (higher specificity
+   via a class selector) override this; this is the fallback so nothing goes
+   invisible to keyboard users when no such utility is present. */
 *:focus-visible {
   outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
   transition: box-shadow 0.2s ease;
 }
 
