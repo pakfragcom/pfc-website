@@ -4,22 +4,11 @@ import Script from 'next/script';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { AnimatePresence, LazyMotion, domAnimation, m, MotionConfig } from 'framer-motion';
-import posthog from 'posthog-js';
-import { PostHogProvider } from 'posthog-js/react';
 import { AuthProvider } from '../lib/auth-context';
 import '../styles/main.css';
 import ScrollToTop from '../components/ScrollToTop';
 import SEO from '../components/SEO';
 import ErrorBoundary from '../components/ErrorBoundary';
-
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
-    person_profiles: 'identified_only',
-    capture_pageview: false,
-    capture_pageleave: true,
-  });
-}
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -29,15 +18,17 @@ export default function App({ Component, pageProps }) {
   const routeKey = router.asPath.split('?')[0];
 
   useEffect(() => {
-    // Track pageview on initial load
-    posthog.capture('$pageview');
-    const handleRouteComplete = () => posthog.capture('$pageview');
-    router.events.on('routeChangeComplete', handleRouteComplete);
-    return () => router.events.off('routeChangeComplete', handleRouteComplete);
+    // GA4's gtag('config', ...) in gtag-init.js only fires once on initial
+    // load — a SPA needs an explicit page_view event on every client-side
+    // route change or GA only ever sees the first page.
+    const sendPageview = (url) => {
+      if (typeof window.gtag === 'function') window.gtag('event', 'page_view', { page_path: url });
+    };
+    router.events.on('routeChangeComplete', sendPageview);
+    return () => router.events.off('routeChangeComplete', sendPageview);
   }, []);
 
   return (
-    <PostHogProvider client={posthog}>
     <AuthProvider>
       <LazyMotion features={domAnimation}>
       <MotionConfig reducedMotion="user">
@@ -84,6 +75,5 @@ export default function App({ Component, pageProps }) {
       </MotionConfig>
       </LazyMotion>
     </AuthProvider>
-    </PostHogProvider>
   );
 }

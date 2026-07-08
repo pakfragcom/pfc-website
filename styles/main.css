@@ -21,9 +21,12 @@ body {
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+  /* No global scroll-behavior: smooth — nothing in the app uses in-page
+     anchor links, and it was fighting Next's route-change scroll-to-top
+     (making navigation animate/lag instead of snap) and the accessibility
+     skip-link (which should jump instantly, not animate). Individual
+     scrollTo() calls (e.g. components/ScrollToTop.jsx) pass their own
+     behavior: 'smooth' option where that's actually wanted. */
 
   body {
     @apply bg-black text-white antialiased;
@@ -82,11 +85,13 @@ body {
   }
 }
 
-/* Button press feedback — subtle scale-down on click */
+/* Button press feedback — subtle scale-down on click.
+   Applies to all buttons/links rather than matching specific rounded-*
+   class-name substrings, so a component doesn't silently lose press
+   feedback just because its border-radius utility changed. */
 @media (hover: hover) {
-  button:active,
-  a[class*="rounded-full"]:active,
-  a[class*="rounded-xl"]:active {
+  button:not(:disabled):active,
+  a:active {
     transform: scale(0.97);
     transition: transform 0.1s ease;
   }

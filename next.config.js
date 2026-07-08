@@ -64,10 +64,10 @@ const nextConfig = {
               "font-src 'self' https: data:",
               // Geist is self-hosted via next/font — no external font stylesheet needed
               "style-src 'self' 'unsafe-inline'",
-              // GA + PostHog + Sentry — no 'unsafe-inline': GA bootstrap now loads from /gtag-init.js (same-origin);
+              // GA + Sentry — no 'unsafe-inline': GA bootstrap now loads from /gtag-init.js (same-origin);
               // JSON-LD <script type="application/ld+json"> blocks are exempt from script-src enforcement
-              "script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://us-assets.i.posthog.com",
-              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
+              "script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com",
+              "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://forum.pakfrag.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
               "frame-ancestors 'self'",
               "object-src 'none'",
               "base-uri 'self'",
