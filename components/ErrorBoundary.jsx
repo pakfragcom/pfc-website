@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import * as Sentry from '@sentry/nextjs'
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,8 +13,8 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    // Log to console in dev; swap for Sentry.captureException(error) in Phase 0.3
     console.error('[PFC Error Boundary]', error, info)
+    Sentry.captureException(error, { extra: { componentStack: info?.componentStack } })
   }
 
   render() {
@@ -31,7 +32,7 @@ export default class ErrorBoundary extends React.Component {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
-              onClick={() => this.setState({ hasError: false })}
+              onClick={() => window.location.reload()}
               className="rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black transition hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
               Try Again

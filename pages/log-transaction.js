@@ -304,36 +304,41 @@ export default function LogTransaction({ sellers = [] }) {
     setSubmitting(true);
     setError('');
 
-    const res = await fetch('/api/transactions/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        seller_id:            selectedSeller.id,
-        items: items.map(it => ({
-          fragrance_name: it.fragrance_name,
-          house:          it.house,
-          item_type:      it.item_type,
-          price_pkr:      Number(it.price_pkr),
-          quantity:       Number(it.quantity) || 1,
-          notes:          it.notes,
-        })),
-        outcome,
-        city,
-        notes,
-        review_text:          reviewText,
-        rating_delivery:      ratingDelivery,
-        rating_accuracy:      ratingAccuracy,
-        rating_communication: ratingComm,
-      }),
-    });
+    try {
+      const res = await fetch('/api/transactions/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seller_id:            selectedSeller.id,
+          items: items.map(it => ({
+            fragrance_name: it.fragrance_name,
+            house:          it.house,
+            item_type:      it.item_type,
+            price_pkr:      Number(it.price_pkr),
+            quantity:       Number(it.quantity) || 1,
+            notes:          it.notes,
+          })),
+          outcome,
+          city,
+          notes,
+          review_text:          reviewText,
+          rating_delivery:      ratingDelivery,
+          rating_accuracy:      ratingAccuracy,
+          rating_communication: ratingComm,
+        }),
+      });
 
-    const json = await res.json();
-    setSubmitting(false);
+      const json = await res.json();
 
-    if (!res.ok) { setError(json.error || 'Something went wrong.'); return; }
+      if (!res.ok) { setError(json.error || 'Something went wrong.'); return; }
 
-    setDoneId(json.id);
-    setStep(4);
+      setDoneId(json.id);
+      setStep(4);
+    } catch {
+      setError('Network error — please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (!user) return null;
@@ -708,11 +713,13 @@ function ErrorMsg({ children }) {
 // ── Data ───────────────────────────────────────────────────────────────────────
 
 export async function getStaticProps() {
-  const { data: sellers } = await anonSupabase
+  const { data: sellers, error } = await anonSupabase
     .from('sellers')
     .select('id, name, code, seller_type, slug')
     .in('status', ['active', 'grace'])
     .order('name');
+
+  if (error) console.error('[log-transaction] sellers fetch error:', error.message);
 
   return {
     props: {

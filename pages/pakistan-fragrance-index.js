@@ -335,17 +335,21 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
 }
 
 export async function getStaticProps() {
-  const { data: rows } = await supabase
+  const { data: rows, error: rowsError } = await supabase
     .from('fragrance_price_stats')
     .select('fragrance_name, house, transaction_count, success_count, avg_price_pkr, min_price_pkr, max_price_pkr, avg_price_30d, avg_price_prev_30d, last_transaction_at')
     .order('transaction_count', { ascending: false })
     .limit(500);
 
+  if (rowsError) console.error('[pakistan-fragrance-index] price stats fetch error:', rowsError.message);
+
   // Try to join with fragrances table to get slugs
-  const { data: fragrances } = await supabase
+  const { data: fragrances, error: fragrancesError } = await supabase
     .from('fragrances')
     .select('name, house, slug')
     .eq('status', 'approved');
+
+  if (fragrancesError) console.error('[pakistan-fragrance-index] fragrances fetch error:', fragrancesError.message);
 
   const slugMap = new Map();
   (fragrances || []).forEach(f => {

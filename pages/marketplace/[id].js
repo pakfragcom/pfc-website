@@ -253,12 +253,14 @@ export default function ListingDetail({ listing }) {
 }
 
 export async function getStaticPaths() {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('listings')
     .select('id')
     .eq('status', 'active')
     .gt('expires_at', new Date().toISOString())
     .limit(500);
+
+  if (error) console.error('[marketplace/[id]] getStaticPaths fetch error:', error.message);
 
   return {
     paths: (data || []).map(l => ({ params: { id: l.id } })),
@@ -267,7 +269,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { data: listing } = await supabase
+  const { data: listing, error } = await supabase
     .from('listings')
     .select(`
       id, fragrance_name, house, concentration, condition,
@@ -279,6 +281,7 @@ export async function getStaticProps({ params }) {
     .eq('status', 'active')
     .maybeSingle();
 
+  if (error) console.error('[marketplace/[id]] listing fetch error:', error.message);
   if (!listing) return { notFound: true };
 
   return {

@@ -100,31 +100,36 @@ export default function SellPage() {
     setSubmitting(true);
     setError('');
 
-    const res = await fetch('/api/listings/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...form,
-        price_pkr:      Number(form.price_pkr),
-        fill_level_pct: Number(form.fill_level_pct) || null,
-        quantity:       Number(form.quantity) || 1,
-      }),
-    });
+    try {
+      const res = await fetch('/api/listings/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          price_pkr:      Number(form.price_pkr),
+          fill_level_pct: Number(form.fill_level_pct) || null,
+          quantity:       Number(form.quantity) || 1,
+        }),
+      });
 
-    const json = await res.json();
-    setSubmitting(false);
+      const json = await res.json();
 
-    if (!res.ok) {
-      if (res.status === 403) {
-        setError('Only verified sellers with a claimed profile can post listings. Claim your seller profile first.');
-      } else {
-        setError(json.error || 'Something went wrong.');
+      if (!res.ok) {
+        if (res.status === 403) {
+          setError('Only verified sellers with a claimed profile can post listings. Claim your seller profile first.');
+        } else {
+          setError(json.error || 'Something went wrong.');
+        }
+        return;
       }
-      return;
-    }
 
-    setDoneId(json.id);
-    setDone(true);
+      setDoneId(json.id);
+      setDone(true);
+    } catch {
+      setError('Network error — please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (!user) return null;

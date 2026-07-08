@@ -313,7 +313,7 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
 }
 
 export async function getStaticProps() {
-  const { data: listings } = await supabase
+  const { data: listings, error } = await supabase
     .from('listings')
     .select(`
       id, fragrance_name, house, concentration, condition,
@@ -325,6 +325,8 @@ export async function getStaticProps() {
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
     .limit(200);
+
+  if (error) console.error('[marketplace/index] listings fetch error:', error.message);
 
   return {
     props: {

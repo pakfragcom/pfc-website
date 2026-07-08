@@ -819,7 +819,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { data: fragrance } = await supabase
+  const { data: fragrance, error: fragranceError } = await supabase
     .from('fragrances')
     .select(`
       id, name, slug, house, category, concentration, description,
@@ -830,9 +830,16 @@ export async function getStaticProps({ params }) {
     .eq('status', 'approved')
     .maybeSingle();
 
+  if (fragranceError) console.error('[fragrances/[slug]] fragrance fetch error:', fragranceError.message);
   if (!fragrance) return { notFound: true };
 
-  const [{ data: reviewRows }, { data: relatedRows }, { data: priceRow }, { data: cityLongevityRows }, { data: listingRows }] = await Promise.all([
+  const [
+    { data: reviewRows, error: reviewsError },
+    { data: relatedRows, error: relatedError },
+    { data: priceRow, error: priceError },
+    { data: cityLongevityRows, error: cityLongevityError },
+    { data: listingRows, error: listingsError },
+  ] = await Promise.all([
     supabase
       .from('reviews')
       .select('id, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, occasion, season, city, published_at, profiles(display_name, username)')
@@ -866,6 +873,13 @@ export async function getStaticProps({ params }) {
       .order('price_pkr', { ascending: true })
       .limit(10),
   ]);
+
+  for (const [label, err] of [
+    ['reviews', reviewsError], ['related', relatedError], ['priceStats', priceError],
+    ['cityLongevity', cityLongevityError], ['listings', listingsError],
+  ]) {
+    if (err) console.error(`[fragrances/[slug]] ${label} fetch error:`, err.message);
+  }
 
   // Like counts for all reviews on this fragrance
   const reviewIds = (reviewRows || []).map(r => r.id);

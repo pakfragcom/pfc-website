@@ -87,25 +87,31 @@ export default function ScentQuiz() {
   async function submit() {
     setSubmitting(true);
     setError('');
-    const res = await fetch('/api/scent-profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        preferred_families: families,
-        usage_occasions: occasions,
-        budget_range: budget,
-        city,
-        current_scents: currentScents.trim() || null,
-      }),
-    });
-    if (!res.ok) {
-      const d = await res.json();
-      setError(d.error || 'Failed to save profile');
+    try {
+      const res = await fetch('/api/scent-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          preferred_families: families,
+          usage_occasions: occasions,
+          budget_range: budget,
+          city,
+          current_scents: currentScents.trim() || null,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        setError(d.error || 'Failed to save profile');
+        return;
+      }
+      const rawNext = router.query.next;
+      const next = (typeof rawNext === 'string' && rawNext.startsWith('/') && !rawNext.startsWith('//')) ? rawNext : '/u/me';
+      router.push(next + '?scent=1');
+    } catch {
+      setError('Network error — please check your connection and try again.');
+    } finally {
       setSubmitting(false);
-      return;
     }
-    const next = router.query.next || '/u/me';
-    router.push(next + '?scent=1');
   }
 
   if (!user) return null;

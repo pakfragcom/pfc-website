@@ -163,27 +163,32 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('id, username, display_name, city, bio, avatar_url, created_at')
     .eq('username', params.username)
     .single();
 
+  if (profileError) console.error('[u/[username]] profile fetch error:', profileError.message);
   if (!profile) return { notFound: true };
 
-  const { data: reviews } = await supabase
+  const { data: reviews, error: reviewsError } = await supabase
     .from('reviews')
     .select('id, slug, fragrance_name, house, category, rating_overall, review_text, cover_image_url, published_at')
     .eq('author_id', profile.id)
     .eq('status', 'approved')
     .order('published_at', { ascending: false });
 
-  const { data: seller } = await supabase
+  if (reviewsError) console.error('[u/[username]] reviews fetch error:', reviewsError.message);
+
+  const { data: seller, error: sellerError } = await supabase
     .from('sellers')
     .select('seller_type')
     .eq('user_id', profile.id)
     .in('status', ['active', 'grace'])
     .maybeSingle();
+
+  if (sellerError) console.error('[u/[username]] seller fetch error:', sellerError.message);
 
   const approvedReviews = reviews || [];
   const avgRating = approvedReviews.length

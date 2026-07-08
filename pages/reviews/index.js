@@ -288,12 +288,14 @@ function ReviewCard({ review, featured = false }) {
 }
 
 export async function getStaticProps() {
-  const { data: allReviews } = await supabase
+  const { data: allReviews, error } = await supabase
     .from('reviews')
     .select('id, slug, fragrance_name, house, category, rating_overall, review_text, cover_image_url, published_at, featured, profiles(display_name), fragrances(slug), fragrance_houses!reviews_house_id_fkey(slug)')
     .eq('status', 'approved')
     .order('published_at', { ascending: false })
     .limit(120);
+
+  if (error) console.error('[reviews/index] fetch error:', error.message);
 
   const reviews = allReviews || [];
   const featured = reviews.filter(r => r.featured);

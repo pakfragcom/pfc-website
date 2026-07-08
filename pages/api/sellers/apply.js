@@ -103,7 +103,7 @@ export default async function handler(req, res) {
           <p><a href="https://pakfrag.com/pfc-mgmt/sellers" style="color:#557d72">Review in admin panel →</a></p>
         </div>`,
       }),
-    }).catch(() => {});
+    }).catch(err => console.error('[sellers/apply] admin notification email failed:', err.message));
   }
 
   return res.status(201).json({ ok: true, seller });

@@ -81,7 +81,7 @@ export default async function handler(req, res) {
                ${isGift ? `<p>Gift for: ${escHtml(body.gift_recipient_name || '—')} | Occasion: ${escHtml(body.gift_occasion || '—')}</p>` : ''}
                <p><a href="https://pakfrag.com/pfc-mgmt/orders">View in admin panel →</a></p>`,
       }),
-    }).catch(() => {});
+    }).catch(err => console.error('[orders/submit] admin notification email failed:', err.message));
   }
 
   return res.status(200).json({ ok: true, id: data.id });

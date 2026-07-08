@@ -74,22 +74,27 @@ export default function SellerApply() {
   async function submit() {
     setSubmitting(true);
     setError('');
-    const res = await fetch('/api/sellers/apply', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setDone(true);
-    } else {
-      setError(data.error || 'Something went wrong.');
-      if (res.status === 409) {
-        setAlreadyApplied(true);
-        setExistingSeller(data.seller);
+    try {
+      const res = await fetch('/api/sellers/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDone(true);
+      } else {
+        setError(data.error || 'Something went wrong.');
+        if (res.status === 409) {
+          setAlreadyApplied(true);
+          setExistingSeller(data.seller);
+        }
       }
+    } catch {
+      setError('Network error — please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   if (checking) {

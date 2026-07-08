@@ -73,20 +73,26 @@ export default function NewDisputePage() {
       .map(s => s.trim())
       .filter(s => s.startsWith('http'));
 
-    const res = await fetch('/api/disputes/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        transaction_id: txId,
-        category,
-        description: description.trim(),
-        evidence_urls: evidenceUrls,
-      }),
-    });
+    try {
+      const res = await fetch('/api/disputes/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transaction_id: txId,
+          category,
+          description: description.trim(),
+          evidence_urls: evidenceUrls,
+        }),
+      });
 
-    const json = await res.json();
-    if (!res.ok) { setError(json.error || 'Something went wrong.'); setSubmitting(false); return; }
-    setDoneId(json.id);
+      const json = await res.json();
+      if (!res.ok) { setError(json.error || 'Something went wrong.'); return; }
+      setDoneId(json.id);
+    } catch {
+      setError('Network error — please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (!user) return null;

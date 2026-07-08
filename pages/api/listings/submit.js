@@ -91,7 +91,7 @@ export default async function handler(req, res) {
           <p><a href="https://pakfrag.com/pfc-mgmt/listings" style="color:#557d72">Review in admin panel →</a></p>
         </div>`,
       }),
-    }).catch(() => {});
+    }).catch(err => console.error('[listings/submit] admin notification email failed:', err.message));
   }
 
   return res.status(200).json({ ok: true, id: listing.id, pending: true });

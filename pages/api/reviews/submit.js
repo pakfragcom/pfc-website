@@ -156,7 +156,7 @@ export default async function handler(req, res) {
           </div>
         `,
       }),
-    }).catch(() => {}); // fire and forget
+    }).catch(err => console.error('[reviews/submit] admin notification email failed:', err.message)); // fire and forget
   }
 
   return res.status(200).json({ ok: true, auto_approved: isPrivileged });

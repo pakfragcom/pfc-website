@@ -319,20 +319,23 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { data: seller } = await supabase
+  const { data: seller, error: sellerError } = await supabase
     .from('sellers')
     .select('id, name, slug, code, seller_type, status, verification_tier, city, bio, contact_whatsapp, whatsapp, instagram, added_at')
     .eq('slug', params.slug)
     .in('status', ['active', 'grace'])
     .maybeSingle();
 
+  if (sellerError) console.error('[sellers/[slug]] seller fetch error:', sellerError.message);
   if (!seller) return { notFound: true };
 
-  const { data: txStats } = await supabase
+  const { data: txStats, error: txStatsError } = await supabase
     .from('seller_transaction_stats')
     .select('total_transactions, successful_transactions, success_rate, avg_price_pkr, total_items_sold, avg_rating_delivery, avg_rating_accuracy, avg_rating_communication, avg_rating_overall, last_transaction_at')
     .eq('seller_id', seller.id)
     .maybeSingle();
+
+  if (txStatsError) console.error('[sellers/[slug]] txStats fetch error:', txStatsError.message);
 
   return {
     props: { seller, txStats: txStats || null },

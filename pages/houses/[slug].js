@@ -314,24 +314,27 @@ export async function getStaticProps({ params }) {
   const { slug } = params
 
   // Fetch house (use admin client to bypass RLS for the page build, but data is public)
-  const { data: house } = await supabase
+  const { data: house, error: houseError } = await supabase
     .from('fragrance_houses')
     .select('id, house, slug, director, city, description, established_year, instagram, website, status, tier')
     .eq('slug', slug)
     .single()
 
+  if (houseError) console.error('[houses/[slug]] house fetch error:', houseError.message)
   if (!house || !['active', 'grace'].includes(house.status)) {
     return { notFound: true }
   }
 
   // Fetch approved reviews for this house
-  const { data: reviews } = await supabase
+  const { data: reviews, error: reviewsError } = await supabase
     .from('reviews')
     .select('id, slug, fragrance_name, rating_overall, rating_longevity, rating_sillage, rating_value, review_text, published_at, profiles(display_name, city)')
     .eq('house_id', house.id)
     .eq('status', 'approved')
     .order('published_at', { ascending: false })
     .limit(20)
+
+  if (reviewsError) console.error('[houses/[slug]] reviews fetch error:', reviewsError.message)
 
   // Compute aggregate stats
   const stats = reviews?.length
