@@ -68,11 +68,11 @@ export default function AdminNav({ currentPage, identity, onLogout }) {
       </div>
       <div className="flex items-center gap-3">
         {identity?.type === 'moderator' && (
-          <span className="text-xs text-gray-600 uppercase tracking-wide">Moderator</span>
+          <span className="text-xs text-gray-400 uppercase tracking-wide">Moderator</span>
         )}
         <button
           onClick={onLogout}
-          className="text-sm text-gray-500 hover:text-white transition"
+          className="text-sm text-gray-400 hover:text-white transition"
         >
           Sign out
         </button>

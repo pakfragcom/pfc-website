@@ -148,7 +148,7 @@ export default function SellerApply() {
               <p className="text-gray-400 text-sm mb-2">
                 We review all applications manually. You'll hear back within <strong className="text-white">24 hours</strong>.
               </p>
-              <p className="text-gray-500 text-xs mb-8">
+              <p className="text-gray-400 text-xs mb-8">
                 Once approved, your verification code will be active and buyers can verify you at pakfrag.com/tools/verify-seller.
               </p>
               <div className="flex flex-col gap-3">
@@ -182,13 +182,13 @@ export default function SellerApply() {
           <div className="mx-auto max-w-lg">
 
             {/* Back */}
-            <Link href="/become-a-seller" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition mb-8">
+            <Link href="/become-a-seller" className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-300 transition mb-8">
               <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
 
             <h1 className="text-2xl font-bold text-white mb-1">Seller Application</h1>
-            <p className="text-gray-500 text-sm mb-8">Applying as <span className="text-gray-300">{user?.email}</span></p>
+            <p className="text-gray-400 text-sm mb-8">Applying as <span className="text-gray-300">{user?.email}</span></p>
 
             {/* Progress */}
             <div className="flex items-center gap-2 mb-8">
@@ -198,11 +198,11 @@ export default function SellerApply() {
                     'w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 transition',
                     i < step ? 'bg-emerald-500 text-white' :
                     i === step ? 'bg-white text-black' :
-                    'bg-white/10 text-gray-600'
+                    'bg-white/10 text-gray-400'
                   ].join(' ')}>
                     {i < step ? '✓' : i + 1}
                   </div>
-                  <span className={`text-xs hidden sm:block ${i === step ? 'text-white' : 'text-gray-600'}`}>{label}</span>
+                  <span className={`text-xs hidden sm:block ${i === step ? 'text-white' : 'text-gray-400'}`}>{label}</span>
                   {i < STEPS.length - 1 && <div className="flex-1 h-px bg-white/8" />}
                 </div>
               ))}
@@ -220,7 +220,7 @@ export default function SellerApply() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5">Display name <span className="text-red-400">*</span></label>
                   <input value={form.name} onChange={set('name')} placeholder="e.g. Ahmed Fragrances" className={inputCls} />
-                  <p className="text-[11px] text-gray-600 mt-1">This is how buyers will see you on PakFrag.</p>
+                  <p className="text-[11px] text-gray-400 mt-1">This is how buyers will see you on PakFrag.</p>
                 </div>
 
                 <div>
@@ -231,7 +231,7 @@ export default function SellerApply() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5">WhatsApp number <span className="text-red-400">*</span></label>
                   <input value={form.whatsapp} onChange={set('whatsapp')} placeholder="03XXXXXXXXX" className={inputCls} type="tel" />
-                  <p className="text-[11px] text-gray-600 mt-1">Buyers will contact you here. Not shown publicly without your consent.</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Buyers will contact you here. Not shown publicly without your consent.</p>
                 </div>
 
                 <div>
@@ -246,7 +246,7 @@ export default function SellerApply() {
                             : 'border-white/8 bg-white/[0.02] text-gray-400 hover:border-white/20 hover:text-white',
                         ].join(' ')}>
                         <p className="text-sm font-medium">{t.label}</p>
-                        <p className="text-[11px] text-gray-500 mt-0.5">{t.desc}</p>
+                        <p className="text-[11px] text-gray-400 mt-0.5">{t.desc}</p>
                       </button>
                     ))}
                   </div>
@@ -267,13 +267,13 @@ export default function SellerApply() {
                   <textarea value={form.bio} onChange={set('bio')} rows={4}
                     placeholder="Tell buyers who you are, what you sell, and what makes you trustworthy…"
                     className={inputCls + ' resize-none'} />
-                  <p className="text-[11px] text-gray-600 mt-1">Shown on your public seller profile. Optional but recommended.</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Shown on your public seller profile. Optional but recommended.</p>
                 </div>
 
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5">Instagram handle</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 text-sm">@</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">@</span>
                     <input value={form.instagram} onChange={set('instagram')} placeholder="yourhandle"
                       className={inputCls + ' pl-8'} />
                   </div>
@@ -307,7 +307,7 @@ export default function SellerApply() {
                     ['Instagram', form.instagram ? `@${form.instagram}` : '—'],
                   ].map(([label, val]) => (
                     <div key={label} className="flex gap-3">
-                      <span className="text-xs text-gray-500 w-24 flex-shrink-0 pt-0.5">{label}</span>
+                      <span className="text-xs text-gray-400 w-24 flex-shrink-0 pt-0.5">{label}</span>
                       <span className="text-sm text-white">{val}</span>
                     </div>
                   ))}

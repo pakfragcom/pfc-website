@@ -51,7 +51,7 @@ function StepDot({ n, current }) {
       'flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition',
       done    ? 'bg-emerald-500 text-black'
       : current === n ? 'bg-white text-black'
-      : 'bg-white/10 text-gray-500',
+      : 'bg-white/10 text-gray-400',
     ].join(' ')}>
       {done ? '✓' : n}
     </div>
@@ -62,7 +62,7 @@ function StarRating({ label, hint, value, onChange }) {
   return (
     <div>
       <p className="text-xs font-medium text-white mb-0.5">{label}</p>
-      {hint && <p className="text-[10px] text-gray-500 mb-2">{hint}</p>}
+      {hint && <p className="text-[10px] text-gray-400 mb-2">{hint}</p>}
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map(n => (
           <button
@@ -74,7 +74,7 @@ function StarRating({ label, hint, value, onChange }) {
             ★
           </button>
         ))}
-        {value && <span className="ml-1 self-center text-xs text-gray-500">{value}/5</span>}
+        {value && <span className="ml-1 self-center text-xs text-gray-400">{value}/5</span>}
       </div>
     </div>
   );
@@ -91,7 +91,7 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
           <button
             type="button"
             onClick={onRemove}
-            className="text-xs text-gray-600 hover:text-red-400 transition"
+            className="text-xs text-gray-400 hover:text-red-400 transition"
           >
             Remove
           </button>
@@ -119,7 +119,7 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left hover:bg-white/5 transition"
               >
                 <span className="text-sm text-white">{s.name}</span>
-                <span className="text-xs text-gray-500">{s.house}</span>
+                <span className="text-xs text-gray-400">{s.house}</span>
               </button>
             ))}
           </div>
@@ -154,7 +154,7 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
         <div>
           <label className="block text-xs text-gray-400 mb-1.5">Price (PKR) <span className="text-red-400">*</span></label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">Rs</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Rs</span>
             <input
               type="number"
               min="1"
@@ -355,7 +355,7 @@ export default function LogTransaction({ sellers = [] }) {
             <p className="text-sm text-gray-400 mb-2 max-w-sm mx-auto">
               {items.length} item{items.length > 1 ? 's' : ''} · Rs {total.toLocaleString()} · {selectedSeller?.name}
             </p>
-            <p className="text-xs text-gray-600 mb-8">
+            <p className="text-xs text-gray-400 mb-8">
               Your record is now part of the community trust database.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -382,7 +382,7 @@ export default function LogTransaction({ sellers = [] }) {
               </button>
             </div>
             {doneId && (
-              <p className="mt-6 text-xs text-gray-600">
+              <p className="mt-6 text-xs text-gray-400">
                 Something went wrong with this deal?{' '}
                 <Link href={`/disputes/new?transaction_id=${doneId}`}
                   className="text-amber-500 hover:text-amber-400 transition underline underline-offset-2">
@@ -410,7 +410,7 @@ export default function LogTransaction({ sellers = [] }) {
 
         <main className="mx-auto max-w-xl px-4 py-20 sm:py-28">
 
-          <nav className="mb-10 text-sm text-gray-500">
+          <nav className="mb-10 text-sm text-gray-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <span className="mx-2">/</span>
             <span className="text-gray-300">Log Transaction</span>
@@ -428,7 +428,7 @@ export default function LogTransaction({ sellers = [] }) {
             {[1, 2, 3].map(n => (
               <div key={n} className="flex items-center gap-2">
                 <StepDot n={n} current={step} />
-                <span className={`text-xs ${step === n ? 'text-white' : 'text-gray-600'}`}>{STEPS[n - 1]}</span>
+                <span className={`text-xs ${step === n ? 'text-white' : 'text-gray-400'}`}>{STEPS[n - 1]}</span>
                 {n < 3 && <div className="w-5 h-px bg-white/10 mx-0.5" />}
               </div>
             ))}
@@ -461,7 +461,7 @@ export default function LogTransaction({ sellers = [] }) {
                         className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-white/5 transition">
                         <div>
                           <div className="text-sm font-medium text-white">{s.name}</div>
-                          <div className="text-xs text-gray-500">{s.type === 'BNIB' ? 'BNIB' : 'Decanter'}</div>
+                          <div className="text-xs text-gray-400">{s.type === 'BNIB' ? 'BNIB' : 'Decanter'}</div>
                         </div>
                         <span className="font-mono text-xs text-gray-400">{s.code}</span>
                       </button>
@@ -476,7 +476,7 @@ export default function LogTransaction({ sellers = [] }) {
                 )}
               </div>
 
-              <p className="text-xs text-gray-600 text-center">
+              <p className="text-xs text-gray-400 text-center">
                 Only verified sellers appear here.{' '}
                 <Link href="/tools/verify-seller" className="text-gray-400 hover:text-white underline underline-offset-2 transition">
                   Check the registry →
@@ -491,7 +491,7 @@ export default function LogTransaction({ sellers = [] }) {
               {/* Seller chip */}
               <SellerChip seller={selectedSeller} onClear={() => { setSelectedSeller(null); setStep(1); }} />
 
-              <p className="text-xs text-gray-500 -mt-1">
+              <p className="text-xs text-gray-400 -mt-1">
                 Bought multiple fragrances from this seller? Add them all here — they'll be logged as one order.
               </p>
 
@@ -665,7 +665,7 @@ export default function LogTransaction({ sellers = [] }) {
                 {submitting ? 'Saving…' : 'Submit transaction log'}
               </button>
 
-              <button onClick={() => setStep(2)} className="w-full text-sm text-gray-500 hover:text-white transition py-1">
+              <button onClick={() => setStep(2)} className="w-full text-sm text-gray-400 hover:text-white transition py-1">
                 ← Back to items
               </button>
             </div>
@@ -690,7 +690,7 @@ function SellerChip({ seller, onClear, clearLabel = 'Change' }) {
         <div className="text-sm font-semibold text-white truncate">{seller.name}</div>
         <div className="text-xs text-gray-400 font-mono">{seller.code}</div>
       </div>
-      <button onClick={onClear} className="text-xs text-gray-500 hover:text-white transition shrink-0">
+      <button onClick={onClear} className="text-xs text-gray-400 hover:text-white transition shrink-0">
         {clearLabel}
       </button>
     </div>

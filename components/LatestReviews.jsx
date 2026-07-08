@@ -86,7 +86,7 @@ function ReviewCard({ review }) {
       <div className="p-5 flex flex-col flex-1">
         {/* Category + rating */}
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] uppercase tracking-wider text-gray-600 border border-white/8 rounded-full px-2 py-0.5">
+          <span className="text-[10px] uppercase tracking-wider text-gray-400 border border-white/8 rounded-full px-2 py-0.5">
             {CATEGORY_LABELS[review.category] || review.category}
           </span>
           <div className="flex items-center gap-0.5">
@@ -102,7 +102,7 @@ function ReviewCard({ review }) {
         <h3 className="font-semibold text-white text-sm leading-snug group-hover:text-white transition line-clamp-1">
           {review.fragrance_name}
         </h3>
-        <p className="text-[11px] text-gray-500 mt-0.5 mb-3">{review.house}</p>
+        <p className="text-[11px] text-gray-400 mt-0.5 mb-3">{review.house}</p>
 
         {/* Excerpt */}
         <p className="text-xs text-gray-400 leading-relaxed line-clamp-3 flex-1">
@@ -110,7 +110,7 @@ function ReviewCard({ review }) {
         </p>
 
         {/* Author + date */}
-        <div className="mt-4 pt-3 border-t border-white/8 flex items-center justify-between text-[11px] text-gray-600">
+        <div className="mt-4 pt-3 border-t border-white/8 flex items-center justify-between text-[11px] text-gray-400">
           <span>{review.profiles?.display_name || 'Anonymous'}</span>
           <span>
             {review.published_at

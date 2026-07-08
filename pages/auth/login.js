@@ -192,7 +192,7 @@ export default function Login() {
           {/* Brand */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block text-2xl font-bold text-white tracking-tight">PFC</Link>
-            <p className="mt-1.5 text-sm text-gray-500">
+            <p className="mt-1.5 text-sm text-gray-400">
               {stage === 'code_sent' || isVerifying
                 ? 'Enter the code we sent you'
                 : 'Sign in or create your account'}
@@ -231,7 +231,7 @@ export default function Login() {
                   </button>
                 </form>
 
-                <p className="mt-4 text-center text-xs text-gray-600">
+                <p className="mt-4 text-center text-xs text-gray-400">
                   We&apos;ll email you a 6-digit code. No password needed.
                 </p>
               </>
@@ -270,13 +270,13 @@ export default function Login() {
                   </button>
                 </form>
 
-                <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                <div className="mt-4 flex items-center justify-between text-xs text-gray-400">
                   <button onClick={() => { setStage('idle'); setError(''); setCode(['','','','','','']); }}
                     className="hover:text-white transition">
                     ← Change email
                   </button>
                   {resendCooldown > 0 ? (
-                    <span className="text-gray-600">Resend in {resendCooldown}s</span>
+                    <span className="text-gray-400">Resend in {resendCooldown}s</span>
                   ) : (
                     <button onClick={handleSendCode} className="text-[#94aea7] hover:text-white transition">
                       Resend code
@@ -287,11 +287,11 @@ export default function Login() {
             )}
           </div>
 
-          <p className="mt-5 text-center text-xs text-gray-600">
+          <p className="mt-5 text-center text-xs text-gray-400">
             By continuing you agree to our{' '}
-            <Link href="/legal/terms" className="text-gray-500 hover:text-white transition">Terms</Link>
+            <Link href="/legal/terms" className="text-gray-400 hover:text-white transition">Terms</Link>
             {' '}and{' '}
-            <Link href="/legal/privacy" className="text-gray-500 hover:text-white transition">Privacy Policy</Link>
+            <Link href="/legal/privacy" className="text-gray-400 hover:text-white transition">Privacy Policy</Link>
           </p>
         </div>
       </div>
@@ -313,7 +313,7 @@ function Divider() {
   return (
     <div className="relative flex items-center">
       <div className="flex-1 border-t border-white/10" />
-      <span className="mx-3 text-xs text-gray-600 uppercase tracking-wider">or</span>
+      <span className="mx-3 text-xs text-gray-400 uppercase tracking-wider">or</span>
       <div className="flex-1 border-t border-white/10" />
     </div>
   );

@@ -94,7 +94,7 @@ export default function VerifySellerPage() {
       <main className="mx-auto max-w-2xl px-4 py-20 sm:py-28">
 
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="mb-10 text-sm text-gray-500">
+        <nav aria-label="Breadcrumb" className="mb-10 text-sm text-gray-400">
           <Link href="/" className="hover:text-white transition">Home</Link>
           <span className="mx-2">/</span>
           <span className="text-gray-300">Verify Seller</span>
@@ -117,12 +117,12 @@ export default function VerifySellerPage() {
             <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/8 px-3 py-2 text-xs">
               <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
               <span className="text-emerald-300 font-medium">BNIB Seller</span>
-              <span className="text-gray-500">— can sell sealed bottles AND decants</span>
+              <span className="text-gray-400">— can sell sealed bottles AND decants</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-blue-500/20 bg-blue-500/8 px-3 py-2 text-xs">
               <span className="h-2 w-2 rounded-full bg-blue-400 shrink-0" />
               <span className="text-blue-300 font-medium">Decant Seller</span>
-              <span className="text-gray-500">— decants &amp; vials only, not BNIB</span>
+              <span className="text-gray-400">— decants &amp; vials only, not BNIB</span>
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function VerifySellerPage() {
             {query && (
               <button
                 onClick={handleClear}
-                className="shrink-0 text-gray-500 hover:text-white transition text-xs"
+                className="shrink-0 text-gray-400 hover:text-white transition text-xs"
                 aria-label="Clear search"
               >
                 Clear
@@ -301,14 +301,14 @@ export default function VerifySellerPage() {
         )}
 
         {/* Footer note */}
-        <p className="mt-12 text-xs text-gray-600 text-center">
+        <p className="mt-12 text-xs text-gray-400 text-center">
           Last updated {new Date().toLocaleDateString("en-PK", { month: "long", year: "numeric" })}
           &nbsp;&mdash;&nbsp;For corrections, contact PFC admins via the{" "}
           <a
             href="https://www.facebook.com/groups/pkfragcom"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-500 hover:text-gray-300 transition underline underline-offset-2"
+            className="text-gray-400 hover:text-gray-300 transition underline underline-offset-2"
           >
             Facebook group
           </a>.

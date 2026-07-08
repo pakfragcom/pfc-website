@@ -88,7 +88,7 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <p className="text-gray-400 text-sm mb-1">Access restricted</p>
-            <p className="text-gray-600 text-xs">You don&apos;t have permission to manage reviews.</p>
+            <p className="text-gray-400 text-xs">You don&apos;t have permission to manage reviews.</p>
           </div>
         </div>
       </div>
@@ -127,10 +127,10 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
           </div>
 
           {loading ? (
-            <div className="text-gray-500 text-sm py-10 text-center">Loading…</div>
+            <div className="text-gray-400 text-sm py-10 text-center">Loading…</div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-gray-500 text-sm">No {filter !== 'all' ? filter : ''} reviews.</p>
+              <p className="text-gray-400 text-sm">No {filter !== 'all' ? filter : ''} reviews.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -142,7 +142,7 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
                       <div className="flex items-start gap-3 flex-wrap">
                         <div>
                           <h3 className="font-semibold text-white">{review.fragrance_name}</h3>
-                          <p className="text-xs text-gray-500 mt-0.5">{review.house} · {CATEGORY_LABELS[review.category]}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{review.house} · {CATEGORY_LABELS[review.category]}</p>
                         </div>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ring-1 ${STATUS_COLORS[review.status]}`}>
                           {review.status}
@@ -153,7 +153,7 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
                         <span>By {review.profiles?.display_name || 'Unknown'}</span>
                         {review.profiles?.city && <span>· {review.profiles.city}</span>}
                         <span>· {new Date(review.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}</span>

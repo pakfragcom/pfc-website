@@ -200,7 +200,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
               <div className="flex flex-col gap-3 mb-8">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1 max-w-sm">
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" />
                     </svg>
                     <input
@@ -215,13 +215,13 @@ export default function FragrancesIndex({ fragrances = [] }) {
                     />
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] uppercase tracking-wider text-gray-600 mr-1">Sort</span>
+                    <span className="text-[10px] uppercase tracking-wider text-gray-400 mr-1">Sort</span>
                     {SORT_OPTIONS.map(opt => (
                       <button key={opt.id} onClick={() => { setSortBy(opt.id); updateFilter(activeCategory, query, opt.id); }}
                         className={['px-3 py-1.5 rounded-full text-xs font-medium transition',
                           sortBy === opt.id
                             ? 'bg-white/10 text-white ring-1 ring-white/20'
-                            : 'text-gray-500 hover:text-gray-300'
+                            : 'text-gray-400 hover:text-gray-300'
                         ].join(' ')}>
                         {opt.label}
                       </button>
@@ -238,7 +238,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
                             ? 'bg-white text-black'
                             : 'bg-white/5 ring-1 ring-white/10 text-gray-400 hover:text-white hover:bg-white/10'
                         ].join(' ')}>
-                        {cat.label} <span className={activeCategory === cat.id ? 'text-black/50' : 'text-gray-600'}>({count})</span>
+                        {cat.label} <span className={activeCategory === cat.id ? 'text-black/50' : 'text-gray-400'}>({count})</span>
                       </button>
                     );
                   })}
@@ -272,7 +272,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
 
               {/* Grid */}
               {filtered.length === 0 ? (
-                <div className="text-center py-20 text-gray-500">
+                <div className="text-center py-20 text-gray-400">
                   <p className="font-medium text-white mb-1">No fragrances found</p>
                   <p className="text-sm">Try a different search or category.</p>
                 </div>
@@ -296,7 +296,7 @@ export default function FragrancesIndex({ fragrances = [] }) {
                         className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-2.5 text-sm text-gray-400 hover:text-white hover:border-white/30 transition"
                       >
                         Load More
-                        <span className="text-gray-600">({filtered.length - visibleCount} remaining)</span>
+                        <span className="text-gray-400">({filtered.length - visibleCount} remaining)</span>
                       </button>
                     </div>
                   )}
@@ -344,7 +344,7 @@ function FragranceCard({ f }) {
           <h2 className="font-semibold text-white text-xs leading-snug line-clamp-2 group-hover:text-white transition">
             {f.name}
           </h2>
-          <p className="text-[10px] text-gray-500 mt-0.5 mb-2 line-clamp-1">
+          <p className="text-[10px] text-gray-400 mt-0.5 mb-2 line-clamp-1">
             {f.house_slug
               ? <Link href={`/houses/${f.house_slug}`} className="hover:text-gray-300 transition" onClick={e => e.stopPropagation()}>{f.house}</Link>
               : f.house}
@@ -360,10 +360,10 @@ function FragranceCard({ f }) {
                 ))}
               </div>
             ) : (
-              <span className="text-[10px] text-gray-600">No reviews yet</span>
+              <span className="text-[10px] text-gray-400">No reviews yet</span>
             )}
             {f.review_count > 0 && (
-              <span className="text-[10px] text-gray-600">{f.review_count} review{f.review_count !== 1 ? 's' : ''}</span>
+              <span className="text-[10px] text-gray-400">{f.review_count} review{f.review_count !== 1 ? 's' : ''}</span>
             )}
           </div>
         </div>

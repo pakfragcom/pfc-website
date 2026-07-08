@@ -8,7 +8,7 @@ export default function ServerError() {
       <Header />
 
       <main className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
-        <p className="text-sm font-medium uppercase tracking-widest text-gray-500 mb-4">500</p>
+        <p className="text-sm font-medium uppercase tracking-widest text-gray-400 mb-4">500</p>
 
         <h1 className="text-4xl font-bold tracking-tight text-[#F5F5F7] sm:text-5xl">
           Something went wrong

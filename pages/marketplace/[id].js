@@ -89,7 +89,7 @@ export default function ListingDetail({ listing }) {
         <main className="mx-auto max-w-4xl px-4 py-20 sm:py-28">
 
           {/* Breadcrumb */}
-          <nav className="mb-10 text-sm text-gray-500">
+          <nav className="mb-10 text-sm text-gray-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <span className="mx-2">/</span>
             <Link href="/marketplace" className="hover:text-white transition">Marketplace</Link>
@@ -111,7 +111,7 @@ export default function ListingDetail({ listing }) {
                   <span className="text-8xl font-black text-white/10 leading-none">
                     {listing.fragrance_name[0]?.toUpperCase()}
                   </span>
-                  <span className="text-sm text-gray-600 uppercase tracking-widest">{listing.house}</span>
+                  <span className="text-sm text-gray-400 uppercase tracking-widest">{listing.house}</span>
                 </div>
               )}
             </div>
@@ -135,14 +135,14 @@ export default function ListingDetail({ listing }) {
                 </h1>
                 <p className="mt-1 text-base text-gray-400">{listing.house}</p>
                 {listing.concentration && (
-                  <p className="text-sm text-gray-500 mt-0.5">{listing.concentration}</p>
+                  <p className="text-sm text-gray-400 mt-0.5">{listing.concentration}</p>
                 )}
               </div>
 
               {/* Fill level */}
               {listing.fill_level_pct && listing.condition !== 'sealed' && (
                 <div>
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+                  <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5">
                     <span>Fill level</span>
                     <span>{listing.fill_level_pct}%</span>
                   </div>
@@ -159,7 +159,7 @@ export default function ListingDetail({ listing }) {
               <div className="flex items-baseline gap-3">
                 <span className="text-4xl font-bold text-white">Rs {listing.price_pkr?.toLocaleString()}</span>
                 {listing.is_negotiable && (
-                  <span className="text-sm text-gray-500 font-medium">Negotiable</span>
+                  <span className="text-sm text-gray-400 font-medium">Negotiable</span>
                 )}
               </div>
 
@@ -192,12 +192,12 @@ export default function ListingDetail({ listing }) {
                   Contact Seller on WhatsApp
                 </a>
               ) : (
-                <div className="rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm text-gray-500 text-center">
+                <div className="rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm text-gray-400 text-center">
                   Contact via seller profile
                 </div>
               )}
 
-              <p className="text-xs text-gray-600 text-center">
+              <p className="text-xs text-gray-400 text-center">
                 Complete transactions at your own risk. Always meet in public or use a trusted middleman.
               </p>
             </div>
@@ -214,7 +214,7 @@ export default function ListingDetail({ listing }) {
           {/* Seller card */}
           {seller && (
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6 mb-10">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Seller</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Seller</h2>
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400 text-lg font-black ring-1 ring-emerald-500/20">
                   {seller.name?.[0]?.toUpperCase()}
@@ -224,7 +224,7 @@ export default function ListingDetail({ listing }) {
                     <p className="text-base font-bold text-white">{seller.name}</p>
                     <span className={`text-xs font-semibold ${tierConf.color}`}>{tierConf.label}</span>
                   </div>
-                  <p className="text-xs text-gray-500 font-mono mt-0.5">{seller.code}</p>
+                  <p className="text-xs text-gray-400 font-mono mt-0.5">{seller.code}</p>
                 </div>
                 {seller.slug && (
                   <Link
@@ -239,7 +239,7 @@ export default function ListingDetail({ listing }) {
           )}
 
           <div className="text-center">
-            <Link href="/marketplace" className="text-sm text-gray-500 hover:text-white transition">
+            <Link href="/marketplace" className="text-sm text-gray-400 hover:text-white transition">
               ← Back to Marketplace
             </Link>
           </div>

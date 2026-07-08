@@ -190,12 +190,12 @@ export default function SubmitReview() {
         <main className="pt-24 pb-20">
           <div className="mx-auto max-w-2xl px-6">
             <div className="mb-8">
-              <Link href="/reviews" className="text-sm text-gray-500 hover:text-white transition flex items-center gap-2 mb-4">
+              <Link href="/reviews" className="text-sm text-gray-400 hover:text-white transition flex items-center gap-2 mb-4">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 Reviews
               </Link>
               <h1 className="text-2xl font-extrabold text-white">Write a Review</h1>
-              <p className="text-gray-500 text-sm mt-1">Share your honest experience with the community.</p>
+              <p className="text-gray-400 text-sm mt-1">Share your honest experience with the community.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -229,10 +229,10 @@ export default function SubmitReview() {
                   {showSuggestions && (
                     <div className="absolute z-20 top-full mt-1 left-0 right-0 rounded-xl border border-white/10 bg-[#0d0d0d] shadow-2xl overflow-hidden">
                       {suggestionLoading ? (
-                        <div className="px-4 py-3 text-xs text-gray-500">Searching…</div>
+                        <div className="px-4 py-3 text-xs text-gray-400">Searching…</div>
                       ) : suggestions.length > 0 ? (
                         <>
-                          <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-gray-600">
+                          <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-gray-400">
                             Fragrances in directory
                           </div>
                           {suggestions.map(frag => (
@@ -249,16 +249,16 @@ export default function SubmitReview() {
                               </div>
                               <div className="min-w-0">
                                 <p className="text-sm font-medium text-white truncate">{frag.name}</p>
-                                <p className="text-xs text-gray-500 truncate">{frag.house}{frag.concentration ? ` · ${frag.concentration}` : ''}</p>
+                                <p className="text-xs text-gray-400 truncate">{frag.house}{frag.concentration ? ` · ${frag.concentration}` : ''}</p>
                               </div>
                             </button>
                           ))}
-                          <div className="px-4 py-2 border-t border-white/8 text-[11px] text-gray-600">
+                          <div className="px-4 py-2 border-t border-white/8 text-[11px] text-gray-400">
                             Don&apos;t see it? Continue typing to add a new fragrance.
                           </div>
                         </>
                       ) : form.fragrance_name.trim().length >= 2 && (
-                        <div className="px-4 py-3 text-xs text-gray-500">
+                        <div className="px-4 py-3 text-xs text-gray-400">
                           Not in directory yet — your review will help us add it.
                         </div>
                       )}
@@ -303,10 +303,10 @@ export default function SubmitReview() {
                     required
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none focus:border-[#557d72] focus:ring-1 focus:ring-[#557d72] transition resize-none"
                   />
-                  <p className="text-xs text-gray-600 mt-1">{form.review_text.length} / 80 minimum</p>
+                  <p className="text-xs text-gray-400 mt-1">{form.review_text.length} / 80 minimum</p>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Cover Image URL <span className="text-gray-600">(optional)</span></label>
+                  <label className="block text-xs text-gray-400 mb-1.5">Cover Image URL <span className="text-gray-400">(optional)</span></label>
                   <input
                     type="url"
                     value={form.cover_image_url}
@@ -319,7 +319,7 @@ export default function SubmitReview() {
                       <img src={form.cover_image_url} alt="cover preview" className="w-full h-full object-cover" onError={e => e.target.style.display='none'} />
                     </div>
                   )}
-                  <p className="text-xs text-gray-600 mt-1">Paste an image URL to add a cover photo to your review.</p>
+                  <p className="text-xs text-gray-400 mt-1">Paste an image URL to add a cover photo to your review.</p>
                 </div>
               </Section>
 
@@ -351,7 +351,7 @@ export default function SubmitReview() {
                     </select>
                   </div>
                 </div>
-                <p className="text-[10px] text-gray-600 mt-2">City helps us show climate-aware longevity data for this fragrance.</p>
+                <p className="text-[10px] text-gray-400 mt-2">City helps us show climate-aware longevity data for this fragrance.</p>
               </Section>
 
               {error && <p className="text-sm text-red-400 bg-red-500/10 rounded-xl px-4 py-3">{error}</p>}
@@ -360,7 +360,7 @@ export default function SubmitReview() {
                 className="w-full rounded-xl bg-gradient-to-r from-[#2a5c4f] via-[#4a7a6e] to-[#94aea7] py-3 text-sm font-semibold text-white shadow-lg shadow-[#2a5c4f]/20 transition hover:brightness-110 disabled:opacity-50">
                 {loading ? 'Submitting…' : 'Submit for Review'}
               </button>
-              <p className="text-xs text-gray-600 text-center">Reviews are moderated before publishing. Usually live within 24 hours.</p>
+              <p className="text-xs text-gray-400 text-center">Reviews are moderated before publishing. Usually live within 24 hours.</p>
             </form>
           </div>
         </main>
@@ -373,7 +373,7 @@ export default function SubmitReview() {
 function Section({ title, children }) {
   return (
     <div>
-      <h2 className="text-xs uppercase tracking-widest text-gray-500 mb-4 pb-3 border-b border-white/10">{title}</h2>
+      <h2 className="text-xs uppercase tracking-widest text-gray-400 mb-4 pb-3 border-b border-white/10">{title}</h2>
       <div className="space-y-4">{children}</div>
     </div>
   );
@@ -403,7 +403,7 @@ function RatingInput({ label, value, onChange }) {
             </svg>
           </button>
         ))}
-        {value > 0 && <span className="text-xs text-gray-500 ml-1">{value}/5</span>}
+        {value > 0 && <span className="text-xs text-gray-400 ml-1">{value}/5</span>}
       </div>
     </div>
   );

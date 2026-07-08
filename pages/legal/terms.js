@@ -9,7 +9,7 @@ export default function Terms() {
 
       <main className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="mb-8 text-sm text-gray-500">
+        <nav aria-label="Breadcrumb" className="mb-8 text-sm text-gray-400">
           <Link href="/" className="hover:text-white transition">Home</Link>
           <span className="mx-2">/</span>
           <span className="text-gray-300">Terms of Service</span>
@@ -18,7 +18,7 @@ export default function Terms() {
         <h1 className="text-4xl font-bold tracking-tight text-[#F5F5F7] mb-3">
           Terms of Service
         </h1>
-        <p className="text-sm text-gray-500 mb-12">Last updated: April 2026</p>
+        <p className="text-sm text-gray-400 mb-12">Last updated: April 2026</p>
 
         <div className="prose prose-invert prose-sm max-w-none space-y-10 text-gray-300 leading-relaxed">
 
@@ -133,7 +133,7 @@ export default function Terms() {
         </div>
 
         {/* Bottom link */}
-        <div className="mt-16 border-t border-white/10 pt-8 flex gap-6 text-sm text-gray-500">
+        <div className="mt-16 border-t border-white/10 pt-8 flex gap-6 text-sm text-gray-400">
           <Link href="/legal/privacy" className="hover:text-white transition">
             Privacy Policy
           </Link>

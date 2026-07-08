@@ -105,11 +105,11 @@ export default function SplitBlock({ topRated = [] }) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white leading-snug truncate group-hover:text-white transition">{f.name}</p>
-                        <p className="text-[10px] text-gray-500 truncate">{f.house}</p>
+                        <p className="text-[10px] text-gray-400 truncate">{f.house}</p>
                       </div>
                       <div className="flex-shrink-0 text-right">
                         <MiniStars value={f.avg_rating} />
-                        <p className="text-[9px] text-gray-600 mt-0.5">{f.review_count} review{f.review_count !== 1 ? 's' : ''}</p>
+                        <p className="text-[9px] text-gray-400 mt-0.5">{f.review_count} review{f.review_count !== 1 ? 's' : ''}</p>
                       </div>
                     </Link>
                   ))}

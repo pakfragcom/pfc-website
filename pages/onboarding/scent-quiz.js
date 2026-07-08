@@ -52,7 +52,7 @@ function ProgressBar({ step }) {
 }
 
 function StepLabel({ current, total }) {
-  return <p className="text-xs text-gray-500 mb-2">Step {current} of {total}</p>;
+  return <p className="text-xs text-gray-400 mb-2">Step {current} of {total}</p>;
 }
 
 export default function ScentQuiz() {
@@ -141,7 +141,7 @@ export default function ScentQuiz() {
                   <button key={f.id} onClick={() => toggleFamily(f.id)} className={chipCls(families.includes(f.id))}>
                     <span className="text-xl mb-1">{f.emoji}</span>
                     <span className="text-sm font-semibold">{f.id}</span>
-                    <span className="text-[11px] text-gray-500 mt-0.5">{f.desc}</span>
+                    <span className="text-[11px] text-gray-400 mt-0.5">{f.desc}</span>
                   </button>
                 ))}
               </div>
@@ -208,7 +208,7 @@ export default function ScentQuiz() {
                   >
                     <div>
                       <p className="text-sm font-semibold">{b.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{b.sub}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{b.sub}</p>
                     </div>
                     {budget === b.id && <span className="text-[#94aea7]">✓</span>}
                   </button>

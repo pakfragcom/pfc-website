@@ -95,7 +95,7 @@ export default function SellerProfile({ seller, txStats }) {
         <main className="mx-auto max-w-3xl px-4 py-20 sm:py-28">
 
           {/* Breadcrumb */}
-          <nav className="mb-10 text-sm text-gray-500">
+          <nav className="mb-10 text-sm text-gray-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <span className="mx-2">/</span>
             <Link href="/tools/verify-seller" className="hover:text-white transition">Verify Seller</Link>
@@ -198,7 +198,7 @@ export default function SellerProfile({ seller, txStats }) {
             ].map(({ label, value }) => (
               <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.02] p-4 text-center">
                 <p className="text-lg font-bold text-white">{value}</p>
-                <p className="text-[11px] uppercase tracking-wider text-gray-500 mt-1">{label}</p>
+                <p className="text-[11px] uppercase tracking-wider text-gray-400 mt-1">{label}</p>
               </div>
             ))}
           </div>
@@ -206,7 +206,7 @@ export default function SellerProfile({ seller, txStats }) {
           {/* Experience ratings */}
           {txStats && txStats.total_transactions > 0 && (txStats.avg_rating_delivery || txStats.avg_rating_accuracy || txStats.avg_rating_communication) && (
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 mb-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Buyer Experience Ratings</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Buyer Experience Ratings</p>
               <div className="grid grid-cols-3 gap-4">
                 {[
                   { label: 'Delivery',       value: txStats.avg_rating_delivery },
@@ -222,7 +222,7 @@ export default function SellerProfile({ seller, txStats }) {
                       ))}
                     </div>
                     <p className="text-sm font-bold text-white">{Number(value).toFixed(1)}</p>
-                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">{label}</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">{label}</p>
                   </div>
                 ) : null)}
               </div>
@@ -254,21 +254,21 @@ export default function SellerProfile({ seller, txStats }) {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="rounded-xl border border-emerald-500/15 bg-emerald-500/5 p-3 text-center">
                     <p className="text-xl font-bold text-emerald-400">{txStats.successful_transactions}</p>
-                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">Successful</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Successful</p>
                   </div>
                   <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3 text-center">
                     <p className="text-xl font-bold text-white">
                       {txStats.avg_price_pkr ? `Rs ${Math.round(txStats.avg_price_pkr).toLocaleString()}` : '—'}
                     </p>
-                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">Avg Price</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Avg Price</p>
                   </div>
                   <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3 text-center">
                     <p className="text-xl font-bold text-white">{txStats.total_items_sold ?? '—'}</p>
-                    <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5">Items Sold</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Items Sold</p>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   No transactions logged yet. If you&apos;ve dealt with this seller,{' '}
                   <Link href={`/log-transaction?seller=${seller.slug}`} className="text-gray-300 hover:text-white underline underline-offset-2 transition">
                     be the first to log one
@@ -287,7 +287,7 @@ export default function SellerProfile({ seller, txStats }) {
                   Browse marketplace →
                 </Link>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-400">
                 View all active listings from this seller on the{' '}
                 <Link href="/marketplace" className="text-gray-300 hover:text-white underline underline-offset-2 transition">
                   PakFrag marketplace
@@ -300,7 +300,7 @@ export default function SellerProfile({ seller, txStats }) {
           <div className="mt-10 text-center">
             <Link
               href={`/tools/verify-seller`}
-              className="text-sm text-gray-500 hover:text-white transition"
+              className="text-sm text-gray-400 hover:text-white transition"
             >
               ← Verify another seller
             </Link>

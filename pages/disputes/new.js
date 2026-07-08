@@ -107,7 +107,7 @@ export default function NewDisputePage() {
             <p className="text-sm text-gray-400 mb-1">
               Our team will review it and reach out to both parties via WhatsApp.
             </p>
-            <p className="text-xs text-gray-600 mb-8">
+            <p className="text-xs text-gray-400 mb-8">
               Resolution typically takes 2–5 business days.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -140,7 +140,7 @@ export default function NewDisputePage() {
         <Header />
 
         <main className="mx-auto max-w-xl px-4 py-20 sm:py-28">
-          <nav className="mb-8 text-sm text-gray-500">
+          <nav className="mb-8 text-sm text-gray-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <span className="mx-2">/</span>
             <span className="text-gray-300">Report a Dispute</span>
@@ -158,7 +158,7 @@ export default function NewDisputePage() {
             {!transaction_id && (
               <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 space-y-3">
                 <h2 className="text-sm font-semibold text-white">Transaction ID</h2>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-400">
                   Enter the transaction ID from your log-transaction confirmation. It looks like a long string of letters and numbers.
                 </p>
                 <input
@@ -168,7 +168,7 @@ export default function NewDisputePage() {
                   placeholder="e.g. 3f2e1a9b-…"
                   className={inputCls}
                 />
-                {txLoading && <p className="text-xs text-gray-500">Looking up transaction…</p>}
+                {txLoading && <p className="text-xs text-gray-400">Looking up transaction…</p>}
                 {txError && <p className="text-xs text-red-400">{txError}</p>}
               </div>
             )}
@@ -205,7 +205,7 @@ export default function NewDisputePage() {
                     <p className={`text-sm font-medium ${category === cat.id ? 'text-amber-300' : 'text-white'}`}>
                       {cat.label}
                     </p>
-                    <p className="text-xs text-gray-500 mt-0.5">{cat.desc}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{cat.desc}</p>
                   </button>
                 ))}
               </div>
@@ -221,13 +221,13 @@ export default function NewDisputePage() {
                 placeholder="Explain the situation in detail — what you ordered, what you received (or didn't), and any steps you already took to resolve it with the seller."
                 className={inputCls + ' resize-none'}
               />
-              <p className="text-[10px] text-gray-600">{description.trim().length} / 10 characters minimum</p>
+              <p className="text-[10px] text-gray-400">{description.trim().length} / 10 characters minimum</p>
             </div>
 
             {/* Evidence URLs */}
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-white">Evidence links <span className="text-gray-500 font-normal">(optional)</span></h2>
-              <p className="text-xs text-gray-500">
+              <h2 className="text-sm font-semibold text-white">Evidence links <span className="text-gray-400 font-normal">(optional)</span></h2>
+              <p className="text-xs text-gray-400">
                 Paste image or screenshot links (one per line) — Google Drive, Imgur, WhatsApp Web, etc.
               </p>
               <textarea
@@ -253,7 +253,7 @@ export default function NewDisputePage() {
               {submitting ? 'Submitting…' : 'Submit Dispute'}
             </button>
 
-            <p className="text-xs text-center text-gray-600">
+            <p className="text-xs text-center text-gray-400">
               Disputes are reviewed manually. We may contact you via WhatsApp for follow-up.
             </p>
           </form>

@@ -80,7 +80,7 @@ export default function Contact() {
                   </div>
                   <span className="font-semibold text-sm text-white">{item.label}</span>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed flex-1">{item.description}</p>
+                <p className="text-xs text-gray-400 leading-relaxed flex-1">{item.description}</p>
                 <span className="text-xs text-[#94aea7] group-hover:text-white transition font-medium">
                   {item.cta} ↗
                 </span>
@@ -88,7 +88,7 @@ export default function Contact() {
             ))}
           </div>
 
-          <p className="mt-10 text-center text-sm text-gray-600">
+          <p className="mt-10 text-center text-sm text-gray-400">
             Response time is typically within a few hours during business hours (PKT).
           </p>
 

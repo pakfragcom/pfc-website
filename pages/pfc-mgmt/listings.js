@@ -14,7 +14,7 @@ const STATUS_COLORS = {
   active:   'text-emerald-400 bg-emerald-500/10 ring-emerald-500/20',
   rejected: 'text-red-400 bg-red-500/10 ring-red-500/20',
   sold:     'text-gray-400 bg-white/5 ring-white/10',
-  expired:  'text-gray-600 bg-white/3 ring-white/8',
+  expired:  'text-gray-400 bg-white/3 ring-white/8',
 };
 
 const TIER_BADGE = {
@@ -142,7 +142,7 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold">Marketplace Listings</h1>
-              <p className="text-xs text-gray-500 mt-1">Review seller submissions before they go live.</p>
+              <p className="text-xs text-gray-400 mt-1">Review seller submissions before they go live.</p>
             </div>
             <button onClick={() => setShowAddForm(v => !v)}
               className="text-xs bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 px-4 py-2 rounded-lg transition">
@@ -157,7 +157,7 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
               <h2 className="text-sm font-semibold text-white mb-2">Add listing on behalf of seller</h2>
 
               <div>
-                <label className="block text-[10px] text-gray-500 mb-1">Seller <span className="text-red-400">*</span></label>
+                <label className="block text-[10px] text-gray-400 mb-1">Seller <span className="text-red-400">*</span></label>
                 <select value={addForm.seller_id} onChange={e => setAdd('seller_id', e.target.value)}
                   className={inputCls + ' appearance-none'}>
                   <option value="">Select verified seller…</option>
@@ -169,32 +169,32 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-gray-500 mb-1">Fragrance name *</label>
+                  <label className="block text-[10px] text-gray-400 mb-1">Fragrance name *</label>
                   <input value={addForm.fragrance_name} onChange={e => setAdd('fragrance_name', e.target.value)} placeholder="Sauvage EDP" className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-gray-500 mb-1">House / Brand *</label>
+                  <label className="block text-[10px] text-gray-400 mb-1">House / Brand *</label>
                   <input value={addForm.house} onChange={e => setAdd('house', e.target.value)} placeholder="Dior" className={inputCls} />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[10px] text-gray-500 mb-1">Concentration</label>
+                  <label className="block text-[10px] text-gray-400 mb-1">Concentration</label>
                   <select value={addForm.concentration} onChange={e => setAdd('concentration', e.target.value)} className={inputCls + ' appearance-none'}>
                     <option value="">—</option>
                     {CONCENTRATIONS.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-gray-500 mb-1">Condition *</label>
+                  <label className="block text-[10px] text-gray-400 mb-1">Condition *</label>
                   <select value={addForm.condition} onChange={e => setAdd('condition', e.target.value)} className={inputCls + ' appearance-none'}>
                     {CONDITIONS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
                 </div>
                 {(addForm.condition === 'partial' || addForm.condition === 'decant') && (
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">Fill level (%)</label>
+                    <label className="block text-[10px] text-gray-400 mb-1">Fill level (%)</label>
                     <input type="number" min="1" max="99" value={addForm.fill_level_pct} onChange={e => setAdd('fill_level_pct', e.target.value)} placeholder="70" className={inputCls} />
                   </div>
                 )}
@@ -202,15 +202,15 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[10px] text-gray-500 mb-1">Price (PKR) *</label>
+                  <label className="block text-[10px] text-gray-400 mb-1">Price (PKR) *</label>
                   <input type="number" min="1" value={addForm.price_pkr} onChange={e => setAdd('price_pkr', e.target.value)} placeholder="12500" className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-gray-500 mb-1">Quantity</label>
+                  <label className="block text-[10px] text-gray-400 mb-1">Quantity</label>
                   <input type="number" min="1" value={addForm.quantity} onChange={e => setAdd('quantity', e.target.value)} className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-gray-500 mb-1">City</label>
+                  <label className="block text-[10px] text-gray-400 mb-1">City</label>
                   <select value={addForm.city} onChange={e => setAdd('city', e.target.value)} className={inputCls + ' appearance-none'}>
                     <option value="">—</option>
                     {PAKISTAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -224,7 +224,7 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
               </div>
 
               <div>
-                <label className="block text-[10px] text-gray-500 mb-1">Description</label>
+                <label className="block text-[10px] text-gray-400 mb-1">Description</label>
                 <textarea value={addForm.description} onChange={e => setAdd('description', e.target.value)} rows={2} placeholder="Bottle condition, purchase year, etc." className={inputCls + ' resize-none'} />
               </div>
 
@@ -255,10 +255,10 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
           </div>
 
           {loading ? (
-            <div className="text-gray-500 text-sm py-10 text-center">Loading…</div>
+            <div className="text-gray-400 text-sm py-10 text-center">Loading…</div>
           ) : listings.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-gray-500 text-sm">No {filter !== 'all' ? filter : ''} listings.</p>
+              <p className="text-gray-400 text-sm">No {filter !== 'all' ? filter : ''} listings.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -272,7 +272,7 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
                             {listing.fragrance_name}
                             {listing.concentration ? ` ${listing.concentration}` : ''}
                           </h3>
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="text-xs text-gray-400 mt-0.5">
                             {listing.house} · {CONDITIONS.find(c => c.id === listing.condition)?.label || listing.condition}
                             {listing.fill_level_pct ? ` · ${listing.fill_level_pct}%` : ''}
                           </p>
@@ -282,9 +282,9 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 flex-wrap">
+                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 flex-wrap">
                         <span className="font-medium text-white">Rs {Number(listing.price_pkr).toLocaleString()}</span>
-                        {listing.is_negotiable && <span className="text-gray-600">· negotiable</span>}
+                        {listing.is_negotiable && <span className="text-gray-400">· negotiable</span>}
                         {listing.city && <span>· {listing.city}</span>}
                         {listing.sellers && (
                           <span className="flex items-center gap-1">
@@ -292,7 +292,7 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
                             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold ring-1 ${TIER_BADGE[listing.sellers.verification_tier ?? 0] || TIER_BADGE[0]} ring-white/10`}>
                               L{listing.sellers.verification_tier ?? 0}
                             </span>
-                            <span className="font-mono text-gray-600">{listing.sellers.code}</span>
+                            <span className="font-mono text-gray-400">{listing.sellers.code}</span>
                           </span>
                         )}
                         <span>· {new Date(listing.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}</span>
@@ -334,7 +334,7 @@ export default function AdminListings({ identity = ADMIN_IDENTITY }) {
                       {listing.description ? (
                         <p className="text-sm text-gray-300 leading-relaxed">{listing.description}</p>
                       ) : (
-                        <p className="text-xs text-gray-600 italic">No description provided.</p>
+                        <p className="text-xs text-gray-400 italic">No description provided.</p>
                       )}
                       {listing.reject_reason && (
                         <p className="mt-3 text-xs text-red-400 bg-red-500/10 rounded-lg px-3 py-2">

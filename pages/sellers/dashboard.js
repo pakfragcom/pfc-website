@@ -54,11 +54,11 @@ function DocUploader({ sellerId, docType, label, onUploaded }) {
         {done ? (
           <p className="text-xs text-emerald-400">✓ {label} uploaded</p>
         ) : uploading ? (
-          <p className="text-xs text-gray-500">Uploading…</p>
+          <p className="text-xs text-gray-400">Uploading…</p>
         ) : (
           <>
             <p className="text-xs text-gray-300">{label}</p>
-            <p className="text-[11px] text-gray-600 mt-0.5">JPG, PNG or PDF</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">JPG, PNG or PDF</p>
           </>
         )}
       </div>
@@ -198,7 +198,7 @@ export default function SellerDashboard() {
             {/* Verification code */}
             {seller.status === 'active' && seller.code && (
               <div className="mb-6 rounded-2xl border border-[#2a5c4f]/30 bg-[#2a5c4f]/10 p-5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Your Verification Code</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Your Verification Code</p>
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-2xl font-bold text-white tracking-widest">{seller.code}</span>
                   <button onClick={copyCode}
@@ -206,7 +206,7 @@ export default function SellerDashboard() {
                     {copied ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
-                <p className="text-xs text-gray-600 mt-3">
+                <p className="text-xs text-gray-400 mt-3">
                   Share this code anywhere — WhatsApp bio, posts, stories. Buyers verify you at{' '}
                   <Link href="/tools/verify-seller" className="text-[#94aea7] underline">pakfrag.com/tools/verify-seller</Link>
                 </p>
@@ -223,8 +223,8 @@ export default function SellerDashboard() {
               ].map(({ label, value, sub }) => (
                 <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
                   <p className="text-xl font-bold text-white">{value}</p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">{sub}</p>
-                  <p className="text-[10px] text-gray-600 uppercase tracking-wider mt-1">{label}</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">{sub}</p>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-1">{label}</p>
                 </div>
               ))}
             </div>
@@ -240,7 +240,7 @@ export default function SellerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-white group-hover:text-[#94aea7] transition">Create Listing</p>
-                  <p className="text-xs text-gray-600">Post a fragrance for sale</p>
+                  <p className="text-xs text-gray-400">Post a fragrance for sale</p>
                 </div>
               </Link>
 
@@ -253,7 +253,7 @@ export default function SellerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-white group-hover:text-[#94aea7] transition">Log a Deal</p>
-                  <p className="text-xs text-gray-600">Build your transaction history</p>
+                  <p className="text-xs text-gray-400">Build your transaction history</p>
                 </div>
               </Link>
 
@@ -266,7 +266,7 @@ export default function SellerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-white group-hover:text-[#94aea7] transition">View Marketplace</p>
-                  <p className="text-xs text-gray-600">See your listings live</p>
+                  <p className="text-xs text-gray-400">See your listings live</p>
                 </div>
               </Link>
 
@@ -280,7 +280,7 @@ export default function SellerDashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white group-hover:text-[#94aea7] transition">Public Profile</p>
-                    <p className="text-xs text-gray-600">pakfrag.com/sellers/{seller.slug}</p>
+                    <p className="text-xs text-gray-400">pakfrag.com/sellers/{seller.slug}</p>
                   </div>
                 </Link>
               )}
@@ -295,7 +295,7 @@ export default function SellerDashboard() {
                       L2 · Document Verified
                     </div>
                     <h3 className="text-sm font-semibold text-white mb-1">Get document verified</h3>
-                    <p className="text-xs text-gray-500 max-w-sm">
+                    <p className="text-xs text-gray-400 max-w-sm">
                       Upload your CNIC to earn the Document Verified badge. No extra cost — same subscription. Significantly boosts buyer confidence.
                     </p>
                   </div>
@@ -344,16 +344,16 @@ export default function SellerDashboard() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-sm font-semibold text-white">Your Listings</h2>
-                  <Link href="/sell" className="text-xs text-gray-500 hover:text-gray-300 transition">+ New listing</Link>
+                  <Link href="/sell" className="text-xs text-gray-400 hover:text-gray-300 transition">+ New listing</Link>
                 </div>
                 <div className="space-y-2">
                   {listings.slice(0, 5).map(l => (
                     <div key={l.id} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.02] px-4 py-3">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-white truncate">{l.fragrance_name}</p>
-                        <p className="text-xs text-gray-500">Rs {Number(l.price_pkr).toLocaleString()} · {l.condition}</p>
+                        <p className="text-xs text-gray-400">Rs {Number(l.price_pkr).toLocaleString()} · {l.condition}</p>
                       </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${l.status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/8 text-gray-500'}`}>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${l.status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/8 text-gray-400'}`}>
                         {l.status}
                       </span>
                     </div>

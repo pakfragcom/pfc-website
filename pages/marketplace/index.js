@@ -69,7 +69,7 @@ function ListingCard({ listing }) {
             <span className="text-4xl font-black text-white/10 leading-none">
               {listing.fragrance_name[0]?.toUpperCase()}
             </span>
-            <span className="text-[10px] text-gray-600 uppercase tracking-wider truncate max-w-full px-2">
+            <span className="text-[10px] text-gray-400 uppercase tracking-wider truncate max-w-full px-2">
               {listing.house}
             </span>
           </div>
@@ -82,7 +82,7 @@ function ListingCard({ listing }) {
             <h2 className="text-sm font-semibold text-white leading-tight truncate group-hover:text-[#94aea7] transition">
               {listing.fragrance_name}
             </h2>
-            <p className="text-xs text-gray-500 truncate mt-0.5">{listing.house}</p>
+            <p className="text-xs text-gray-400 truncate mt-0.5">{listing.house}</p>
           </div>
           <ConditionBadge condition={listing.condition} />
         </div>
@@ -95,7 +95,7 @@ function ListingCard({ listing }) {
                 style={{ width: `${listing.fill_level_pct}%` }}
               />
             </div>
-            <span className="text-[10px] text-gray-500">{listing.fill_level_pct}%</span>
+            <span className="text-[10px] text-gray-400">{listing.fill_level_pct}%</span>
           </div>
         )}
 
@@ -103,11 +103,11 @@ function ListingCard({ listing }) {
           <div>
             <span className="text-base font-bold text-white">Rs {listing.price_pkr?.toLocaleString()}</span>
             {listing.is_negotiable && (
-              <span className="ml-1.5 text-[10px] text-gray-500">nego</span>
+              <span className="ml-1.5 text-[10px] text-gray-400">nego</span>
             )}
           </div>
           {listing.city && (
-            <span className="text-[11px] text-gray-500">{listing.city}</span>
+            <span className="text-[11px] text-gray-400">{listing.city}</span>
           )}
         </div>
 
@@ -188,7 +188,7 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
         <main className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
 
           {/* Breadcrumb */}
-          <nav className="mb-10 text-sm text-gray-500">
+          <nav className="mb-10 text-sm text-gray-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <span className="mx-2">/</span>
             <span className="text-gray-300">Marketplace</span>
@@ -266,7 +266,7 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
           </div>
 
           {/* Results count */}
-          <p className="text-xs text-gray-500 mb-5">
+          <p className="text-xs text-gray-400 mb-5">
             {filtered.length} listing{filtered.length !== 1 ? 's' : ''}
             {lastUpdated && <span className="ml-2">· Updated {new Date(lastUpdated).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' })}</span>}
           </p>
@@ -275,7 +275,7 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
           {filtered.length === 0 ? (
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] py-20 text-center">
               <p className="text-gray-400 font-medium">No listings found</p>
-              <p className="text-sm text-gray-600 mt-1">Try adjusting your filters, or be the first to post one.</p>
+              <p className="text-sm text-gray-400 mt-1">Try adjusting your filters, or be the first to post one.</p>
               <Link href="/sell" className="inline-block mt-5 rounded-xl border border-white/15 px-5 py-2.5 text-sm text-gray-300 hover:text-white hover:border-white/30 transition">
                 + Post a listing
               </Link>
@@ -296,7 +296,7 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
             >
               + Post a Listing
             </Link>
-            <p className="mt-3 text-xs text-gray-600">
+            <p className="mt-3 text-xs text-gray-400">
               Only verified sellers can post.{' '}
               <Link href="/tools/verify-seller" className="text-gray-400 hover:text-white underline underline-offset-2 transition">
                 Check the registry

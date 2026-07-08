@@ -26,14 +26,14 @@ function RatingBar({ label, value }) {
   if (!value) return null
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs text-gray-500 w-20 flex-shrink-0">{label}</span>
+      <span className="text-xs text-gray-400 w-20 flex-shrink-0">{label}</span>
       <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
         <div
           className="h-full rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#94aea7]"
           style={{ width: `${(value / 5) * 100}%` }}
         />
       </div>
-      <span className="text-xs text-gray-500 w-4 text-right">{value}</span>
+      <span className="text-xs text-gray-400 w-4 text-right">{value}</span>
     </div>
   )
 }
@@ -124,7 +124,7 @@ export default function HousePage({ house, reviews = [], stats }) {
 
             <div className="mx-auto max-w-4xl px-6 py-14 relative">
               {/* Breadcrumb */}
-              <nav className="flex items-center gap-2 text-xs text-gray-600 mb-6" aria-label="Breadcrumb">
+              <nav className="flex items-center gap-2 text-xs text-gray-400 mb-6" aria-label="Breadcrumb">
                 <Link href="/" className="hover:text-gray-400 transition">Home</Link>
                 <span>/</span>
                 <Link href="/mbp" className="hover:text-gray-400 transition">MBP</Link>
@@ -160,7 +160,7 @@ export default function HousePage({ house, reviews = [], stats }) {
                       ✓ PFC Verified
                     </span>
                     {house.established_year && (
-                      <span className="text-[11px] text-gray-600">Est. {house.established_year}</span>
+                      <span className="text-[11px] text-gray-400">Est. {house.established_year}</span>
                     )}
                   </div>
 
@@ -172,7 +172,7 @@ export default function HousePage({ house, reviews = [], stats }) {
                     </p>
                   )}
                   {house.city && (
-                    <p className="mt-0.5 text-sm text-gray-500">{house.city}, Pakistan</p>
+                    <p className="mt-0.5 text-sm text-gray-400">{house.city}, Pakistan</p>
                   )}
 
                   {/* Aggregate rating bar */}
@@ -180,7 +180,7 @@ export default function HousePage({ house, reviews = [], stats }) {
                     <div className="mt-4 flex items-center gap-3">
                       <Stars rating={stats.avg} size="md" />
                       <span className="text-lg font-semibold text-white">{stats.avg.toFixed(1)}</span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-400">
                         {stats.count} {stats.count === 1 ? 'review' : 'reviews'}
                       </span>
                     </div>
@@ -234,7 +234,7 @@ export default function HousePage({ house, reviews = [], stats }) {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">
                 Community Reviews
-                {hasReviews && <span className="ml-2 text-sm font-normal text-gray-500">({stats.count})</span>}
+                {hasReviews && <span className="ml-2 text-sm font-normal text-gray-400">({stats.count})</span>}
               </h2>
               {hasReviews && (
                 <Link href={`/reviews/submit?category=local&house=${encodeURIComponent(house.house)}`}
@@ -248,7 +248,7 @@ export default function HousePage({ house, reviews = [], stats }) {
               <div className="rounded-2xl border border-white/8 bg-white/[0.02] px-8 py-16 text-center">
                 <div className="text-4xl mb-4">🌿</div>
                 <h3 className="text-base font-semibold text-white mb-2">No reviews yet</h3>
-                <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+                <p className="text-sm text-gray-400 mb-6 max-w-sm mx-auto">
                   Be the first PFC member to share your experience with {house.house}.
                 </p>
                 <Link href={`/reviews/submit?category=local&house=${encodeURIComponent(house.house)}`}
@@ -273,7 +273,7 @@ export default function HousePage({ house, reviews = [], stats }) {
                           <Stars rating={review.rating_overall} />
                           <span className="text-amber-400 text-xs font-medium">{Number(review.rating_overall).toFixed(1)}</span>
                         </div>
-                        <p className="mt-0.5 text-xs text-gray-500">
+                        <p className="mt-0.5 text-xs text-gray-400">
                           By {review.profiles?.display_name || 'PFC Member'}
                           {review.profiles?.city && ` · ${review.profiles.city}`}
                           {' · '}{new Date(review.published_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -295,7 +295,7 @@ export default function HousePage({ house, reviews = [], stats }) {
 
             {/* Pagination hint */}
             {reviews.length >= 20 && (
-              <p className="mt-6 text-center text-xs text-gray-600">Showing 20 most recent reviews</p>
+              <p className="mt-6 text-center text-xs text-gray-400">Showing 20 most recent reviews</p>
             )}
           </div>
         </main>

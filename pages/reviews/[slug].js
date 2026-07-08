@@ -18,7 +18,7 @@ function RatingBar({ label, value }) {
   if (!value) return null;
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs text-gray-500 w-20 flex-shrink-0">{label}</span>
+      <span className="text-xs text-gray-400 w-20 flex-shrink-0">{label}</span>
       <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
         <div className="h-full rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#94aea7] transition-all"
           style={{ width: `${(value / 5) * 100}%` }} />
@@ -68,7 +68,7 @@ function ShareButton({ slug, title }) {
   }
   return (
     <button onClick={share}
-      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors">
+      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors">
       {copied ? (
         <>
           <svg className="h-3.5 w-3.5 text-[#94aea7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -133,7 +133,7 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[['Overall', overall, setOverall], ['Longevity', longevity, setLongevity], ['Sillage', sillage, setSillage], ['Value', value, setValue]].map(([label, val, setter]) => (
           <div key={label}>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">{label}</label>
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">{label}</label>
             <input type="number" min="1" max="5" step="0.5" value={val}
               onChange={e => setter(e.target.value)}
               className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25" />
@@ -142,7 +142,7 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">Occasion</label>
+          <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Occasion</label>
           <select value={occasion} onChange={e => setOccasion(e.target.value)}
             className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25">
             <option value="">—</option>
@@ -154,7 +154,7 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
           </select>
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">Season</label>
+          <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Season</label>
           <select value={season} onChange={e => setSeason(e.target.value)}
             className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25">
             <option value="">—</option>
@@ -167,7 +167,7 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
         </div>
       </div>
       <div>
-        <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">Cover Image URL</label>
+        <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Cover Image URL</label>
         <input type="url" value={coverImg} onChange={e => setCoverImg(e.target.value)}
           placeholder="https://..."
           className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25 placeholder-gray-600" />
@@ -263,10 +263,10 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                       ? <Link href={`/u/${author.username}`} className="text-sm font-medium text-white hover:text-[#94aea7] transition">{author.display_name || 'Community Member'}</Link>
                       : <p className="text-sm font-medium text-white">{author?.display_name || 'Community Member'}</p>
                     }
-                    {author?.city && <p className="text-xs text-gray-500">{author.city}</p>}
+                    {author?.city && <p className="text-xs text-gray-400">{author.city}</p>}
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="flex items-center gap-4 text-xs text-gray-400">
                   {review.occasion && <span className="capitalize">{review.occasion}</span>}
                   {review.season && <span className="capitalize">{review.season}</span>}
                   {review.published_at && (
@@ -292,12 +292,12 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                       }
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">{CATEGORY_LABELS[fragrance.category] || fragrance.category}</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">{CATEGORY_LABELS[fragrance.category] || fragrance.category}</p>
                       <p className="text-sm font-semibold text-white leading-snug">
                         {fragrance.name}
                         {fragrance.concentration && <span className="ml-1.5 text-xs font-normal text-[#94aea7]">{fragrance.concentration}</span>}
                       </p>
-                      <p className="text-xs text-gray-500">{fragrance.house}</p>
+                      <p className="text-xs text-gray-400">{fragrance.house}</p>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-[#94aea7] group-hover:text-white transition flex-shrink-0">
                       <span>View in directory</span>
@@ -326,7 +326,7 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                 <div className="mb-10">
                   {!editing ? (
                     <button onClick={() => setEditing(true)}
-                      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors">
+                      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors">
                       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
@@ -341,7 +341,7 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
               {/* Detailed ratings */}
               {(review.rating_longevity || review.rating_sillage || review.rating_value) && (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 mb-10">
-                  <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-5">Detailed Ratings</h3>
+                  <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-5">Detailed Ratings</h3>
                   <div className="space-y-4">
                     <RatingBar label="Longevity" value={review.rating_longevity} />
                     <RatingBar label="Sillage" value={review.rating_sillage} />
@@ -390,12 +390,12 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                         className="group rounded-xl border border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04] p-4 transition-all duration-300">
                         <div className="flex items-center justify-between mb-2">
                           <MiniStars value={r.rating_overall} />
-                          <span className="text-[10px] text-gray-600">
+                          <span className="text-[10px] text-gray-400">
                             {r.published_at ? new Date(r.published_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' }) : ''}
                           </span>
                         </div>
                         <p className="text-xs text-gray-300 leading-relaxed line-clamp-2 mb-2">{r.review_text}</p>
-                        <p className="text-[10px] text-gray-600">{r.profiles?.display_name || 'Anonymous'}</p>
+                        <p className="text-[10px] text-gray-400">{r.profiles?.display_name || 'Anonymous'}</p>
                       </Link>
                     ))}
                   </div>

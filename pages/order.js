@@ -165,9 +165,9 @@ export default function OrderPage() {
 
             {/* Header */}
             <div className="mb-8">
-              <Link href="/" className="text-xs text-gray-600 hover:text-gray-400 transition mb-4 inline-block">← Back to PFC</Link>
+              <Link href="/" className="text-xs text-gray-400 hover:text-gray-400 transition mb-4 inline-block">← Back to PFC</Link>
               <h1 className="text-2xl font-bold text-white">Order a Fragrance</h1>
-              <p className="text-sm text-gray-500 mt-1">Tell us what you want — we'll reach out on WhatsApp within 24 hours.</p>
+              <p className="text-sm text-gray-400 mt-1">Tell us what you want — we'll reach out on WhatsApp within 24 hours.</p>
             </div>
 
             {/* Progress */}
@@ -177,11 +177,11 @@ export default function OrderPage() {
                   <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold flex-shrink-0 transition ${
                     i + 1 < step ? 'bg-[#2a5c4f] text-white' :
                     i + 1 === step ? 'bg-[#557d72] text-white ring-2 ring-[#557d72]/30' :
-                    'bg-white/8 text-gray-600'
+                    'bg-white/8 text-gray-400'
                   }`}>
                     {i + 1 < step ? '✓' : i + 1}
                   </div>
-                  <span className={`text-xs hidden sm:block ${i + 1 === step ? 'text-white' : 'text-gray-600'}`}>{label}</span>
+                  <span className={`text-xs hidden sm:block ${i + 1 === step ? 'text-white' : 'text-gray-400'}`}>{label}</span>
                   {i < steps.length - 1 && <div className={`flex-1 h-px ${i + 1 < step ? 'bg-[#2a5c4f]' : 'bg-white/8'}`} />}
                 </div>
               ))}
@@ -214,13 +214,13 @@ export default function OrderPage() {
                             <button type="button" onMouseDown={() => pickSuggestion(f)}
                               className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/8 transition">
                               <span className="text-white">{f.name}</span>
-                              <span className="text-gray-500 ml-2 text-xs">by {f.house}</span>
+                              <span className="text-gray-400 ml-2 text-xs">by {f.house}</span>
                             </button>
                           </li>
                         ))}
                       </ul>
                     )}
-                    <p className="mt-1 text-xs text-gray-600">Start typing to search our directory, or enter any fragrance name.</p>
+                    <p className="mt-1 text-xs text-gray-400">Start typing to search our directory, or enter any fragrance name.</p>
                   </div>
 
                   {/* Type */}
@@ -235,7 +235,7 @@ export default function OrderPage() {
                               : 'border-white/10 bg-transparent text-gray-400 hover:border-white/20 hover:text-white'
                           }`}>
                           <p className="text-sm font-semibold">{t.label}</p>
-                          <p className="text-xs text-gray-500 mt-0.5 leading-snug">{t.desc}</p>
+                          <p className="text-xs text-gray-400 mt-0.5 leading-snug">{t.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -305,7 +305,7 @@ export default function OrderPage() {
                     <label className={labelCls}>WhatsApp number *</label>
                     <input type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)}
                       placeholder="03xx-xxxxxxx" className={inputCls} />
-                    <p className="mt-1 text-xs text-gray-600">We'll only use this to confirm your order.</p>
+                    <p className="mt-1 text-xs text-gray-400">We'll only use this to confirm your order.</p>
                   </div>
                   <div>
                     <label className={labelCls}>City</label>
@@ -352,7 +352,7 @@ export default function OrderPage() {
 
                   {/* Terms */}
                   <div className="space-y-3">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">Terms & Conditions</p>
+                    <p className="text-xs text-gray-400 uppercase tracking-wider">Terms & Conditions</p>
                     {TERMS.map((t, i) => (
                       <div key={i} className="flex items-start gap-2.5 text-sm text-gray-400">
                         <svg className="w-4 h-4 text-[#557d72] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -405,10 +405,10 @@ export default function OrderPage() {
               </div>
             </div>
 
-            <p className="mt-6 text-center text-xs text-gray-600">
+            <p className="mt-6 text-center text-xs text-gray-400">
               Questions? Message us on{' '}
               <a href="https://www.facebook.com/groups/pakfrag" target="_blank" rel="noopener noreferrer"
-                className="text-gray-500 hover:text-white transition">Facebook</a>
+                className="text-gray-400 hover:text-white transition">Facebook</a>
             </p>
           </div>
         </main>
@@ -421,7 +421,7 @@ export default function OrderPage() {
 function Row({ label, value }) {
   return (
     <div className="flex justify-between gap-4">
-      <span className="text-gray-500">{label}</span>
+      <span className="text-gray-400">{label}</span>
       <span className="text-white text-right">{value}</span>
     </div>
   );

@@ -115,7 +115,7 @@ export default function TeamPage({ identity }) {
 
         <div className="max-w-3xl mx-auto px-6 py-8">
           <h1 className="text-2xl font-bold mb-2">Team</h1>
-          <p className="text-sm text-gray-500 mb-8">Grant moderators access to specific sections of the admin panel.</p>
+          <p className="text-sm text-gray-400 mb-8">Grant moderators access to specific sections of the admin panel.</p>
 
           {/* Add moderator */}
           <div className="bg-white/[0.03] ring-1 ring-white/10 rounded-2xl p-5 mb-8">
@@ -138,16 +138,16 @@ export default function TeamPage({ identity }) {
               </button>
             </form>
             {addError && <p className="text-sm text-red-400 mt-2">{addError}</p>}
-            <p className="text-xs text-gray-600 mt-2">The user must already have a PFC account. All permissions start off — enable them below.</p>
+            <p className="text-xs text-gray-400 mt-2">The user must already have a PFC account. All permissions start off — enable them below.</p>
           </div>
 
           {/* Moderators list */}
-          <h2 className="text-xs uppercase tracking-widest text-gray-500 mb-4">Moderators ({moderators.length})</h2>
+          <h2 className="text-xs uppercase tracking-widest text-gray-400 mb-4">Moderators ({moderators.length})</h2>
 
           {loading ? (
-            <p className="text-gray-500 text-sm">Loading…</p>
+            <p className="text-gray-400 text-sm">Loading…</p>
           ) : moderators.length === 0 ? (
-            <p className="text-gray-600 text-sm">No moderators yet. Add someone above.</p>
+            <p className="text-gray-400 text-sm">No moderators yet. Add someone above.</p>
           ) : (
             <div className="space-y-3">
               {moderators.map(mod => (
@@ -155,11 +155,11 @@ export default function TeamPage({ identity }) {
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div>
                       <p className="font-medium text-sm text-white">{mod.display_name || mod.username}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{mod.email}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{mod.email}</p>
                     </div>
                     <button
                       onClick={() => handleRevoke(mod.id, mod.display_name || mod.username)}
-                      className="text-xs text-gray-600 hover:text-red-400 transition px-2 py-1 rounded-lg"
+                      className="text-xs text-gray-400 hover:text-red-400 transition px-2 py-1 rounded-lg"
                     >
                       Revoke
                     </button>
@@ -174,7 +174,7 @@ export default function TeamPage({ identity }) {
                       <div key={key} className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-gray-200">{label}</p>
-                          <p className="text-xs text-gray-600">{desc}</p>
+                          <p className="text-xs text-gray-400">{desc}</p>
                         </div>
                         <Toggle
                           checked={mod.permissions[key] ?? false}

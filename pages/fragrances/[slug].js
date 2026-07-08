@@ -168,7 +168,7 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
 
               {/* Back */}
               <Link href="/fragrances"
-                className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white transition mb-8">
+                className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition mb-8">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -212,7 +212,7 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                     )}
                     {fragrance.image_url && user && !suggestDone && (
                       <button onClick={() => setSuggestOpen(true)}
-                        className="absolute bottom-3 right-3 z-20 text-[10px] text-gray-600 hover:text-gray-300 bg-black/70 hover:bg-black/90 border border-white/8 rounded-lg px-2.5 py-1 transition">
+                        className="absolute bottom-3 right-3 z-20 text-[10px] text-gray-400 hover:text-gray-300 bg-black/70 hover:bg-black/90 border border-white/8 rounded-lg px-2.5 py-1 transition">
                         Replace image
                       </button>
                     )}
@@ -230,7 +230,7 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                         </span>
                       )}
                       {fragrance.year_released && (
-                        <span className="text-xs text-gray-600">{fragrance.year_released}</span>
+                        <span className="text-xs text-gray-400">{fragrance.year_released}</span>
                       )}
                       <a href="#reviews"
                         className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-gray-400 hover:text-white hover:border-white/20 transition">
@@ -266,7 +266,7 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                           { label: 'Base', value: fragrance.notes_base },
                         ].filter(n => n.value).map(n => (
                           <div key={n.label}>
-                            <p className="text-[10px] uppercase tracking-wider text-gray-600 mb-1">{n.label}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">{n.label}</p>
                             <p className="text-xs text-gray-300">{n.value}</p>
                           </div>
                         ))}
@@ -330,13 +330,13 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                 <h2 className="text-lg font-semibold text-white mb-6">
                   Community Reviews
                   {reviews.length > 0 && (
-                    <span className="ml-2 text-sm font-normal text-gray-500">({reviews.length})</span>
+                    <span className="ml-2 text-sm font-normal text-gray-400">({reviews.length})</span>
                   )}
                 </h2>
 
                 {reviews.length === 0 ? (
                   <div className="text-center py-16 rounded-2xl border border-white/8 bg-white/[0.02]">
-                    <p className="text-gray-500 mb-4">No reviews yet — be the first.</p>
+                    <p className="text-gray-400 mb-4">No reviews yet — be the first.</p>
                     <Link
                       href={`/reviews/submit?fragrance=${encodeURIComponent(fragrance.name)}&house=${encodeURIComponent(fragrance.house)}&fid=${fragrance.id}`}
                       className="inline-flex items-center rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110 transition"
@@ -375,14 +375,14 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
           onClick={e => { if (e.target === e.currentTarget) { setSuggestOpen(false); setSuggestFile(null); } }}>
           <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f0f] p-6">
             <h3 className="font-semibold text-white mb-1">Suggest an image</h3>
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-gray-400 mb-4">
               For <span className="text-gray-300">{fragrance.name}</span>. Admins review before it goes live.
             </p>
 
             {suggestDone ? (
               <div className="text-center py-4">
                 <p className="text-emerald-400 text-sm font-medium">Submitted for review</p>
-                <p className="text-xs text-gray-500 mt-1">We'll approve or reject it shortly.</p>
+                <p className="text-xs text-gray-400 mt-1">We'll approve or reject it shortly.</p>
                 <button onClick={() => { setSuggestOpen(false); }}
                   className="mt-4 text-xs bg-white/8 hover:bg-white/15 text-gray-300 px-4 py-2 rounded-lg transition">
                   Close
@@ -398,12 +398,12 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                     {suggestFile ? (
                       <div>
                         <p className="text-sm text-white font-medium">{suggestFile.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">{(suggestFile.size / 1024).toFixed(0)} KB</p>
+                        <p className="text-xs text-gray-400 mt-1">{(suggestFile.size / 1024).toFixed(0)} KB</p>
                       </div>
                     ) : (
                       <div>
                         <p className="text-sm text-gray-400">Click to select an image</p>
-                        <p className="text-xs text-gray-600 mt-1">JPG, PNG or WebP · max 5 MB</p>
+                        <p className="text-xs text-gray-400 mt-1">JPG, PNG or WebP · max 5 MB</p>
                       </div>
                     )}
                   </div>
@@ -456,7 +456,7 @@ function ForSaleNow({ listings, fragrance }) {
                 ? `Rs ${minPrice.toLocaleString()}`
                 : `Rs ${minPrice.toLocaleString()} – ${maxPrice.toLocaleString()}`}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-400">
               {listings.length} listing{listings.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -493,12 +493,12 @@ function ForSaleNow({ listings, fragrance }) {
                 {l.city ? ` · ${l.city}` : ''}
               </p>
               {l.sellers?.name && (
-                <p className="text-[10px] text-gray-600 truncate">{l.sellers.name}</p>
+                <p className="text-[10px] text-gray-400 truncate">{l.sellers.name}</p>
               )}
             </div>
             <div className="text-right shrink-0">
               <p className="text-sm font-bold text-white">Rs {l.price_pkr.toLocaleString()}</p>
-              {l.is_negotiable && <p className="text-[10px] text-gray-500">nego</p>}
+              {l.is_negotiable && <p className="text-[10px] text-gray-400">nego</p>}
             </div>
           </Link>
         ))}
@@ -507,7 +507,7 @@ function ForSaleNow({ listings, fragrance }) {
       {listings.length > 4 && (
         <Link
           href={`/marketplace?q=${encodeURIComponent(fragrance.name)}`}
-          className="mt-3 block text-center text-xs text-gray-500 hover:text-gray-300 transition"
+          className="mt-3 block text-center text-xs text-gray-400 hover:text-gray-300 transition"
         >
           +{listings.length - 4} more listing{listings.length - 4 !== 1 ? 's' : ''} →
         </Link>
@@ -521,8 +521,8 @@ function PakistanPrice({ stats, fragrance }) {
     return (
       <div className="mb-10 rounded-2xl border border-white/8 bg-white/[0.02] p-5 flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-wider text-gray-600 mb-0.5">Pakistan Price</p>
-          <p className="text-sm text-gray-500">No community transactions logged yet.</p>
+          <p className="text-xs uppercase tracking-wider text-gray-400 mb-0.5">Pakistan Price</p>
+          <p className="text-sm text-gray-400">No community transactions logged yet.</p>
         </div>
         <Link
           href={`/log-transaction?fragrance=${encodeURIComponent(fragrance.name)}`}
@@ -550,7 +550,7 @@ function PakistanPrice({ stats, fragrance }) {
             <span className="text-2xl font-bold text-white">
               Rs {Number(stats.avg_price_pkr).toLocaleString()}
             </span>
-            <span className="text-xs text-gray-500">avg community price</span>
+            <span className="text-xs text-gray-400">avg community price</span>
             {trendPct !== null && (
               <span className={`text-xs font-semibold ${trendPct > 0 ? 'text-red-400' : trendPct < 0 ? 'text-emerald-400' : 'text-gray-400'}`}>
                 {trendPct > 0 ? '↑' : trendPct < 0 ? '↓' : '→'} {Math.abs(trendPct)}% vs prev 30d
@@ -574,7 +574,7 @@ function PakistanPrice({ stats, fragrance }) {
         ].map(({ label, value }) => (
           <div key={label} className="rounded-xl bg-black/20 p-3 text-center">
             <p className="text-sm font-bold text-white">{value}</p>
-            <p className="text-[10px] uppercase tracking-wider text-gray-600 mt-0.5">{label}</p>
+            <p className="text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">{label}</p>
           </div>
         ))}
       </div>
@@ -598,13 +598,13 @@ function PakistanPrice({ stats, fragrance }) {
             );
           })()}
         </div>
-        <div className="flex justify-between text-[10px] text-gray-600 mt-1">
+        <div className="flex justify-between text-[10px] text-gray-400 mt-1">
           <span>Rs {Number(stats.min_price_pkr).toLocaleString()}</span>
           <span>Rs {Number(stats.max_price_pkr).toLocaleString()}</span>
         </div>
       </div>
 
-      <p className="mt-3 text-[10px] text-gray-600">
+      <p className="mt-3 text-[10px] text-gray-400">
         Based on {stats.success_count} verified deal{stats.success_count !== 1 ? 's' : ''} from the community.{' '}
         <Link href={`/log-transaction?fragrance=${encodeURIComponent(fragrance.name)}`} className="underline hover:text-gray-400 transition">
           Log yours
@@ -633,8 +633,8 @@ function CityLongevity({ data, fragrance }) {
     return (
       <div className="mb-10 rounded-2xl border border-white/8 bg-white/[0.02] px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-wider text-gray-600 mb-0.5">Longevity by City</p>
-          <p className="text-sm text-gray-500">Not enough city data yet — needs 3+ reviews per city.</p>
+          <p className="text-xs uppercase tracking-wider text-gray-400 mb-0.5">Longevity by City</p>
+          <p className="text-sm text-gray-400">Not enough city data yet — needs 3+ reviews per city.</p>
         </div>
         <Link href={`/reviews/submit?fragrance=${encodeURIComponent(fragrance.name)}&house=${encodeURIComponent(fragrance.house)}`}
           className="shrink-0 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition">
@@ -648,11 +648,11 @@ function CityLongevity({ data, fragrance }) {
     <div className="mb-10 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="text-xs uppercase tracking-wider text-gray-500 mb-0.5">Longevity by City</p>
-          <p className="text-xs text-gray-600">Community data · climate affects performance</p>
+          <p className="text-xs uppercase tracking-wider text-gray-400 mb-0.5">Longevity by City</p>
+          <p className="text-xs text-gray-400">Community data · climate affects performance</p>
         </div>
         <Link href={`/reviews/submit?fragrance=${encodeURIComponent(fragrance.name)}&house=${encodeURIComponent(fragrance.house)}`}
-          className="text-xs text-gray-600 hover:text-gray-300 transition">
+          className="text-xs text-gray-400 hover:text-gray-300 transition">
           Add yours →
         </Link>
       </div>
@@ -663,22 +663,22 @@ function CityLongevity({ data, fragrance }) {
             <div>
               <p className="text-xs font-medium text-white">{row.city}</p>
               {row.top_season && (
-                <p className="text-[10px] text-gray-600 capitalize mt-0.5">{row.top_season}</p>
+                <p className="text-[10px] text-gray-400 capitalize mt-0.5">{row.top_season}</p>
               )}
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-gray-600 w-16 shrink-0">Longevity</span>
+                <span className="text-[10px] text-gray-400 w-16 shrink-0">Longevity</span>
                 {longevityBar(Number(row.avg_longevity))}
               </div>
               {row.avg_sillage && (
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-gray-600 w-16 shrink-0">Sillage</span>
+                  <span className="text-[10px] text-gray-400 w-16 shrink-0">Sillage</span>
                   {longevityBar(Number(row.avg_sillage))}
                 </div>
               )}
             </div>
-            <span className="text-[10px] text-gray-600 text-right">{row.review_count} reviews</span>
+            <span className="text-[10px] text-gray-400 text-right">{row.review_count} reviews</span>
           </div>
         ))}
       </div>
@@ -707,7 +707,7 @@ function RelatedFragrances({ related, category }) {
             </div>
             <div className="p-3">
               <p className="text-xs font-medium text-white leading-snug line-clamp-2 group-hover:text-[#94aea7] transition">{f.name}</p>
-              <p className="text-[10px] text-gray-600 mt-0.5 truncate">{f.house}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5 truncate">{f.house}</p>
             </div>
           </Link>
         ))}
@@ -720,7 +720,7 @@ function RatingStat({ label, value, count, large = false }) {
   const stars = Math.round(value);
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-gray-600 mb-1">
+      <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">
         {label}{count ? ` · ${count} review${count !== 1 ? 's' : ''}` : ''}
       </p>
       <div className="flex items-center gap-1.5">
@@ -749,9 +749,9 @@ function ReviewEntry({ review, likeCount = 0, userLiked = false, onLike }) {
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
               </svg>
             ))}
-            <span className="ml-1 text-xs text-gray-500">{review.rating_overall}</span>
+            <span className="ml-1 text-xs text-gray-400">{review.rating_overall}</span>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             {review.profiles?.username
               ? <Link href={`/u/${review.profiles.username}`} className="text-gray-400 hover:text-white transition">{review.profiles.display_name || 'Anonymous'}</Link>
               : review.profiles?.display_name || 'Anonymous'}
@@ -763,7 +763,7 @@ function ReviewEntry({ review, likeCount = 0, userLiked = false, onLike }) {
 
         {/* Sub-ratings */}
         {(review.rating_longevity || review.rating_sillage || review.rating_value) && (
-          <div className="flex gap-3 text-[10px] text-gray-600 flex-shrink-0">
+          <div className="flex gap-3 text-[10px] text-gray-400 flex-shrink-0">
             {review.rating_longevity && <span>Longevity {review.rating_longevity}/5</span>}
             {review.rating_sillage   && <span>Sillage {review.rating_sillage}/5</span>}
             {review.rating_value     && <span>Value {review.rating_value}/5</span>}
@@ -776,12 +776,12 @@ function ReviewEntry({ review, likeCount = 0, userLiked = false, onLike }) {
       <div className="mt-4 flex items-center justify-between">
         <div className="flex flex-wrap gap-2">
           {review.occasion && (
-            <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-[10px] text-gray-500 capitalize">
+            <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-[10px] text-gray-400 capitalize">
               {review.occasion}
             </span>
           )}
           {review.season && (
-            <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-[10px] text-gray-500 capitalize">
+            <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-[10px] text-gray-400 capitalize">
               {review.season}
             </span>
           )}
@@ -794,7 +794,7 @@ function ReviewEntry({ review, likeCount = 0, userLiked = false, onLike }) {
             'flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition',
             userLiked
               ? 'border-rose-500/30 bg-rose-500/10 text-rose-400'
-              : 'border-white/8 bg-transparent text-gray-600 hover:text-gray-300 hover:border-white/20',
+              : 'border-white/8 bg-transparent text-gray-400 hover:text-gray-300 hover:border-white/20',
           ].join(' ')}
         >
           <svg className="h-3.5 w-3.5" fill={userLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">

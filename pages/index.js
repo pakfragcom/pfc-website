@@ -49,7 +49,7 @@ function RecommendationStrip() {
             <h2 className="text-xl font-bold text-white">{label}</h2>
           </div>
           <Link href="/onboarding/scent-quiz"
-            className="text-xs text-gray-500 hover:text-white transition">
+            className="text-xs text-gray-400 hover:text-white transition">
             Refine →
           </Link>
         </div>
@@ -75,7 +75,7 @@ function RecommendationStrip() {
                 <p className="text-xs font-semibold text-white leading-tight line-clamp-1 group-hover:text-[#94aea7] transition">
                   {frag.name}
                 </p>
-                <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{frag.house}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{frag.house}</p>
                 {frag.avgRating > 0 && (
                   <p className="text-[10px] text-[#94aea7] mt-1">★ {frag.avgRating} · {frag.reviewCount} reviews</p>
                 )}

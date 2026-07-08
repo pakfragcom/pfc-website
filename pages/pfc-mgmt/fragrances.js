@@ -64,9 +64,9 @@ function ImagePickerModal({ frag, onClose, onApplied }) {
         <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="font-semibold text-lg">Find Stock Image</h3>
-            <p className="text-xs text-gray-500 mt-0.5">{frag.name} · {frag.house}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{frag.name} · {frag.house}</p>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition text-lg leading-none">✕</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition text-lg leading-none">✕</button>
         </div>
 
         <div className="flex gap-2 mb-4">
@@ -129,7 +129,7 @@ function ImagePickerModal({ frag, onClose, onApplied }) {
           )}
         </div>
 
-        <p className="text-[10px] text-gray-600 mt-4">
+        <p className="text-[10px] text-gray-400 mt-4">
           Images from Google Image Search. Click one to set it as the fragrance image.
         </p>
       </div>
@@ -235,41 +235,41 @@ function EditPanel({ frag, onSave, onClose }) {
             className="text-[11px] px-2.5 py-1 rounded-md bg-[#2a5c4f]/30 hover:bg-[#2a5c4f]/50 text-[#94aea7] hover:text-white transition disabled:opacity-40">
             {autofilling ? 'Looking up…' : 'Auto-fill from web'}
           </button>
-          {autoMsg && <span className="text-[11px] text-gray-500">{autoMsg}</span>}
+          {autoMsg && <span className="text-[11px] text-gray-400">{autoMsg}</span>}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-[10px] text-gray-500 mb-1">Name</label>
+          <label className="block text-[10px] text-gray-400 mb-1">Name</label>
           <input value={form.name} onChange={set('name')} className={inputCls} />
         </div>
         <div>
-          <label className="block text-[10px] text-gray-500 mb-1">House</label>
+          <label className="block text-[10px] text-gray-400 mb-1">House</label>
           <input value={form.house} onChange={set('house')} className={inputCls} />
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="block text-[10px] text-gray-500 mb-1">Category</label>
+          <label className="block text-[10px] text-gray-400 mb-1">Category</label>
           <select value={form.category} onChange={set('category')}
             className={inputCls + ' appearance-none'}>
             {CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-[10px] text-gray-500 mb-1">Concentration</label>
+          <label className="block text-[10px] text-gray-400 mb-1">Concentration</label>
           <input value={form.concentration} onChange={set('concentration')} placeholder="EDP, EDT…" className={inputCls} />
         </div>
         <div>
-          <label className="block text-[10px] text-gray-500 mb-1">Year</label>
+          <label className="block text-[10px] text-gray-400 mb-1">Year</label>
           <input type="number" value={form.year_released} onChange={set('year_released')} placeholder="2015" className={inputCls} />
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] text-gray-500 mb-1">Image</label>
+        <label className="block text-[10px] text-gray-400 mb-1">Image</label>
         <div className="flex gap-2 items-center">
           <input value={form.image_url} onChange={set('image_url')} placeholder="https://… or upload below" className={inputCls + ' flex-1'} />
           {form.image_url && (
@@ -280,18 +280,18 @@ function EditPanel({ frag, onSave, onClose }) {
         <div className="flex items-center gap-2 mt-1.5">
           <label className={[
             'text-[11px] px-2.5 py-1 rounded-md cursor-pointer transition',
-            uploading ? 'bg-white/5 text-gray-600' : 'bg-[#2a5c4f]/30 hover:bg-[#2a5c4f]/50 text-[#94aea7] hover:text-white'
+            uploading ? 'bg-white/5 text-gray-400' : 'bg-[#2a5c4f]/30 hover:bg-[#2a5c4f]/50 text-[#94aea7] hover:text-white'
           ].join(' ')}>
             {uploading ? 'Uploading…' : 'Upload photo'}
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only"
               disabled={uploading} onChange={handleImageUpload} />
           </label>
-          {uploadMsg && <span className="text-[11px] text-gray-500">{uploadMsg}</span>}
+          {uploadMsg && <span className="text-[11px] text-gray-400">{uploadMsg}</span>}
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] text-gray-500 mb-1">Description</label>
+        <label className="block text-[10px] text-gray-400 mb-1">Description</label>
         <textarea value={form.description} onChange={set('description')} rows={2}
           className={inputCls + ' resize-none'} placeholder="Brief description…" />
       </div>
@@ -299,7 +299,7 @@ function EditPanel({ frag, onSave, onClose }) {
       <div className="grid grid-cols-3 gap-2">
         {[['notes_top','Top Notes'],['notes_heart','Heart Notes'],['notes_base','Base Notes']].map(([f,l]) => (
           <div key={f}>
-            <label className="block text-[10px] text-gray-500 mb-1">{l}</label>
+            <label className="block text-[10px] text-gray-400 mb-1">{l}</label>
             <input value={form[f]} onChange={set(f)} placeholder="comma-separated" className={inputCls} />
           </div>
         ))}
@@ -452,7 +452,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold">Fragrance Directory</h1>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Approve community-submitted fragrances. Use Edit to upload images.
               </p>
             </div>
@@ -478,10 +478,10 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
           {activeTab === 'images' && (
             <div>
               {imgSubsLoading ? (
-                <div className="text-gray-500 text-sm py-10 text-center">Loading…</div>
+                <div className="text-gray-400 text-sm py-10 text-center">Loading…</div>
               ) : imgSubs.filter(s => s.status === 'pending').length === 0 ? (
                 <div className="text-center py-16">
-                  <p className="text-gray-500 text-sm">No pending image submissions.</p>
+                  <p className="text-gray-400 text-sm">No pending image submissions.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -492,8 +492,8 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
                         onError={e => { e.target.style.display='none'; }} />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-white text-sm">{sub.fragrances?.name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{sub.fragrances?.house}</p>
-                        <p className="text-xs text-gray-600 mt-1">By {sub.profiles?.display_name || 'Unknown'} · {new Date(sub.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{sub.fragrances?.house}</p>
+                        <p className="text-xs text-gray-400 mt-1">By {sub.profiles?.display_name || 'Unknown'} · {new Date(sub.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}</p>
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
                         <button onClick={() => approveImg(sub.id)} disabled={imgActionLoading === sub.id}
@@ -525,12 +525,12 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
           </div>
 
           {loading ? (
-            <div className="text-gray-500 text-sm py-10 text-center">Loading…</div>
+            <div className="text-gray-400 text-sm py-10 text-center">Loading…</div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-gray-500 text-sm">No {filter !== 'all' ? filter : ''} fragrances.</p>
+              <p className="text-gray-400 text-sm">No {filter !== 'all' ? filter : ''} fragrances.</p>
               {filter === 'pending' && (
-                <p className="text-gray-600 text-xs mt-2">
+                <p className="text-gray-400 text-xs mt-2">
                   Ask users to submit fragrances at{' '}
                   <a href="/fragrances/submit" className="text-[#94aea7] hover:text-white transition" target="_blank">
                     /fragrances/submit
@@ -556,7 +556,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
                       <div className="flex items-start gap-3 flex-wrap">
                         <div>
                           <h3 className="font-semibold text-white">{frag.name}</h3>
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="text-xs text-gray-400 mt-0.5">
                             {frag.house}
                             {frag.concentration ? ` · ${frag.concentration}` : ''}
                             {' · '}{CATEGORY_LABELS[frag.category] || frag.category}
@@ -566,10 +566,10 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
                           {frag.status}
                         </span>
                         {!frag.image_url && (
-                          <span className="text-[10px] text-gray-600 ring-1 ring-white/8 rounded px-1.5 py-0.5">no image</span>
+                          <span className="text-[10px] text-gray-400 ring-1 ring-white/8 rounded px-1.5 py-0.5">no image</span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
                         {frag.profiles?.display_name && <span>By {frag.profiles.display_name}</span>}
                         <span>· {new Date(frag.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                       </div>

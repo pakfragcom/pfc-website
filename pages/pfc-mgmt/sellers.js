@@ -26,7 +26,7 @@ function daysUntil(dateStr) {
 }
 
 function DaysChip({ days }) {
-  if (days === null) return <span className="text-gray-600">—</span>;
+  if (days === null) return <span className="text-gray-400">—</span>;
   if (days < 0)   return <span className="text-red-400 text-xs">{Math.abs(days)}d overdue</span>;
   if (days <= 7)  return <span className="text-red-400 text-xs font-medium">{days}d left</span>;
   if (days <= 30) return <span className="text-amber-400 text-xs font-medium">{days}d left</span>;
@@ -89,7 +89,7 @@ function MarkPaidModal({ seller, onClose, onSuccess }) {
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-500 block mb-1">Amount (PKR)</label>
+              <label className="text-xs text-gray-400 block mb-1">Amount (PKR)</label>
               <input
                 type="number"
                 value={form.amount_pkr}
@@ -99,7 +99,7 @@ function MarkPaidModal({ seller, onClose, onSuccess }) {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 block mb-1">Duration (months)</label>
+              <label className="text-xs text-gray-400 block mb-1">Duration (months)</label>
               <select
                 value={form.duration_months}
                 onChange={(e) => setForm({ ...form, duration_months: e.target.value })}
@@ -116,7 +116,7 @@ function MarkPaidModal({ seller, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Payment Method</label>
+            <label className="text-xs text-gray-400 block mb-1">Payment Method</label>
             <select
               value={form.payment_method}
               onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
@@ -130,7 +130,7 @@ function MarkPaidModal({ seller, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Reference / TRN (optional)</label>
+            <label className="text-xs text-gray-400 block mb-1">Reference / TRN (optional)</label>
             <input
               type="text"
               value={form.payment_reference}
@@ -192,7 +192,7 @@ function AddSellerModal({ onClose, onSuccess }) {
 
   const f = (key) => ({ value: form[key], onChange: (e) => setForm({ ...form, [key]: e.target.value }) });
   const inputClass = "w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25";
-  const labelClass = "text-xs text-gray-500 block mb-1";
+  const labelClass = "text-xs text-gray-400 block mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
@@ -369,7 +369,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <p className="text-gray-400 text-sm mb-1">Access restricted</p>
-            <p className="text-gray-600 text-xs">You don&apos;t have permission to manage sellers.</p>
+            <p className="text-gray-400 text-xs">You don&apos;t have permission to manage sellers.</p>
           </div>
         </div>
       </div>
@@ -417,19 +417,19 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             <div className="bg-white/[0.02] ring-1 ring-white/8 rounded-xl px-4 py-3">
               <p className="text-xl font-bold text-white">{counts.active}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Active</p>
+              <p className="text-xs text-gray-400 mt-0.5">Active</p>
             </div>
             <div className={`ring-1 rounded-xl px-4 py-3 ${counts.expiring > 0 ? 'bg-amber-500/5 ring-amber-500/20' : 'bg-white/[0.02] ring-white/8'}`}>
               <p className={`text-xl font-bold ${counts.expiring > 0 ? 'text-amber-400' : 'text-white'}`}>{counts.expiring}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Expiring in 30 days</p>
+              <p className="text-xs text-gray-400 mt-0.5">Expiring in 30 days</p>
             </div>
             <div className={`ring-1 rounded-xl px-4 py-3 ${counts.expired + counts.grace > 0 ? 'bg-red-500/5 ring-red-500/20' : 'bg-white/[0.02] ring-white/8'}`}>
               <p className={`text-xl font-bold ${counts.expired + counts.grace > 0 ? 'text-red-400' : 'text-white'}`}>{counts.expired + counts.grace}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Expired / Grace</p>
+              <p className="text-xs text-gray-400 mt-0.5">Expired / Grace</p>
             </div>
             <div className="bg-emerald-500/5 ring-1 ring-emerald-500/15 rounded-xl px-4 py-3">
               <p className="text-xl font-bold text-emerald-400">Rs {renewalRevenue.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Due renewals</p>
+              <p className="text-xs text-gray-400 mt-0.5">Due renewals</p>
             </div>
           </div>
 
@@ -462,13 +462,13 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
 
           {/* Table */}
           {loading ? (
-            <div className="text-gray-500 text-sm py-10 text-center">Loading sellers…</div>
+            <div className="text-gray-400 text-sm py-10 text-center">Loading sellers…</div>
           ) : (
             <div className="ring-1 ring-white/10 rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/3 text-gray-500 text-xs uppercase tracking-wider">
+                    <tr className="border-b border-white/10 bg-white/3 text-gray-400 text-xs uppercase tracking-wider">
                       <th className="text-left px-4 py-3">Name</th>
                       <th className="text-left px-4 py-3">Code</th>
                       <th className="text-left px-4 py-3">Type</th>
@@ -481,7 +481,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                   <tbody>
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center text-gray-600 py-10">
+                        <td colSpan={7} className="text-center text-gray-400 py-10">
                           No sellers found
                         </td>
                       </tr>
@@ -509,7 +509,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                                     L{seller.verification_tier ?? 0} {(TIER_CONFIG[seller.verification_tier ?? 0] || TIER_CONFIG[0]).label}
                                   </span>
                                   {seller.trust_score != null && (
-                                    <span className="text-[10px] text-gray-500">{seller.trust_score}</span>
+                                    <span className="text-[10px] text-gray-400">{seller.trust_score}</span>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1">
@@ -528,7 +528,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                                     onClick={() => recalcTrust(seller)}
                                     disabled={tierLoading === seller.id + 'recalc' || tierLoading === seller.id + 'tier'}
                                     title="Recalculate trust score"
-                                    className="text-[10px] text-gray-600 hover:text-gray-300 transition disabled:opacity-40 px-1"
+                                    className="text-[10px] text-gray-400 hover:text-gray-300 transition disabled:opacity-40 px-1"
                                   >
                                     {tierLoading === seller.id + 'recalc' ? '…' : '↺'}
                                   </button>
@@ -549,7 +549,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                             <td className="px-4 py-3">
                               <div className="flex items-center justify-end gap-2">
                                 {isLoading ? (
-                                  <span className="text-gray-500 text-xs">…</span>
+                                  <span className="text-gray-400 text-xs">…</span>
                                 ) : (
                                   <>
                                     <button
@@ -576,7 +576,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                                     )}
                                     <button
                                       onClick={() => deleteSeller(seller)}
-                                      className="text-xs text-gray-600 hover:text-red-400 px-1.5 py-1 rounded-lg transition"
+                                      className="text-xs text-gray-400 hover:text-red-400 px-1.5 py-1 rounded-lg transition"
                                       title="Delete seller"
                                     >
                                       ✕
@@ -595,7 +595,7 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
             </div>
           )}
 
-          <div className="text-xs text-gray-600 mt-4 text-right">
+          <div className="text-xs text-gray-400 mt-4 text-right">
             {filtered.length} of {sellers.length} sellers shown
           </div>
         </div>

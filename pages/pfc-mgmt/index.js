@@ -16,9 +16,9 @@ function StatCard({ label, value, color = "white", sub }) {
   };
   return (
     <div className="bg-white/5 ring-1 ring-white/10 rounded-2xl p-5">
-      <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">{label}</div>
+      <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">{label}</div>
       <div className={`text-3xl font-bold ${colors[color]}`}>{value ?? "—"}</div>
-      {sub && <div className="text-xs text-gray-500 mt-1">{sub}</div>}
+      {sub && <div className="text-xs text-gray-400 mt-1">{sub}</div>}
     </div>
   );
 }
@@ -59,7 +59,7 @@ export default function AdminDashboard({ identity = ADMIN_IDENTITY }) {
           <h1 className="text-2xl font-bold mb-8">Overview</h1>
 
           {loading ? (
-            <div className="text-gray-500 text-sm">Loading…</div>
+            <div className="text-gray-400 text-sm">Loading…</div>
           ) : (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">

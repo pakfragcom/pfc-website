@@ -7,9 +7,9 @@ import Footer from '../components/layout/Footer';
 
 // Trend arrow + label
 function Trend({ pct }) {
-  if (pct === null || pct === undefined) return <span className="text-gray-600 text-xs">—</span>;
+  if (pct === null || pct === undefined) return <span className="text-gray-400 text-xs">—</span>;
   const abs = Math.abs(pct);
-  if (abs < 2) return <span className="text-gray-500 text-xs">→ Stable</span>;
+  if (abs < 2) return <span className="text-gray-400 text-xs">→ Stable</span>;
   if (pct > 0) return <span className="text-red-400 text-xs font-medium">↑ {abs}%</span>;
   return <span className="text-emerald-400 text-xs font-medium">↓ {abs}%</span>;
 }
@@ -84,7 +84,7 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
         <main className="mx-auto max-w-5xl px-4 py-20 sm:py-28">
 
           {/* Breadcrumb */}
-          <nav className="mb-10 text-sm text-gray-500">
+          <nav className="mb-10 text-sm text-gray-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <span className="mx-2">/</span>
             <span className="text-gray-300">Pakistan Fragrance Index</span>
@@ -103,7 +103,7 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
               Real transaction prices from the PakFrag community. No guessing — actual deals, logged by buyers and sellers across Pakistan.
             </p>
             {updatedAt && (
-              <p className="mt-2 text-xs text-gray-600">
+              <p className="mt-2 text-xs text-gray-400">
                 Updated {new Date(updatedAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             )}
@@ -114,13 +114,13 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
             <div className="grid sm:grid-cols-3 gap-4 mb-14">
               {/* Most traded */}
               <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
-                <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-3">Most Traded</p>
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-3">Most Traded</p>
                 <div className="space-y-2">
                   {topByVolume.map((e, i) => (
                     <div key={e.fragrance_name + e.house} className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-white truncate">{e.fragrance_name}</p>
-                        <p className="text-[10px] text-gray-600 truncate">{e.house}</p>
+                        <p className="text-[10px] text-gray-400 truncate">{e.house}</p>
                       </div>
                       <span className="shrink-0 text-xs text-gray-400">{e.transaction_count} deals</span>
                     </div>
@@ -132,14 +132,14 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
               <div className="rounded-2xl border border-red-500/15 bg-red-500/[0.03] p-5">
                 <p className="text-[10px] uppercase tracking-wider text-red-400/70 mb-3">Trending ↑ Price Rising</p>
                 {trending.length === 0 ? (
-                  <p className="text-xs text-gray-600">Not enough data yet.</p>
+                  <p className="text-xs text-gray-400">Not enough data yet.</p>
                 ) : (
                   <div className="space-y-2">
                     {trending.map(e => (
                       <div key={e.fragrance_name + e.house} className="flex items-center justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-xs font-medium text-white truncate">{e.fragrance_name}</p>
-                          <p className="text-[10px] text-gray-600 truncate">{e.house}</p>
+                          <p className="text-[10px] text-gray-400 truncate">{e.house}</p>
                         </div>
                         <span className="shrink-0 text-xs text-red-400">+{e.trend_pct}%</span>
                       </div>
@@ -152,14 +152,14 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
               <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.03] p-5">
                 <p className="text-[10px] uppercase tracking-wider text-emerald-400/70 mb-3">Cooling ↓ Price Falling</p>
                 {cooling.length === 0 ? (
-                  <p className="text-xs text-gray-600">Not enough data yet.</p>
+                  <p className="text-xs text-gray-400">Not enough data yet.</p>
                 ) : (
                   <div className="space-y-2">
                     {cooling.map(e => (
                       <div key={e.fragrance_name + e.house} className="flex items-center justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-xs font-medium text-white truncate">{e.fragrance_name}</p>
-                          <p className="text-[10px] text-gray-600 truncate">{e.house}</p>
+                          <p className="text-[10px] text-gray-400 truncate">{e.house}</p>
                         </div>
                         <span className="shrink-0 text-xs text-emerald-400">{e.trend_pct}%</span>
                       </div>
@@ -197,7 +197,7 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
           {entries.length === 0 ? (
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] py-24 text-center">
               <p className="text-gray-400 font-medium mb-2">No price data yet</p>
-              <p className="text-sm text-gray-600 mb-6 max-w-xs mx-auto">
+              <p className="text-sm text-gray-400 mb-6 max-w-xs mx-auto">
                 The index builds automatically as community members log transactions.
               </p>
               <Link
@@ -211,7 +211,7 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
             <>
               <div className="rounded-2xl border border-white/8 overflow-hidden">
                 {/* Header row */}
-                <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_80px] gap-4 px-5 py-3 bg-white/[0.03] border-b border-white/8 text-[10px] uppercase tracking-wider text-gray-500">
+                <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_1fr_1fr_80px] gap-4 px-5 py-3 bg-white/[0.03] border-b border-white/8 text-[10px] uppercase tracking-wider text-gray-400">
                   <span>Fragrance</span>
                   <span className="text-right">Avg Price</span>
                   <span className="text-right">Min</span>
@@ -221,7 +221,7 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
                 </div>
 
                 {sorted.length === 0 ? (
-                  <div className="py-12 text-center text-sm text-gray-500">No results for &ldquo;{query}&rdquo;</div>
+                  <div className="py-12 text-center text-sm text-gray-400">No results for &ldquo;{query}&rdquo;</div>
                 ) : (
                   sorted.map((entry, i) => (
                     <div
@@ -237,7 +237,7 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
                         ) : (
                           <p className="text-sm font-medium text-white truncate">{entry.fragrance_name}</p>
                         )}
-                        <p className="text-xs text-gray-500 truncate">{entry.house}</p>
+                        <p className="text-xs text-gray-400 truncate">{entry.house}</p>
                       </div>
 
                       {/* Avg */}
@@ -262,14 +262,14 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
 
                       {/* Deals */}
                       <div className="hidden sm:block text-right">
-                        <span className="text-xs text-gray-500">{entry.transaction_count}</span>
+                        <span className="text-xs text-gray-400">{entry.transaction_count}</span>
                       </div>
                     </div>
                   ))
                 )}
               </div>
 
-              <p className="mt-4 text-xs text-gray-600 text-center">
+              <p className="mt-4 text-xs text-gray-400 text-center">
                 Showing {sorted.length} of {entries.length} fragrances with logged transactions
               </p>
             </>
@@ -279,7 +279,7 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
           {cityDemand.length > 0 && (
             <div className="mt-14">
               <h2 className="text-lg font-bold text-white mb-1">Activity by City</h2>
-              <p className="text-xs text-gray-500 mb-5">Where Pakistan&apos;s fragrance deals are happening</p>
+              <p className="text-xs text-gray-400 mb-5">Where Pakistan&apos;s fragrance deals are happening</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {cityDemand.map((c, i) => {
                   const max = cityDemand[0].transaction_count;
@@ -288,14 +288,14 @@ export default function PakistanFragranceIndex({ entries = [], cityDemand = [], 
                     <div key={c.city} className="rounded-2xl border border-white/8 bg-white/[0.02] p-4">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-semibold text-white">{c.city}</p>
-                        <span className="text-[10px] text-gray-600">#{i + 1}</span>
+                        <span className="text-[10px] text-gray-400">#{i + 1}</span>
                       </div>
                       <div className="h-1 rounded-full bg-white/10 mb-2">
                         <div className="h-full rounded-full bg-[#557d72]" style={{ width: `${pct}%` }} />
                       </div>
                       <p className="text-xs font-bold text-white">{c.transaction_count} deals</p>
                       {c.avg_price_pkr && (
-                        <p className="text-[10px] text-gray-500 mt-0.5">avg Rs {c.avg_price_pkr.toLocaleString()}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">avg Rs {c.avg_price_pkr.toLocaleString()}</p>
                       )}
                     </div>
                   );

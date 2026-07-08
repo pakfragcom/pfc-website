@@ -145,7 +145,7 @@ export default function SellPage() {
             <p className="text-sm text-gray-400 mb-2 max-w-sm mx-auto">
               Your listing has been submitted and is awaiting admin approval. Usually reviewed within a few hours.
             </p>
-            <p className="text-xs text-gray-600 mb-8">You'll see it go live in the marketplace once approved.</p>
+            <p className="text-xs text-gray-400 mb-8">You'll see it go live in the marketplace once approved.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {doneId && (
                 <Link
@@ -190,7 +190,7 @@ export default function SellPage() {
 
         <main className="mx-auto max-w-xl px-4 py-20 sm:py-28">
 
-          <nav className="mb-10 text-sm text-gray-500">
+          <nav className="mb-10 text-sm text-gray-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <span className="mx-2">/</span>
             <Link href="/marketplace" className="hover:text-white transition">Marketplace</Link>
@@ -232,7 +232,7 @@ export default function SellPage() {
                         className="flex w-full items-center justify-between px-4 py-2.5 text-left hover:bg-white/5 transition"
                       >
                         <span className="text-sm text-white">{s.name}</span>
-                        <span className="text-xs text-gray-500">{s.house}</span>
+                        <span className="text-xs text-gray-400">{s.house}</span>
                       </button>
                     ))}
                   </div>
@@ -282,7 +282,7 @@ export default function SellPage() {
                     ].join(' ')}
                   >
                     <div className="text-xs font-semibold">{c.label}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{c.hint}</div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">{c.hint}</div>
                   </button>
                 ))}
               </div>
@@ -312,7 +312,7 @@ export default function SellPage() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5">Price (PKR) <span className="text-red-400">*</span></label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">Rs</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">Rs</span>
                     <input
                       type="number"
                       min="1"
@@ -398,7 +398,7 @@ export default function SellPage() {
               {submitting ? 'Posting…' : 'Post listing →'}
             </button>
 
-            <p className="text-xs text-gray-600 text-center">
+            <p className="text-xs text-gray-400 text-center">
               Listings are active for 30 days. Buyers contact you directly via WhatsApp.
             </p>
           </form>

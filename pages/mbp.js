@@ -116,7 +116,7 @@ function SponsorCarousel({ sponsors }) {
   const items = [...sponsors, ...sponsors];
   return (
     <div className="border-y border-white/8 bg-white/[0.015] py-5 overflow-hidden">
-      <p className="text-center text-[10px] uppercase tracking-[0.25em] text-gray-600 mb-4">Proud Partners</p>
+      <p className="text-center text-[10px] uppercase tracking-[0.25em] text-gray-400 mb-4">Proud Partners</p>
       <div
         className="mbp-marquee-track flex gap-5 w-max"
         onMouseEnter={e => (e.currentTarget.style.animationPlayState = 'paused')}
@@ -134,7 +134,7 @@ function SponsorCarousel({ sponsors }) {
               ? <img src={s.logo_url} alt={s.brand_name} width={80} height={20} className="h-5 w-auto object-contain opacity-70 group-hover:opacity-100 transition" />
               : <span className="text-sm font-medium text-gray-400 group-hover:text-white transition whitespace-nowrap">{s.brand_name}</span>
             }
-            {s.tagline && <span className="text-[10px] text-gray-600 hidden sm:block">{s.tagline}</span>}
+            {s.tagline && <span className="text-[10px] text-gray-400 hidden sm:block">{s.tagline}</span>}
           </a>
         ))}
       </div>
@@ -207,13 +207,13 @@ function DiamondCard({ item }) {
             </div>
 
             {item.by && item.by !== '—' && (
-              <p className="text-xs text-gray-500 mb-2">by {item.by}{item.city ? ` · ${item.city}` : ''}</p>
+              <p className="text-xs text-gray-400 mb-2">by {item.by}{item.city ? ` · ${item.city}` : ''}</p>
             )}
 
             {item.description ? (
               <p className="text-sm text-gray-400 leading-relaxed line-clamp-2 mb-4 max-w-xl">{item.description}</p>
             ) : (
-              <p className="text-sm text-gray-600 italic mb-4">Premier Pakistani fragrance house.</p>
+              <p className="text-sm text-gray-400 italic mb-4">Premier Pakistani fragrance house.</p>
             )}
 
             <div className="flex items-center gap-3 flex-wrap">
@@ -229,12 +229,12 @@ function DiamondCard({ item }) {
                 </a>
               )}
               {item.slug && (
-                <Link href={`/houses/${item.slug}`} className="text-xs text-gray-600 hover:text-gray-400 transition">
+                <Link href={`/houses/${item.slug}`} className="text-xs text-gray-400 hover:text-gray-400 transition">
                   View Profile →
                 </Link>
               )}
               {item.fragrance_count > 0 && (
-                <span className="text-xs text-gray-600">{item.fragrance_count} fragrances</span>
+                <span className="text-xs text-gray-400">{item.fragrance_count} fragrances</span>
               )}
             </div>
           </div>
@@ -270,7 +270,7 @@ function PlatinumCard({ item }) {
             style={{ backgroundColor: accent + '28', border: `1px solid ${accent}45` }}
           >
             {item.logo_url
-              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1.5" />
+              ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-1.5" />
               : <span style={{ color: accent + 'ee' }}>{initials(item.house)}</span>
             }
           </div>
@@ -278,14 +278,14 @@ function PlatinumCard({ item }) {
           <h3 className="font-semibold text-white text-sm leading-snug line-clamp-2 group-hover:text-gray-100 transition mb-1">
             {item.house}
           </h3>
-          {item.city && <p className="text-[11px] text-gray-500 mb-2">{item.city}</p>}
+          {item.city && <p className="text-[11px] text-gray-400 mb-2">{item.city}</p>}
           {item.description && (
-            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed flex-1 mb-3">{item.description}</p>
+            <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed flex-1 mb-3">{item.description}</p>
           )}
 
           <div className="mt-auto flex items-center justify-between pt-2">
             {item.fragrance_count > 0
-              ? <span className="text-[10px] text-gray-600">{item.fragrance_count} fragrances</span>
+              ? <span className="text-[10px] text-gray-400">{item.fragrance_count} fragrances</span>
               : <span />
             }
             {item.website && (
@@ -294,7 +294,7 @@ function PlatinumCard({ item }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="text-xs text-gray-500 hover:text-white transition"
+                className="text-xs text-gray-400 hover:text-white transition"
               >
                 Website ↗
               </a>
@@ -326,7 +326,7 @@ function GoldCard({ item }) {
             style={{ backgroundColor: accent + '22', border: `1px solid ${accent}38` }}
           >
             {item.logo_url
-              ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1" />
+              ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-1" />
               : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
             }
           </div>
@@ -334,9 +334,9 @@ function GoldCard({ item }) {
             {item.house}
           </h3>
           <div className="flex items-center justify-between mt-1.5">
-            <div className="text-[10px] text-gray-500 space-y-0.5">
+            <div className="text-[10px] text-gray-400 space-y-0.5">
               {item.city && <p>{item.city}</p>}
-              {item.fragrance_count > 0 && <p className="text-gray-600">{item.fragrance_count} fragrances</p>}
+              {item.fragrance_count > 0 && <p className="text-gray-400">{item.fragrance_count} fragrances</p>}
             </div>
             {item.website && (
               <a
@@ -344,7 +344,7 @@ function GoldCard({ item }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="text-[11px] text-gray-600 hover:text-amber-400 transition"
+                className="text-[11px] text-gray-400 hover:text-amber-400 transition"
               >
                 ↗
               </a>
@@ -374,19 +374,19 @@ function EmergingRow({ item }) {
           style={{ backgroundColor: accent + '18', border: `1px solid ${accent}28` }}
         >
           {item.logo_url
-            ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-0.5" />
+            ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-0.5" />
             : <span style={{ color: accent + 'bb' }}>{initials(item.house)}</span>
           }
         </div>
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-white group-hover:text-emerald-200 transition line-clamp-1">{item.house}</p>
-          {item.city && <p className="text-[10px] text-gray-600 mt-0.5">{item.city}</p>}
+          {item.city && <p className="text-[10px] text-gray-400 mt-0.5">{item.city}</p>}
         </div>
 
         <div className="flex items-center gap-3 flex-shrink-0">
           {item.fragrance_count > 0 && (
-            <span className="text-[10px] text-gray-600">{item.fragrance_count}</span>
+            <span className="text-[10px] text-gray-400">{item.fragrance_count}</span>
           )}
           {item.website && (
             <a
@@ -394,7 +394,7 @@ function EmergingRow({ item }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
-              className="text-xs text-gray-600 hover:text-emerald-400 transition"
+              className="text-xs text-gray-400 hover:text-emerald-400 transition"
             >
               ↗
             </a>
@@ -432,8 +432,8 @@ function SearchCard({ item }) {
           <p className="text-sm font-semibold text-white line-clamp-1">{item.house}</p>
           <div className="flex items-center gap-2 mt-0.5">
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${cfg.badge}`}>{cfg.icon} {cfg.label}</span>
-            {item.city && <span className="text-[10px] text-gray-500">{item.city}</span>}
-            {item.fragrance_count > 0 && <span className="text-[10px] text-gray-600">{item.fragrance_count} fragrances</span>}
+            {item.city && <span className="text-[10px] text-gray-400">{item.city}</span>}
+            {item.fragrance_count > 0 && <span className="text-[10px] text-gray-400">{item.fragrance_count} fragrances</span>}
           </div>
         </div>
         {item.website && (
@@ -442,7 +442,7 @@ function SearchCard({ item }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={e => e.stopPropagation()}
-            className="text-xs text-gray-600 hover:text-white transition flex-shrink-0"
+            className="text-xs text-gray-400 hover:text-white transition flex-shrink-0"
           >
             ↗
           </a>
@@ -542,14 +542,14 @@ export default function MBPPage({ houses = [], sponsors = [] }) {
                     ].map(s => (
                       <div key={s.label}>
                         <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-                        <p className="text-[11px] text-gray-500 uppercase tracking-wider mt-0.5">{s.label}</p>
+                        <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-0.5">{s.label}</p>
                       </div>
                     ))}
                   </div>
 
                   {/* Search */}
                   <div className="relative max-w-sm">
-                    <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" />
                     </svg>
                     <input
@@ -563,7 +563,7 @@ export default function MBPPage({ houses = [], sponsors = [] }) {
                     {query && (
                       <button
                         onClick={() => setQuery('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -585,13 +585,13 @@ export default function MBPPage({ houses = [], sponsors = [] }) {
               {isSearching ? (
                 /* Search results */
                 <m.div initial="hidden" animate="show" variants={stagger}>
-                  <p className="text-xs text-gray-500 mb-5">
+                  <p className="text-xs text-gray-400 mb-5">
                     {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &quot;{query}&quot;
                   </p>
                   {searchResults.length === 0 ? (
                     <div className="text-center py-16">
                       <p className="text-white font-medium mb-1">No brands found</p>
-                      <p className="text-sm text-gray-500">Try a different name or check spelling.</p>
+                      <p className="text-sm text-gray-400">Try a different name or check spelling.</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -646,9 +646,9 @@ export default function MBPPage({ houses = [], sponsors = [] }) {
 
                   {/* Get Listed CTA */}
                   <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.015] p-10 text-center">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-gray-600 mb-2">Want to be featured?</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Want to be featured?</p>
                     <h3 className="text-xl font-bold text-white mb-2">List Your Fragrance Brand</h3>
-                    <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto leading-relaxed">
+                    <p className="text-sm text-gray-400 mb-6 max-w-sm mx-auto leading-relaxed">
                       Join Pakistan&apos;s most trusted fragrance community. Diamond, Platinum &amp; Gold placements available quarterly.
                     </p>
                     <a

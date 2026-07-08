@@ -42,14 +42,14 @@ export default function StatsBar({ stats = {} }) {
                   <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight group-hover:text-[#94aea7] transition-colors">
                     {value > 0 ? value.toLocaleString() : '—'}
                   </p>
-                  <p className="text-[11px] uppercase tracking-[0.15em] text-gray-500 mt-1 group-hover:text-gray-400 transition-colors">{label}</p>
+                  <p className="text-[11px] uppercase tracking-[0.15em] text-gray-400 mt-1 group-hover:text-gray-400 transition-colors">{label}</p>
                 </Link>
               ) : (
                 <>
                   <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                     {value > 0 ? value.toLocaleString() : '—'}
                   </p>
-                  <p className="text-[11px] uppercase tracking-[0.15em] text-gray-500 mt-1">{label}</p>
+                  <p className="text-[11px] uppercase tracking-[0.15em] text-gray-400 mt-1">{label}</p>
                 </>
               )}
             </m.div>

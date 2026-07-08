@@ -39,7 +39,7 @@ function EditModal({ house, onClose, onSuccess }) {
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Description <span className="text-gray-600">(shown on profile page + Google)</span></label>
+            <label className="text-xs text-gray-400 block mb-1">Description <span className="text-gray-400">(shown on profile page + Google)</span></label>
             <textarea
               value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
@@ -51,7 +51,7 @@ function EditModal({ house, onClose, onSuccess }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-500 block mb-1">Established Year</label>
+              <label className="text-xs text-gray-400 block mb-1">Established Year</label>
               <input
                 type="number"
                 value={form.established_year}
@@ -62,7 +62,7 @@ function EditModal({ house, onClose, onSuccess }) {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 block mb-1">City</label>
+              <label className="text-xs text-gray-400 block mb-1">City</label>
               <input
                 type="text"
                 value={form.city}
@@ -74,7 +74,7 @@ function EditModal({ house, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 block mb-1">MBP Tier <span className="text-gray-600">(fixed per quarter · controls placement on /mbp)</span></label>
+            <label className="text-xs text-gray-400 block mb-1">MBP Tier <span className="text-gray-400">(fixed per quarter · controls placement on /mbp)</span></label>
             <select
               value={form.tier}
               onChange={e => setForm({ ...form, tier: e.target.value })}
@@ -88,7 +88,7 @@ function EditModal({ house, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Instagram handle <span className="text-gray-600">(without @)</span></label>
+            <label className="text-xs text-gray-400 block mb-1">Instagram handle <span className="text-gray-400">(without @)</span></label>
             <input
               type="text"
               value={form.instagram}
@@ -99,7 +99,7 @@ function EditModal({ house, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Website URL</label>
+            <label className="text-xs text-gray-400 block mb-1">Website URL</label>
             <input
               type="url"
               value={form.website}
@@ -110,7 +110,7 @@ function EditModal({ house, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Logo URL <span className="text-gray-600">(paste any image URL — shown on MBP page &amp; house profile)</span></label>
+            <label className="text-xs text-gray-400 block mb-1">Logo URL <span className="text-gray-400">(paste any image URL — shown on MBP page &amp; house profile)</span></label>
             <input
               type="url"
               value={form.logo_url}
@@ -122,7 +122,7 @@ function EditModal({ house, onClose, onSuccess }) {
               <div className="mt-2 flex items-center gap-3">
                 <div className="w-16 h-16 rounded-xl bg-white/5 ring-1 ring-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
                   {logoError ? (
-                    <span className="text-[10px] text-gray-600 text-center px-1">Failed to load</span>
+                    <span className="text-[10px] text-gray-400 text-center px-1">Failed to load</span>
                   ) : (
                     <img
                       src={form.logo_url}
@@ -133,7 +133,7 @@ function EditModal({ house, onClose, onSuccess }) {
                     />
                   )}
                 </div>
-                <p className="text-xs text-gray-500">{logoError ? 'Image could not be loaded — check the URL.' : 'Looks good! This is how it will appear on cards.'}</p>
+                <p className="text-xs text-gray-400">{logoError ? 'Image could not be loaded — check the URL.' : 'Looks good! This is how it will appear on cards.'}</p>
               </div>
             )}
           </div>
@@ -203,7 +203,7 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <p className="text-gray-400 text-sm mb-1">Access restricted</p>
-            <p className="text-gray-600 text-xs">You don&apos;t have permission to manage houses.</p>
+            <p className="text-gray-400 text-xs">You don&apos;t have permission to manage houses.</p>
           </div>
         </div>
       </div>
@@ -232,12 +232,12 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold">House Profiles</h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-400 mt-1">
                 {withProfile}/{houses.length} descriptions &nbsp;·&nbsp; {withLogo}/{houses.length} logos &nbsp;·&nbsp;
                 ◆ {tierCounts.diamond} &nbsp;◈ {tierCounts.platinum} &nbsp;✦ {tierCounts.gold} &nbsp;★ {tierCounts.emerging}
               </p>
             </div>
-            <div className="text-xs text-gray-600 text-right max-w-xs">
+            <div className="text-xs text-gray-400 text-right max-w-xs">
               Descriptions power house profile pages + Google rich snippets
             </div>
           </div>
@@ -262,7 +262,7 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
           </div>
 
           {loading ? (
-            <div className="text-gray-500 text-sm py-10 text-center">Loading…</div>
+            <div className="text-gray-400 text-sm py-10 text-center">Loading…</div>
           ) : (
             <div className="space-y-2">
               {filtered.map(house => (
@@ -290,19 +290,19 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
                         </span>
                       )}
                       {house.description && (
-                        <span className="text-[10px] bg-white/5 text-gray-500 px-1.5 py-0.5 rounded">profile</span>
+                        <span className="text-[10px] bg-white/5 text-gray-400 px-1.5 py-0.5 rounded">profile</span>
                       )}
                       {house.logo_url && (
                         <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded">logo</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-600 mt-0.5 truncate">
+                    <p className="text-xs text-gray-400 mt-0.5 truncate">
                       {house.director || '—'}
                       {house.city && ` · ${house.city}`}
                       {house.established_year && ` · Est. ${house.established_year}`}
                     </p>
                     {house.description && (
-                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">{house.description}</p>
+                      <p className="text-xs text-gray-400 mt-1 line-clamp-1">{house.description}</p>
                     )}
                   </div>
 
@@ -311,7 +311,7 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
                       href={`/houses/${house.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-gray-600 hover:text-[#94aea7] transition"
+                      className="text-xs text-gray-400 hover:text-[#94aea7] transition"
                     >
                       ↗
                     </a>

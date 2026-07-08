@@ -76,7 +76,7 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
                         {profile.city}
                       </span>
                     )}
-                    <span className="text-sm text-gray-500">Member since {joinDate}</span>
+                    <span className="text-sm text-gray-400">Member since {joinDate}</span>
                   </div>
                   {profile.bio && <p className="text-sm text-gray-400 mt-2 max-w-xl">{profile.bio}</p>}
                 </div>
@@ -85,24 +85,24 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
                 <div className="flex gap-6 sm:flex-col sm:gap-3 sm:text-right flex-shrink-0">
                   <div>
                     <p className="text-2xl font-bold text-white">{reviews.length}</p>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Review{reviews.length !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-gray-400 uppercase tracking-wide">Review{reviews.length !== 1 ? 's' : ''}</p>
                   </div>
                   {avgRating !== null && (
                     <div>
                       <p className="text-2xl font-bold text-white">{avgRating}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Rating</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide">Avg Rating</p>
                     </div>
                   )}
                   {topCategory && (
                     <div>
                       <p className="text-sm font-semibold text-[#94aea7]">{CATEGORY_LABELS[topCategory]}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Top Category</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide">Top Category</p>
                     </div>
                   )}
                   {wishlistCount > 0 && (
                     <div>
                       <p className="text-2xl font-bold text-white">{wishlistCount}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Want to Try</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide">Want to Try</p>
                     </div>
                   )}
                 </div>
@@ -112,11 +112,11 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
 
           {/* Reviews */}
           <div className="max-w-4xl mx-auto px-6 mt-10">
-            <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-6">Reviews</h2>
+            <h2 className="text-sm uppercase tracking-widest text-gray-400 mb-6">Reviews</h2>
 
             {reviews.length === 0 ? (
               <div className="text-center py-16">
-                <p className="text-gray-500 text-sm">No published reviews yet.</p>
+                <p className="text-gray-400 text-sm">No published reviews yet.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -134,7 +134,7 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <h3 className="font-semibold text-white group-hover:text-white text-sm leading-snug">{review.fragrance_name}</h3>
-                          <p className="text-xs text-gray-500 mt-0.5">{review.house} · <span className="text-gray-600">{CATEGORY_LABELS[review.category]}</span></p>
+                          <p className="text-xs text-gray-400 mt-0.5">{review.house} · <span className="text-gray-400">{CATEGORY_LABELS[review.category]}</span></p>
                         </div>
                         <div className="flex items-center gap-0.5 flex-shrink-0">
                           {Array.from({ length: 5 }).map((_, i) => (
@@ -144,7 +144,7 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
                           ))}
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2 line-clamp-2 leading-relaxed">{review.review_text}</p>
+                      <p className="text-xs text-gray-400 mt-2 line-clamp-2 leading-relaxed">{review.review_text}</p>
                     </div>
                   </Link>
                 ))}

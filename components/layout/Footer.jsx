@@ -213,7 +213,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 border-t border-white/10 pt-8">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400">
               &copy; {year} Pakistan Fragrance Community. All rights reserved.
             </p>
             <div className="flex items-center gap-5">

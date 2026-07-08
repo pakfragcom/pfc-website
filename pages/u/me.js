@@ -32,7 +32,7 @@ function daysUntil(dateStr) {
 }
 
 function DaysChip({ days }) {
-  if (days === null) return <span className="text-gray-600">—</span>;
+  if (days === null) return <span className="text-gray-400">—</span>;
   if (days < 0) return <span className="text-red-400 text-xs">{Math.abs(days)}d overdue</span>;
   if (days <= 7) return <span className="text-red-400 text-xs font-medium">{days}d left</span>;
   if (days <= 14) return <span className="text-orange-400 text-xs font-medium">{days}d left</span>;
@@ -82,7 +82,7 @@ function EditProfileModal({ profile, onClose, onSave }) {
         <h3 className="font-semibold text-lg mb-5">Edit Profile</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Display Name</label>
+            <label className="text-xs text-gray-400 block mb-1">Display Name</label>
             <input
               type="text"
               value={form.display_name}
@@ -95,14 +95,14 @@ function EditProfileModal({ profile, onClose, onSave }) {
 
           {/* One-time username change */}
           <div>
-            <label className="text-xs text-gray-500 block mb-1">
+            <label className="text-xs text-gray-400 block mb-1">
               Username
               {canChangeUsername
                 ? <span className="ml-1.5 text-[#94aea7]">— you can change this once</span>
-                : <span className="ml-1.5 text-gray-600">— locked after first change</span>}
+                : <span className="ml-1.5 text-gray-400">— locked after first change</span>}
             </label>
             <div className="flex items-center gap-0 ring-1 ring-white/10 rounded-lg overflow-hidden bg-black/40">
-              <span className="px-3 py-2 text-sm text-gray-600 select-none border-r border-white/10">pakfrag.com/u/</span>
+              <span className="px-3 py-2 text-sm text-gray-400 select-none border-r border-white/10">pakfrag.com/u/</span>
               <input
                 type="text"
                 value={form.username}
@@ -114,12 +114,12 @@ function EditProfileModal({ profile, onClose, onSave }) {
               />
             </div>
             {canChangeUsername && (
-              <p className="text-[11px] text-gray-600 mt-1">Letters, numbers, hyphens. 3–30 characters. Cannot be undone.</p>
+              <p className="text-[11px] text-gray-400 mt-1">Letters, numbers, hyphens. 3–30 characters. Cannot be undone.</p>
             )}
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 block mb-1">City</label>
+            <label className="text-xs text-gray-400 block mb-1">City</label>
             <select
               value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })}
@@ -130,8 +130,8 @@ function EditProfileModal({ profile, onClose, onSave }) {
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-500 block mb-1">
-              Bio <span className="text-gray-600">{form.bio.length}/280</span>
+            <label className="text-xs text-gray-400 block mb-1">
+              Bio <span className="text-gray-400">{form.bio.length}/280</span>
             </label>
             <textarea
               value={form.bio}
@@ -186,7 +186,7 @@ function SellerCard({ seller }) {
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
           <h2 className="text-sm font-semibold text-white">Seller Account</h2>
-          <p className="text-xs text-gray-500 mt-0.5">{seller.name}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{seller.name}</p>
         </div>
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ${STATUS_COLORS[seller.status] || STATUS_COLORS.pending}`}>
           {seller.status}
@@ -195,12 +195,12 @@ function SellerCard({ seller }) {
 
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div className="bg-black/30 rounded-xl p-3">
-          <p className="text-xs text-gray-500 mb-1">Verification Code</p>
+          <p className="text-xs text-gray-400 mb-1">Verification Code</p>
           <div className="flex items-center gap-2">
             <span className="font-mono font-semibold text-white">{seller.code}</span>
             <button
               onClick={copyCode}
-              className="text-xs text-gray-500 hover:text-white transition"
+              className="text-xs text-gray-400 hover:text-white transition"
               title="Copy code"
             >
               {copied ? (
@@ -213,17 +213,17 @@ function SellerCard({ seller }) {
         </div>
 
         <div className="bg-black/30 rounded-xl p-3">
-          <p className="text-xs text-gray-500 mb-1">Type</p>
+          <p className="text-xs text-gray-400 mb-1">Type</p>
           <span className="font-medium text-white">{seller.seller_type}</span>
         </div>
 
         <div className="bg-black/30 rounded-xl p-3">
-          <p className="text-xs text-gray-500 mb-1">Expires</p>
+          <p className="text-xs text-gray-400 mb-1">Expires</p>
           <p className="text-white text-xs">{expiryDate || '—'}</p>
         </div>
 
         <div className="bg-black/30 rounded-xl p-3">
-          <p className="text-xs text-gray-500 mb-1">Time Left</p>
+          <p className="text-xs text-gray-400 mb-1">Time Left</p>
           <DaysChip days={days} />
         </div>
       </div>
@@ -277,7 +277,7 @@ function ClaimSellerSection({ onClaimed }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
       <h2 className="text-sm font-semibold text-white mb-1">Verified Seller?</h2>
-      <p className="text-xs text-gray-500 mb-4">
+      <p className="text-xs text-gray-400 mb-4">
         If you are a PFC-verified seller, enter your verification code below to link your account and see your subscription status.
       </p>
       <form onSubmit={submit} className="flex gap-2">
@@ -350,14 +350,14 @@ function ScentDNASection({ scentProfile }) {
           <span>🧬</span> Your Scent DNA
         </h2>
         <Link href="/onboarding/scent-quiz"
-          className="text-xs text-gray-500 hover:text-white transition">
+          className="text-xs text-gray-400 hover:text-white transition">
           Retake quiz →
         </Link>
       </div>
 
       {scentProfile.preferred_families?.length > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">Preferred Families</p>
+          <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Preferred Families</p>
           <div className="flex flex-wrap gap-1.5">
             {scentProfile.preferred_families.map(f => (
               <span key={f} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${FAMILY_COLORS[f] || 'text-gray-400 bg-white/5 ring-white/10'}`}>
@@ -371,19 +371,19 @@ function ScentDNASection({ scentProfile }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {scentProfile.budget_range && (
           <div className="bg-black/30 rounded-xl p-3">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Budget</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Budget</p>
             <p className="text-sm font-medium text-white">{BUDGET_LABELS[scentProfile.budget_range] || scentProfile.budget_range}</p>
           </div>
         )}
         {scentProfile.city && (
           <div className="bg-black/30 rounded-xl p-3">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">City</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">City</p>
             <p className="text-sm font-medium text-white">{scentProfile.city}</p>
           </div>
         )}
         {scentProfile.usage_occasions?.length > 0 && (
           <div className="bg-black/30 rounded-xl p-3">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Occasions</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Occasions</p>
             <p className="text-sm font-medium text-white">{scentProfile.usage_occasions.join(', ')}</p>
           </div>
         )}
@@ -391,7 +391,7 @@ function ScentDNASection({ scentProfile }) {
 
       {scentProfile.current_scents && (
         <div className="mt-3 bg-black/30 rounded-xl p-3">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Currently wearing</p>
+          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Currently wearing</p>
           <p className="text-sm text-gray-300">{scentProfile.current_scents}</p>
         </div>
       )}
@@ -418,7 +418,7 @@ function AdminSection() {
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold text-white">Site Administrator</p>
-          <p className="text-xs text-gray-500">You have full admin access</p>
+          <p className="text-xs text-gray-400">You have full admin access</p>
         </div>
         <Link
           href="/pfc-mgmt"
@@ -436,9 +436,9 @@ function MyWishlistSection({ items = [] }) {
   if (items.length === 0) {
     return (
       <div>
-        <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">Want to Try</h2>
+        <h2 className="text-sm uppercase tracking-widest text-gray-400 mb-4">Want to Try</h2>
         <div className="text-center py-12 border border-white/10 rounded-2xl">
-          <p className="text-gray-500 text-sm">No fragrances saved yet.</p>
+          <p className="text-gray-400 text-sm">No fragrances saved yet.</p>
           <Link href="/fragrances" className="mt-3 inline-block text-sm text-[#94aea7] hover:text-white transition">
             Browse the directory →
           </Link>
@@ -449,8 +449,8 @@ function MyWishlistSection({ items = [] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm uppercase tracking-widest text-gray-500">
-          Want to Try <span className="text-gray-600 normal-case tracking-normal">({items.length})</span>
+        <h2 className="text-sm uppercase tracking-widest text-gray-400">
+          Want to Try <span className="text-gray-400 normal-case tracking-normal">({items.length})</span>
         </h2>
         <Link href="/fragrances" className="text-xs text-[#94aea7] hover:text-white transition">Browse more</Link>
       </div>
@@ -469,7 +469,7 @@ function MyWishlistSection({ items = [] }) {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-white leading-snug line-clamp-1 group-hover:text-white transition">{f.name}</p>
-                <p className="text-[10px] text-gray-500 line-clamp-1">{f.house}</p>
+                <p className="text-[10px] text-gray-400 line-clamp-1">{f.house}</p>
               </div>
             </Link>
           );
@@ -488,9 +488,9 @@ function MyReviewsSection({ reviews }) {
   if (reviews.length === 0) {
     return (
       <div>
-        <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">My Reviews</h2>
+        <h2 className="text-sm uppercase tracking-widest text-gray-400 mb-4">My Reviews</h2>
         <div className="text-center py-12 border border-white/10 rounded-2xl">
-          <p className="text-gray-500 text-sm">No reviews yet.</p>
+          <p className="text-gray-400 text-sm">No reviews yet.</p>
           <Link href="/reviews/submit" className="mt-3 inline-block text-sm text-[#94aea7] hover:text-white transition">
             Write your first review →
           </Link>
@@ -502,7 +502,7 @@ function MyReviewsSection({ reviews }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm uppercase tracking-widest text-gray-500">My Reviews</h2>
+        <h2 className="text-sm uppercase tracking-widest text-gray-400">My Reviews</h2>
         <Link href="/reviews/submit" className="text-xs text-[#94aea7] hover:text-white transition">
           + Write Review
         </Link>
@@ -535,7 +535,7 @@ function ReviewCard({ review, pending, rejected }) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <h3 className="font-semibold text-white text-sm leading-snug">{review.fragrance_name}</h3>
-            <p className="text-xs text-gray-500 mt-0.5">{review.house} · {CATEGORY_LABELS[review.category]}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{review.house} · {CATEGORY_LABELS[review.category]}</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {pending && (
@@ -559,7 +559,7 @@ function ReviewCard({ review, pending, rejected }) {
             )}
           </div>
         </div>
-        <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{review.review_text}</p>
+        <p className="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">{review.review_text}</p>
         {rejected && review.reject_reason && (
           <p className="text-xs text-red-400/70 mt-1.5">Reason: {review.reject_reason}</p>
         )}
@@ -663,14 +663,14 @@ export default function MyProfile({ profile, reviews, seller, isAdmin, wishlist 
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                    <span className="text-xs text-gray-600">@{profile.username}</span>
+                    <span className="text-xs text-gray-400">@{profile.username}</span>
                     {profile.city && (
                       <span className="text-sm text-gray-400 flex items-center gap-1">
                         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
                         {profile.city}
                       </span>
                     )}
-                    <span className="text-sm text-gray-500">Member since {joinDate}</span>
+                    <span className="text-sm text-gray-400">Member since {joinDate}</span>
                   </div>
                   {profile.bio && <p className="text-sm text-gray-400 mt-2 max-w-xl">{profile.bio}</p>}
                 </div>
@@ -688,24 +688,24 @@ export default function MyProfile({ profile, reviews, seller, isAdmin, wishlist 
                 <div className="mt-6 pt-6 border-t border-white/10 flex flex-wrap gap-6">
                   <div>
                     <p className="text-xl font-bold text-white">{approvedReviews.length}</p>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Review{approvedReviews.length !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-gray-400 uppercase tracking-wide">Review{approvedReviews.length !== 1 ? 's' : ''}</p>
                   </div>
                   {avgRating !== null && (
                     <div>
                       <p className="text-xl font-bold text-white">{avgRating}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Avg Rating</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide">Avg Rating</p>
                     </div>
                   )}
                   {topCategory && (
                     <div>
                       <p className="text-sm font-semibold text-[#94aea7] mt-0.5">{CATEGORY_LABELS[topCategory]}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Top Category</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide">Top Category</p>
                     </div>
                   )}
                   {wishlist.length > 0 && (
                     <div>
                       <p className="text-xl font-bold text-white">{wishlist.length}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Want to Try</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide">Want to Try</p>
                     </div>
                   )}
                 </div>

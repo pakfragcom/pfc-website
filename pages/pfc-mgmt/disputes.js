@@ -83,7 +83,7 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl font-bold text-white">Disputes</h1>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-gray-400 mt-0.5">
                 {counts.open} open · {counts.escalated} escalated · {counts.resolved} resolved
               </p>
             </div>
@@ -96,7 +96,7 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
                 className={`px-4 py-1.5 rounded-full text-sm transition border ${
                   filterStatus === id
                     ? 'bg-white/10 text-white border-white/20'
-                    : 'text-gray-500 hover:text-white border-transparent'
+                    : 'text-gray-400 hover:text-white border-transparent'
                 }`}>
                 {label}
                 {counts[id] > 0 && <span className="ml-1 text-xs opacity-70">{counts[id]}</span>}
@@ -105,9 +105,9 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
           </div>
 
           {loading ? (
-            <div className="text-center py-20 text-gray-600">Loading…</div>
+            <div className="text-center py-20 text-gray-400">Loading…</div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-20 text-gray-600">No {filterStatus === 'all' ? '' : filterStatus} disputes.</div>
+            <div className="text-center py-20 text-gray-400">No {filterStatus === 'all' ? '' : filterStatus} disputes.</div>
           ) : (
             <div className="space-y-3">
               {filtered.map(dispute => {
@@ -129,7 +129,7 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ring-1 ${statusCfg.cls}`}>
                             {statusCfg.label}
                           </span>
-                          <span className="text-xs text-gray-500 bg-white/5 ring-1 ring-white/10 px-2 py-0.5 rounded-full">
+                          <span className="text-xs text-gray-400 bg-white/5 ring-1 ring-white/10 px-2 py-0.5 rounded-full">
                             {CATEGORY_LABELS[dispute.category] || dispute.category}
                           </span>
                         </div>
@@ -137,13 +137,13 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
                         <h3 className="text-sm font-semibold text-white truncate">
                           {tx.fragrance_name || 'Transaction #' + tx.id?.slice(0, 8)}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-gray-400 mt-0.5">
                           Buyer: {buyer.display_name || 'Anonymous'}
                           {buyer.city && ` · ${buyer.city}`}
                           {' · '}Seller: {seller.name || '—'}
                           {tx.price_pkr && ` · Rs ${tx.price_pkr.toLocaleString()}`}
                         </p>
-                        <p className="text-xs text-gray-600 mt-0.5">
+                        <p className="text-xs text-gray-400 mt-0.5">
                           {new Date(dispute.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </p>
                       </div>
@@ -157,7 +157,7 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
                       <div className="border-t border-white/8 px-5 py-5 space-y-5">
                         {/* Description */}
                         <div>
-                          <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Buyer's account</p>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Buyer's account</p>
                           <p className="text-sm text-gray-300 bg-white/5 rounded-xl px-4 py-3 whitespace-pre-wrap">
                             {dispute.description}
                           </p>
@@ -166,7 +166,7 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
                         {/* Evidence */}
                         {dispute.evidence_urls?.length > 0 && (
                           <div>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Evidence links</p>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">Evidence links</p>
                             <div className="flex flex-wrap gap-2">
                               {dispute.evidence_urls.map((url, i) => (
                                 <a key={i} href={url} target="_blank" rel="noopener noreferrer"
@@ -181,7 +181,7 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
                         {/* Actions row */}
                         <div className="flex flex-wrap gap-2 items-center">
                           {/* Dispute status */}
-                          <span className="text-xs text-gray-500 mr-1">Set status:</span>
+                          <span className="text-xs text-gray-400 mr-1">Set status:</span>
                           {['open', 'resolved', 'escalated'].map(s => (
                             <button key={s}
                               disabled={txStatus === s || actionLoading === dispute.id}
@@ -222,7 +222,7 @@ export default function AdminDisputes({ identity = ADMIN_IDENTITY }) {
 
                         {/* Resolution notes */}
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1.5">Resolution notes (internal)</label>
+                          <label className="block text-xs text-gray-400 mb-1.5">Resolution notes (internal)</label>
                           <textarea
                             value={noteEdits[dispute.id] ?? dispute.resolution_notes ?? ''}
                             onChange={e => setNoteEdits(prev => ({ ...prev, [dispute.id]: e.target.value }))}

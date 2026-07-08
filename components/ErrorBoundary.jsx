@@ -20,7 +20,7 @@ export default class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-black px-6 text-center text-white font-sans">
-          <p className="text-sm font-medium uppercase tracking-widest text-gray-500 mb-4">
+          <p className="text-sm font-medium uppercase tracking-widest text-gray-400 mb-4">
             Something went wrong
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-[#F5F5F7] sm:text-4xl">

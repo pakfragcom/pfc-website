@@ -162,7 +162,7 @@ export default function FragranceSubmit() {
               {/* Header */}
               <m.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE }} className="mb-8">
-                <Link href="/fragrances" className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-white transition mb-4">
+                <Link href="/fragrances" className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-white transition mb-4">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                   </svg>
@@ -227,7 +227,7 @@ export default function FragranceSubmit() {
                       </span>
                     )}
                     {lookupResult === 'not_found' && (
-                      <span className="text-xs text-gray-500">No info found — fill manually</span>
+                      <span className="text-xs text-gray-400">No info found — fill manually</span>
                     )}
                   </div>
                 )}
@@ -285,11 +285,11 @@ export default function FragranceSubmit() {
 
                 {/* Notes */}
                 <div>
-                  <p className="text-xs text-gray-400 font-medium mb-3">Fragrance Notes <span className="text-gray-600 font-normal">(comma-separated, optional)</span></p>
+                  <p className="text-xs text-gray-400 font-medium mb-3">Fragrance Notes <span className="text-gray-400 font-normal">(comma-separated, optional)</span></p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {[['notes_top', 'Top Notes'], ['notes_heart', 'Heart Notes'], ['notes_base', 'Base Notes']].map(([field, label]) => (
                       <div key={field}>
-                        <label className="block text-[11px] text-gray-500 mb-1">{label}</label>
+                        <label className="block text-[11px] text-gray-400 mb-1">{label}</label>
                         <input type="text" value={form[field]} onChange={set(field)}
                           placeholder="e.g. Bergamot, Lemon"
                           className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-3 py-2 text-white text-xs placeholder-gray-600 outline-none focus:ring-white/25 transition" />
@@ -307,7 +307,7 @@ export default function FragranceSubmit() {
                   {submitting ? 'Submitting…' : 'Submit Fragrance'}
                 </button>
 
-                <p className="text-xs text-gray-600 text-center">
+                <p className="text-xs text-gray-400 text-center">
                   Submissions are reviewed before appearing in the directory.
                 </p>
               </m.form>

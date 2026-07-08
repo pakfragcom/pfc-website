@@ -217,7 +217,7 @@ export default function Header() {
                   ].join(' ')}>
                     <div className="px-3 py-2 border-b border-white/10">
                       <p className="text-xs font-medium text-white truncate">{user.user_metadata?.full_name || user.email}</p>
-                      <p className="text-[10px] text-gray-500 truncate">{user.email}</p>
+                      <p className="text-[10px] text-gray-400 truncate">{user.email}</p>
                     </div>
                     <Link href={`/u/${user.user_metadata?.username || 'me'}`} onClick={handleLinkClick}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
@@ -294,7 +294,7 @@ export default function Header() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-white truncate">{user.user_metadata?.full_name || 'Account'}</p>
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                  <p className="text-xs text-gray-400 truncate">{user.email}</p>
                 </div>
               </div>
             ) : (

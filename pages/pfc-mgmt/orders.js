@@ -83,7 +83,7 @@ export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl font-bold text-white">Order Requests</h1>
-              <p className="text-sm text-gray-500 mt-0.5">{counts.pending} pending · {counts.fulfilled} fulfilled</p>
+              <p className="text-sm text-gray-400 mt-0.5">{counts.pending} pending · {counts.fulfilled} fulfilled</p>
             </div>
           </div>
 
@@ -94,7 +94,7 @@ export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
                 className={`px-4 py-1.5 rounded-full text-sm capitalize transition ${
                   filter === f
                     ? 'bg-white/10 text-white border border-white/20'
-                    : 'text-gray-500 hover:text-white border border-transparent'
+                    : 'text-gray-400 hover:text-white border border-transparent'
                 }`}>
                 {f} {counts[f] > 0 && <span className="ml-1 text-xs opacity-70">{counts[f]}</span>}
               </button>
@@ -102,9 +102,9 @@ export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
           </div>
 
           {loading ? (
-            <div className="text-center py-20 text-gray-600">Loading…</div>
+            <div className="text-center py-20 text-gray-400">Loading…</div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-20 text-gray-600">No {filter === 'all' ? '' : filter} orders.</div>
+            <div className="text-center py-20 text-gray-400">No {filter === 'all' ? '' : filter} orders.</div>
           ) : (
             <div className="space-y-3">
               {filtered.map(order => (
@@ -123,20 +123,20 @@ export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
                         )}
                       </div>
                       <h3 className="text-sm font-semibold text-white truncate">{order.fragrance_name}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-400 mt-0.5">
                         {order.requester_name} · {order.whatsapp}
                         {order.city && ` · ${order.city}`}
                         {order.quantity > 1 && ` · Qty: ${order.quantity}`}
                         {order.budget && ` · Budget: ${order.budget}`}
                       </p>
-                      <p className="text-xs text-gray-600 mt-0.5">
+                      <p className="text-xs text-gray-400 mt-0.5">
                         {new Date(order.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
 
                     <div className="flex flex-col gap-2 flex-shrink-0">
                       <button onClick={() => setExpanded(expanded === order.id ? null : order.id)}
-                        className="text-xs text-gray-500 hover:text-white transition px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20">
+                        className="text-xs text-gray-400 hover:text-white transition px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20">
                         {expanded === order.id ? 'Collapse' : 'Details'}
                       </button>
                       <a href={`https://wa.me/${order.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
@@ -181,7 +181,7 @@ export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
 
                       {/* Admin notes */}
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1.5">Admin notes</label>
+                        <label className="block text-xs text-gray-400 mb-1.5">Admin notes</label>
                         <textarea
                           value={noteEdits[order.id] ?? order.admin_notes ?? ''}
                           onChange={e => setNoteEdits(prev => ({ ...prev, [order.id]: e.target.value }))}
@@ -210,7 +210,7 @@ function InfoCell({ label, value }) {
   if (!value) return null;
   return (
     <div>
-      <p className="text-gray-600 uppercase tracking-wider text-[10px] mb-0.5">{label}</p>
+      <p className="text-gray-400 uppercase tracking-wider text-[10px] mb-0.5">{label}</p>
       <p className="text-gray-300">{value}</p>
     </div>
   );

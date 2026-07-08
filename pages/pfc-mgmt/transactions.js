@@ -89,7 +89,7 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
               <h1 className="text-2xl font-bold text-white">Transactions</h1>
-              <p className="text-sm text-gray-500 mt-0.5">{total} total logged</p>
+              <p className="text-sm text-gray-400 mt-0.5">{total} total logged</p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -109,9 +109,9 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
           </div>
 
           {loading ? (
-            <div className="text-center py-20 text-gray-500">Loading…</div>
+            <div className="text-center py-20 text-gray-400">Loading…</div>
           ) : transactions.length === 0 ? (
-            <div className="text-center py-20 text-gray-500">No transactions found.</div>
+            <div className="text-center py-20 text-gray-400">No transactions found.</div>
           ) : (
             <div className="space-y-3">
               {transactions.map(tx => {
@@ -135,7 +135,7 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-semibold text-white">{tx.transaction_items[0].fragrance_name}</span>
                               {tx.transaction_items[0].house && <span className="text-xs text-gray-400">{tx.transaction_items[0].house}</span>}
-                              <span className="text-xs text-gray-500">{CONDITION_LABEL[tx.transaction_items[0].item_type] || tx.transaction_items[0].item_type}</span>
+                              <span className="text-xs text-gray-400">{CONDITION_LABEL[tx.transaction_items[0].item_type] || tx.transaction_items[0].item_type}</span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-2 flex-wrap">
@@ -147,10 +147,10 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-sm font-semibold text-white">{tx.fragrance_name || '—'}</span>
                             {tx.house && <span className="text-xs text-gray-400">{tx.house}</span>}
-                            <span className="text-xs text-gray-500">{CONDITION_LABEL[tx.condition] || tx.condition}</span>
+                            <span className="text-xs text-gray-400">{CONDITION_LABEL[tx.condition] || tx.condition}</span>
                           </div>
                         )}
-                        <div className="flex items-center gap-3 mt-1 flex-wrap text-xs text-gray-500">
+                        <div className="flex items-center gap-3 mt-1 flex-wrap text-xs text-gray-400">
                           <span>Seller: <span className="text-gray-300">{tx.sellers?.name}</span> <span className="font-mono">({tx.sellers?.code})</span></span>
                           <span>Buyer: <span className="text-gray-300">{tx.profiles?.display_name || 'Anonymous'}</span></span>
                           {tx.city && <span>{tx.city}</span>}
@@ -178,16 +178,16 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
                             <table className="w-full text-xs">
                               <thead>
                                 <tr className="border-b border-white/8 bg-white/[0.02]">
-                                  <th className="text-left px-3 py-2 text-gray-500 font-medium">Fragrance</th>
-                                  <th className="text-left px-3 py-2 text-gray-500 font-medium">Type</th>
-                                  <th className="text-right px-3 py-2 text-gray-500 font-medium">Qty</th>
-                                  <th className="text-right px-3 py-2 text-gray-500 font-medium">Price</th>
+                                  <th className="text-left px-3 py-2 text-gray-400 font-medium">Fragrance</th>
+                                  <th className="text-left px-3 py-2 text-gray-400 font-medium">Type</th>
+                                  <th className="text-right px-3 py-2 text-gray-400 font-medium">Qty</th>
+                                  <th className="text-right px-3 py-2 text-gray-400 font-medium">Price</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {tx.transaction_items.map((item, i) => (
                                   <tr key={i} className="border-b border-white/5 last:border-0">
-                                    <td className="px-3 py-2 text-white">{item.fragrance_name}{item.house ? <span className="text-gray-500 ml-1.5">{item.house}</span> : null}</td>
+                                    <td className="px-3 py-2 text-white">{item.fragrance_name}{item.house ? <span className="text-gray-400 ml-1.5">{item.house}</span> : null}</td>
                                     <td className="px-3 py-2 text-gray-400">{CONDITION_LABEL[item.item_type] || item.item_type}</td>
                                     <td className="px-3 py-2 text-gray-400 text-right">{item.quantity}</td>
                                     <td className="px-3 py-2 text-white text-right font-medium">Rs {(item.price_pkr * item.quantity).toLocaleString()}</td>
@@ -199,13 +199,13 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
                         )}
                         {tx.notes && (
                           <p className="text-sm text-gray-300 bg-white/5 rounded-xl px-4 py-3">
-                            <span className="text-xs text-gray-500 uppercase tracking-wider mr-2">Notes</span>
+                            <span className="text-xs text-gray-400 uppercase tracking-wider mr-2">Notes</span>
                             {tx.notes}
                           </p>
                         )}
                         {tx.review_text && (
                           <p className="text-sm text-gray-300 bg-white/5 rounded-xl px-4 py-3">
-                            <span className="text-xs text-gray-500 uppercase tracking-wider mr-2">Review</span>
+                            <span className="text-xs text-gray-400 uppercase tracking-wider mr-2">Review</span>
                             {tx.review_text}
                           </p>
                         )}
@@ -213,7 +213,7 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
                         <div className="flex flex-wrap gap-2">
                           {/* Dispute status */}
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500">Dispute:</span>
+                            <span className="text-xs text-gray-400">Dispute:</span>
                             {['none', 'open', 'resolved', 'escalated'].map(d => (
                               <button
                                 key={d}
@@ -257,7 +257,7 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
                         </div>
 
                         {actionLoading === tx.id && (
-                          <p className="text-xs text-gray-500">Saving…</p>
+                          <p className="text-xs text-gray-400">Saving…</p>
                         )}
                       </div>
                     )}
@@ -277,7 +277,7 @@ export default function AdminTransactions({ identity = ADMIN_IDENTITY }) {
               >
                 ← Prev
               </button>
-              <span className="text-sm text-gray-500">Page {page + 1} / {totalPages}</span>
+              <span className="text-sm text-gray-400">Page {page + 1} / {totalPages}</span>
               <button
                 disabled={page >= totalPages - 1}
                 onClick={() => handlePage(page + 1)}

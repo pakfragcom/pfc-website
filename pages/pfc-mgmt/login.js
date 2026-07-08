@@ -72,7 +72,7 @@ export default function AdminLogin() {
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center mb-8">
             <div className="text-2xl font-bold text-white">PFC Admin</div>
-            <div className="text-sm text-gray-500 mt-1">Seller Management Portal</div>
+            <div className="text-sm text-gray-400 mt-1">Seller Management Portal</div>
           </div>
 
           <form onSubmit={handleSubmit} className="bg-white/5 ring-1 ring-white/10 rounded-2xl p-6 space-y-4">
@@ -109,7 +109,7 @@ export default function AdminLogin() {
 
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-xs text-gray-600">or</span>
+            <span className="text-xs text-gray-400">or</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
 
