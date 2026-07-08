@@ -74,7 +74,7 @@ const TIER = {
     border: 'border-sky-400/25 hover:border-sky-400/50',
     shimmer: 'from-sky-400/50 via-sky-300/20 to-transparent',
     line: 'bg-gradient-to-r from-sky-400/50 to-transparent',
-    countColor: 'text-sky-400/60',
+    countColor: 'text-sky-400',
     glow: 'shadow-sky-500/10',
   },
   platinum: {
@@ -84,7 +84,7 @@ const TIER = {
     border: 'border-white/15 hover:border-white/30',
     shimmer: 'from-white/30 via-white/10 to-transparent',
     line: 'bg-gradient-to-r from-white/40 to-transparent',
-    countColor: 'text-gray-400/60',
+    countColor: 'text-gray-400',
     glow: 'shadow-white/5',
   },
   gold: {
@@ -94,7 +94,7 @@ const TIER = {
     border: 'border-amber-500/20 hover:border-amber-400/40',
     shimmer: 'from-amber-400/40 via-amber-300/15 to-transparent',
     line: 'bg-gradient-to-r from-amber-400/50 to-transparent',
-    countColor: 'text-amber-400/60',
+    countColor: 'text-amber-400',
     glow: '',
   },
   emerging: {
@@ -104,7 +104,7 @@ const TIER = {
     border: 'border-emerald-500/15 hover:border-emerald-400/30',
     shimmer: 'from-emerald-400/25 to-transparent',
     line: 'bg-gradient-to-r from-emerald-400/30 to-transparent',
-    countColor: 'text-emerald-400/60',
+    countColor: 'text-emerald-400',
     glow: '',
   },
 };
@@ -162,9 +162,9 @@ function TierHeader({ tier, count }) {
   const cfg = TIER[tier];
   return (
     <div className="flex items-center gap-4 mb-7">
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider flex-shrink-0 ${cfg.badge}`}>
+      <h2 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider flex-shrink-0 ${cfg.badge}`}>
         {cfg.icon} {cfg.label}
-      </span>
+      </h2>
       <div className={`flex-1 h-px ${cfg.line}`} />
       <span className={`text-xs font-medium ${cfg.countColor} flex-shrink-0`}>{count}</span>
     </div>
