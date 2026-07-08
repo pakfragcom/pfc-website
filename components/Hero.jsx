@@ -97,7 +97,7 @@ export default function Hero() {
               href="https://www.facebook.com/groups/pkfragcom"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Join the Pakistan Fragrance Community Facebook group (opens in new tab)"
+              aria-label="Join the Community — our Facebook group (opens in new tab)"
               className="group inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#2a5c4f] via-[#4a7a6e] to-[#94aea7] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-[#2a5c4f]/30 transition-all motion-safe:duration-300 hover:shadow-[#2a5c4f]/50 hover:shadow-xl hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
               Join the Community

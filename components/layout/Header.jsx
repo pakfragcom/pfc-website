@@ -124,6 +124,7 @@ export default function Header() {
     : user?.email?.[0]?.toUpperCase() || '?'
 
   return (
+    <>
     <header
       className={[
         'fixed top-0 left-0 w-full z-50 transition-all',
@@ -133,7 +134,7 @@ export default function Header() {
       ].join(' ')}
       role="banner"
     >
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-black">
+      <a href="#page-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-black">
         Skip to content
       </a>
 
@@ -172,16 +173,14 @@ export default function Header() {
                   'transition-all motion-safe:duration-150 ease-out origin-top-right',
                   desktopToolsOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
                 ].join(' ')}>
-                <ul className="py-2">
+                <div className="py-2">
                   {TOOL_LINKS.map(item => (
-                    <li key={item.href} role="none">
-                      <Link href={item.href} onClick={handleLinkClick} role="menuitem"
-                        className="flex items-center gap-3 px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:bg-white/15 focus:outline-none">
-                        {item.label}
-                      </Link>
-                    </li>
+                    <Link key={item.href} href={item.href} onClick={handleLinkClick} role="menuitem"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-white/10 focus:bg-white/15 focus:outline-none">
+                      {item.label}
+                    </Link>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           </nav>
@@ -283,7 +282,7 @@ export default function Header() {
       <div id="mobile-menu" ref={mobileDrawerRef}
         className={['md:hidden overflow-hidden transition-[max-height,opacity] motion-safe:duration-300 ease-out',
           mobileMenuOpen ? 'max-h-[90vh] opacity-100' : 'max-h-0 opacity-0'].join(' ')}
-        role="dialog" aria-modal="true">
+        role="dialog" aria-modal="true" aria-label="Mobile menu">
         <div className="bg-black/90 backdrop-blur-md px-6 py-6 text-white">
 
           {/* Auth section at top */}
@@ -339,15 +338,13 @@ export default function Header() {
                 className={['mx-auto mt-2 w-full max-w-xs overflow-hidden rounded-lg border border-white/10 bg-black/70',
                   'transition-[max-height,opacity] motion-safe:duration-300 ease-out',
                   mobileToolsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'].join(' ')}
-                role="menu">
-                <ul className="p-2 text-left text-xs normal-case">
+                role="menu" aria-labelledby={toolsMobileBtnId}>
+                <div className="p-2 text-left text-xs normal-case">
                   {TOOL_LINKS.map(item => (
-                    <li key={item.href}>
-                      <Link href={item.href} onClick={handleLinkClick}
-                        className="block rounded-md px-3 py-2 hover:bg-white/10">{item.label}</Link>
-                    </li>
+                    <Link key={item.href} href={item.href} onClick={handleLinkClick} role="menuitem"
+                      className="block rounded-md px-3 py-2 hover:bg-white/10">{item.label}</Link>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -376,6 +373,12 @@ export default function Header() {
         </div>
       </div>
     </header>
+    {/* Skip-link target — a page-agnostic focusable marker right after the
+        fixed header, so "Skip to content" has something to jump to on every
+        page (not just the homepage, which has its own separate #main used by
+        Hero's "scroll to content" cue). */}
+    <div id="page-content" tabIndex={-1} />
+    </>
   )
 }
 

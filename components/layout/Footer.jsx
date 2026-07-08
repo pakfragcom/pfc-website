@@ -71,7 +71,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                aria-label="Join our Facebook Community (opens in new tab)"
+                aria-label="Join Our Community on Facebook (opens in new tab)"
               >
                 Join Our Community
               </a>

@@ -51,11 +51,16 @@ export default function App({ Component, pageProps }) {
           />
         </Head>
 
+        {/* lazyOnload (not afterInteractive): gtag.js alone was costing ~600ms of
+            main-thread blocking time in Lighthouse (two separate long tasks) —
+            it isn't needed for anything the user sees or interacts with, so it
+            can wait until the browser is idle instead of competing with
+            hydration for the main thread. */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-57V72G57HN"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script src="/gtag-init.js" strategy="afterInteractive" />
+        <Script src="/gtag-init.js" strategy="lazyOnload" />
 
         <ErrorBoundary>
           <AnimatePresence mode="wait" initial={false}>
