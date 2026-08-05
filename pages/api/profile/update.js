@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { isRateLimited } from '../../../lib/rate-limit';
 
 const PAKISTAN_CITIES = [
   'Karachi','Lahore','Islamabad','Rawalpindi','Faisalabad','Multan',
@@ -15,6 +16,10 @@ export default async function handler(req, res) {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (isRateLimited(`profile-update:${user.id}`, { windowMs: 60_000, max: 10 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
 
   const { display_name, city, bio, username } = req.body;
 

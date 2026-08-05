@@ -1,4 +1,5 @@
 import disposableDomains from 'disposable-email-domains';
+import { getClientIp, isRateLimited } from '../../../lib/rate-limit';
 
 // Build a Set once at module load — O(1) lookups
 const BLOCKED = new Set(disposableDomains);
@@ -14,6 +15,10 @@ const EXTRA_BLOCKED = new Set([
 export default function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (isRateLimited(`check-email:${getClientIp(req)}`, { windowMs: 60_000, max: 20 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
   const { email } = req.body || {};

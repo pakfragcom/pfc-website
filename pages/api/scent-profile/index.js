@@ -1,10 +1,15 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { isRateLimited } from '../../../lib/rate-limit';
 
 export default async function handler(req, res) {
   const supabase = createApiSupabaseClient(req, res);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  if (req.method === 'POST' && isRateLimited(`scent-profile:${user.id}`, { windowMs: 60_000, max: 10 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
 
   // GET — return own scent profile
   if (req.method === 'GET') {

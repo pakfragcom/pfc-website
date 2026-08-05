@@ -2,6 +2,7 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { escHtml, firstTooLong } from '../../../lib/validate';
 import { isRateLimited } from '../../../lib/rate-limit';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { escapeLikePattern } from '../../../lib/escape-like';
 
 function slugify(str) {
   return str.toLowerCase().trim()
@@ -67,7 +68,7 @@ export default async function handler(req, res) {
   const { data: houseRow } = await supabaseAdmin
     .from('fragrance_houses')
     .select('id')
-    .ilike('house', house.trim())
+    .ilike('house', escapeLikePattern(house.trim()))
     .maybeSingle();
   if (houseRow) house_id = houseRow.id;
 
@@ -77,8 +78,8 @@ export default async function handler(req, res) {
     const { data: existing } = await supabaseAdmin
       .from('fragrances')
       .select('id')
-      .ilike('name', fragrance_name.trim())
-      .ilike('house', house.trim())
+      .ilike('name', escapeLikePattern(fragrance_name.trim()))
+      .ilike('house', escapeLikePattern(house.trim()))
       .maybeSingle();
     if (existing) {
       resolvedFragranceId = existing.id;

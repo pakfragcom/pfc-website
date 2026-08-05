@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { isRateLimited } from '../../../lib/rate-limit';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -7,6 +8,10 @@ export default async function handler(req, res) {
   const supabase = createApiSupabaseClient(req, res);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (isRateLimited(`request-l2:${user.id}`, { windowMs: 60 * 60_000, max: 3 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
 
   const { seller_id, cnic_front_path, cnic_back_path, business_proof_path } = req.body;
   if (!seller_id || !cnic_front_path) {

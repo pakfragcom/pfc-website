@@ -55,8 +55,14 @@ async function fetchWikipedia(query) {
   }
 }
 
+import { getClientIp, isRateLimited } from '../../../lib/rate-limit';
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
+
+  if (isRateLimited(`fragrances-lookup:${getClientIp(req)}`, { windowMs: 60_000, max: 10 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
 
   const { name, house } = req.query;
   if (!name) return res.status(400).json({ error: 'name required' });

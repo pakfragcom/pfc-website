@@ -2,9 +2,15 @@
 // Sends a new subscriber email to Loops.so
 // Env var required: LOOPS_API_KEY (see .env.example)
 
+import { getClientIp, isRateLimited } from '../../lib/rate-limit'
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  if (isRateLimited(`newsletter:${getClientIp(req)}`, { windowMs: 60 * 60_000, max: 5 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' })
   }
 
   const { email } = req.body

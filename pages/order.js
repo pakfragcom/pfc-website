@@ -364,9 +364,15 @@ export default function OrderPage() {
                   </div>
 
                   <label className="flex items-start gap-3 cursor-pointer group">
-                    <div className={`mt-0.5 w-5 h-5 flex-shrink-0 rounded border transition ${
+                    <input
+                      type="checkbox"
+                      checked={termsChecked}
+                      onChange={(e) => setTermsChecked(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className={`mt-0.5 w-5 h-5 flex-shrink-0 rounded border transition peer-focus-visible:ring-2 peer-focus-visible:ring-white/50 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-black ${
                       termsChecked ? 'bg-[#2a5c4f] border-[#557d72]' : 'border-white/20 bg-transparent group-hover:border-white/40'
-                    }`} onClick={() => setTermsChecked(v => !v)}>
+                    }`}>
                       {termsChecked && (
                         <svg className="w-full h-full text-white p-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

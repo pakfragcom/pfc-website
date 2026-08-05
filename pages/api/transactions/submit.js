@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
 import { isRateLimited } from '../../../lib/rate-limit';
+import { escapeLikePattern } from '../../../lib/escape-like';
 
 const VALID_ITEM_TYPES = ['sealed', 'partial', 'decant', 'gift_set'];
 const VALID_OUTCOMES   = ['success', 'issue', 'scam'];
@@ -91,7 +92,7 @@ export default async function handler(req, res) {
       const { data: existing } = await supabaseAdmin
         .from('fragrances')
         .select('id')
-        .ilike('name', name)
+        .ilike('name', escapeLikePattern(name))
         .limit(1)
         .maybeSingle();
 

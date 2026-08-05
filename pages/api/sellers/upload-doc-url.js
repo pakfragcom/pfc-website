@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { isRateLimited } from '../../../lib/rate-limit';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -7,6 +8,10 @@ export default async function handler(req, res) {
   const supabase = createApiSupabaseClient(req, res);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (isRateLimited(`upload-doc-url:${user.id}`, { windowMs: 60_000, max: 10 })) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
 
   const { seller_id, doc_type, filename } = req.body;
   if (!seller_id || !doc_type || !filename) {
