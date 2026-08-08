@@ -1,5 +1,5 @@
 // pages/mbp.js
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
@@ -109,49 +109,123 @@ const TIER = {
   },
 };
 
-// ─── SPONSOR CAROUSEL ────────────────────────────────────────────────────────
+// ─── FEATURED BANNER CAROUSEL ──────────────────────────────────────────────
 
-function SponsorCarousel({ sponsors }) {
+function BannerCarousel({ sponsors }) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mq.matches);
+    const handler = e => setReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!sponsors?.length || sponsors.length < 2 || paused || reducedMotion) return;
+    const t = setInterval(() => {
+      setIndex(i => (i + 1) % sponsors.length);
+    }, 6000);
+    return () => clearInterval(t);
+  }, [sponsors, paused, reducedMotion]);
+
   if (!sponsors?.length) return null;
-  const items = [...sponsors, ...sponsors];
+
+  const current = sponsors[index];
+  const accent = accentColor(current.house);
+
+  function goTo(i) {
+    setIndex(((i % sponsors.length) + sponsors.length) % sponsors.length);
+  }
+  function prev() { goTo(index - 1); }
+  function next() { goTo(index + 1); }
+
+  function handleKeyDown(e) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  }
+
   return (
-    <div className="border-y border-white/8 bg-white/[0.015] py-5 overflow-hidden">
-      <p className="text-center text-[10px] uppercase tracking-[0.25em] text-gray-400 mb-4">Proud Partners</p>
-      <div
-        className="mbp-marquee-track flex gap-5 w-max"
-        onMouseEnter={e => (e.currentTarget.style.animationPlayState = 'paused')}
-        onMouseLeave={e => (e.currentTarget.style.animationPlayState = 'running')}
-      >
-        {items.map((s, i) => (
-          <a
-            key={i}
-            href={s.website_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 hover:ring-white/25 hover:bg-white/8 transition-all flex-shrink-0 group"
+    <div
+      className="border-b border-white/8 bg-white/[0.015]"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Featured brands"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+      onKeyDown={handleKeyDown}
+    >
+      <div className="max-w-5xl mx-auto px-6 py-5">
+        <p className="text-center text-[10px] uppercase tracking-[0.25em] text-gray-400 mb-3">Featured Brands</p>
+
+        <div className="relative rounded-2xl overflow-hidden ring-1 ring-white/10" style={{ aspectRatio: '3 / 1' }}>
+          <Link
+            href={`/houses/${current.slug}`}
+            className="absolute inset-0 block group"
+            aria-label={`View ${current.house}'s profile and reviews`}
           >
-            {s.logo_url
-              ? <img src={s.logo_url} alt={s.brand_name} width={80} height={20} className="h-5 w-auto object-contain opacity-70 group-hover:opacity-100 transition" />
-              : <span className="text-sm font-medium text-gray-400 group-hover:text-white transition whitespace-nowrap">{s.brand_name}</span>
-            }
-            {s.tagline && <span className="text-[10px] text-gray-400 hidden sm:block">{s.tagline}</span>}
-          </a>
-        ))}
+            {current.sponsor_banner_url ? (
+              <img
+                src={current.sponsor_banner_url}
+                alt={current.house}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center px-6 text-center"
+                style={{ background: `linear-gradient(135deg, ${accent}33, ${accent}11)` }}
+              >
+                <span className="text-2xl sm:text-3xl font-bold" style={{ color: accent + 'ee' }}>
+                  {current.house}
+                </span>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Link>
+
+          {sponsors.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                aria-label="Previous featured brand"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white flex items-center justify-center transition"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={next}
+                aria-label="Next featured brand"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white flex items-center justify-center transition"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                {sponsors.map((s, i) => (
+                  <button
+                    key={s.slug}
+                    onClick={() => goTo(i)}
+                    aria-label={`Go to slide ${i + 1}: ${s.house}`}
+                    aria-current={i === index}
+                    className={`h-1.5 rounded-full transition-all ${i === index ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <p aria-live="polite" className="sr-only">{`Showing ${current.house}, slide ${index + 1} of ${sponsors.length}`}</p>
       </div>
-      <style jsx>{`
-        @keyframes mbp-marquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .mbp-marquee-track {
-          animation: mbp-marquee 35s linear infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .mbp-marquee-track {
-            animation: none;
-          }
-        }
-      `}</style>
     </div>
   );
 }
@@ -576,8 +650,8 @@ export default function MBPPage({ houses = [], sponsors = [] }) {
               </div>
             </div>
 
-            {/* ── Sponsor Carousel ─────────────────────────────────────── */}
-            <SponsorCarousel sponsors={sponsors} />
+            {/* ── Featured Banner Carousel ─────────────────────────────── */}
+            <BannerCarousel sponsors={sponsors} />
 
             {/* ── Main Content ─────────────────────────────────────────── */}
             <div className="max-w-5xl mx-auto px-6 mt-14">
@@ -674,21 +748,16 @@ export default function MBPPage({ houses = [], sponsors = [] }) {
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 
 export async function getStaticProps() {
-  const [{ data: houses, error }, { data: fragRows }, { data: sponsors }] = await Promise.all([
+  const [{ data: houses, error }, { data: fragRows }] = await Promise.all([
     supabase
       .from('fragrance_houses')
-      .select('house, director, slug, tier, city, logo_url, website, description')
+      .select('house, director, slug, tier, city, logo_url, website, description, is_sponsor, sponsor_order, sponsor_banner_url')
       .in('status', ['active', 'grace'])
       .order('house'),
     supabase
       .from('fragrances')
       .select('fragrance_houses(slug)')
       .eq('status', 'approved'),
-    supabase
-      .from('mbp_sponsors')
-      .select('brand_name, logo_url, website_url, tagline')
-      .eq('active', true)
-      .order('sort_order'),
   ]);
 
   if (error) console.error('[mbp] Supabase fetch error:', error.message);
@@ -700,21 +769,28 @@ export async function getStaticProps() {
   });
 
   const mapped = (houses || []).map(h => ({
-    house:           h.house,
-    by:              h.director?.trim() || '—',
-    slug:            h.slug || null,
-    tier:            h.tier || 'emerging',
-    city:            h.city || null,
-    logo_url:        h.logo_url || null,
-    website:         h.website || null,
-    description:     h.description || null,
-    fragrance_count: h.slug ? (fragCountBySlug[h.slug] || 0) : 0,
+    house:              h.house,
+    by:                 h.director?.trim() || '—',
+    slug:               h.slug || null,
+    tier:               h.tier || 'emerging',
+    city:               h.city || null,
+    logo_url:           h.logo_url || null,
+    website:            h.website || null,
+    description:        h.description || null,
+    fragrance_count:    h.slug ? (fragCountBySlug[h.slug] || 0) : 0,
+    is_sponsor:         h.is_sponsor || false,
+    sponsor_order:      h.sponsor_order ?? null,
+    sponsor_banner_url: h.sponsor_banner_url || null,
   }));
+
+  const sponsors = mapped
+    .filter(h => h.is_sponsor && h.slug)
+    .sort((a, b) => (a.sponsor_order ?? Infinity) - (b.sponsor_order ?? Infinity));
 
   return {
     props: {
       houses:   mapped,
-      sponsors: sponsors || [],
+      sponsors,
     },
     revalidate: 3600,
   };

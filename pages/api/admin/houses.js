@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin
       .from('fragrance_houses')
-      .select('id, house, slug, director, city, status, tier, description, established_year, instagram, website, logo_url, subscription_expires_at')
+      .select('id, house, slug, director, city, status, tier, description, established_year, instagram, website, logo_url, subscription_expires_at, is_sponsor, sponsor_order, sponsor_banner_url')
       .order('house');
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   // PATCH — update house profile fields
   if (req.method === 'PATCH') {
-    const { id, description, established_year, instagram, website, city, status, logo_url, tier } = req.body;
+    const { id, description, established_year, instagram, website, city, status, logo_url, tier, is_sponsor, sponsor_order, sponsor_banner_url } = req.body;
     if (!id) return res.status(400).json({ error: 'id required' });
 
     const VALID_TIERS = ['diamond', 'platinum', 'gold', 'emerging'];
@@ -31,6 +31,9 @@ export default async function handler(req, res) {
     if (status !== undefined) updates.status = status;
     if (logo_url !== undefined) updates.logo_url = logo_url || null;
     if (tier !== undefined && VALID_TIERS.includes(tier)) updates.tier = tier;
+    if (is_sponsor !== undefined) updates.is_sponsor = !!is_sponsor;
+    if (sponsor_order !== undefined) updates.sponsor_order = sponsor_order === '' || sponsor_order === null ? null : parseInt(sponsor_order);
+    if (sponsor_banner_url !== undefined) updates.sponsor_banner_url = sponsor_banner_url || null;
 
     const { data, error } = await supabaseAdmin
       .from('fragrance_houses')

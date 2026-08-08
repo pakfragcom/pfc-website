@@ -1,9 +1,47 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabaseClient } from '../../lib/auth-context';
 import AdminNav from '../../components/admin/AdminNav';
+
+const BANNER_MIN_RATIO = 2.8;
+const BANNER_MAX_RATIO = 3.2;
+const BANNER_MAX_BYTES = 2 * 1024 * 1024;
+
+function validateBannerFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      reject(new Error('Only PNG, JPEG, or WebP images are allowed.'));
+      return;
+    }
+    if (file.size > BANNER_MAX_BYTES) {
+      reject(new Error('Image must be under 2MB.'));
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const { naturalWidth: w, naturalHeight: h } = img;
+      URL.revokeObjectURL(url);
+      const ratio = w / h;
+      if (ratio < BANNER_MIN_RATIO || ratio > BANNER_MAX_RATIO) {
+        reject(new Error(`Image must be a wide banner, roughly 3:1 (e.g. 1200×400). Yours is ${w}×${h}.`));
+        return;
+      }
+      if (w < 800 || h < 267 || w > 2400 || h > 800) {
+        reject(new Error(`Image dimensions must be roughly between 800×267 and 2400×800px. Yours is ${w}×${h}.`));
+        return;
+      }
+      resolve();
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read image file.'));
+    };
+    img.src = url;
+  });
+}
 
 function EditModal({ house, onClose, onSuccess }) {
   const [form, setForm] = useState({
@@ -14,21 +52,63 @@ function EditModal({ house, onClose, onSuccess }) {
     city: house.city || '',
     logo_url: house.logo_url || '',
     tier: house.tier || 'emerging',
+    is_sponsor: house.is_sponsor || false,
+    sponsor_order: house.sponsor_order ?? '',
+    sponsor_banner_url: house.sponsor_banner_url || '',
   });
   const [logoError, setLogoError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const [bannerError, setBannerError] = useState('');
+  const bannerFileRef = useRef(null);
+
+  async function handleBannerFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBannerError('');
+    setBannerUploading(true);
+    try {
+      await validateBannerFile(file);
+
+      const urlRes = await fetch('/api/admin/houses/upload-banner-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ house_id: house.id, filename: file.name }),
+      });
+      if (!urlRes.ok) {
+        const d = await urlRes.json();
+        throw new Error(d.error || 'Could not start upload');
+      }
+      const { signedUrl, publicUrl } = await urlRes.json();
+
+      const putRes = await fetch(signedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!putRes.ok) throw new Error('Upload failed');
+
+      setForm(f => ({ ...f, sponsor_banner_url: publicUrl }));
+    } catch (err) {
+      setBannerError(err.message || 'Upload failed. Please try again.');
+    } finally {
+      setBannerUploading(false);
+      if (bannerFileRef.current) bannerFileRef.current.value = '';
+    }
+  }
 
   async function submit(e) {
     e.preventDefault();
     setLoading(true); setError('');
-    const res = await fetch('/api/admin/houses', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: house.id, ...form, logo_url: form.logo_url || null, tier: form.tier }),
-    });
-    if (res.ok) { onSuccess(); }
-    else { const d = await res.json(); setError(d.error || 'Failed'); setLoading(false); }
+    try {
+      const res = await fetch('/api/admin/houses', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: house.id, ...form, logo_url: form.logo_url || null, tier: form.tier }),
+      });
+      if (res.ok) { onSuccess(); }
+      else { const d = await res.json(); setError(d.error || 'Failed'); setLoading(false); }
+    } catch {
+      setError('Something went wrong. Please try again.');
+      setLoading(false);
+    }
   }
 
   return (
@@ -138,12 +218,74 @@ function EditModal({ house, onClose, onSuccess }) {
             )}
           </div>
 
+          <div className="pt-2 border-t border-white/10">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="is_sponsor"
+                checked={form.is_sponsor}
+                onChange={e => setForm({ ...form, is_sponsor: e.target.checked })}
+                className="rounded"
+              />
+              <span className="text-sm text-white">Featured in /mbp carousel</span>
+            </label>
+
+            {form.is_sponsor && (
+              <div className="mt-3 space-y-3 pl-6">
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Display order <span className="text-gray-400">(lower shows first)</span></label>
+                  <input
+                    type="number"
+                    value={form.sponsor_order}
+                    onChange={e => setForm({ ...form, sponsor_order: e.target.value })}
+                    placeholder="e.g. 1"
+                    className="w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">
+                    Ad banner <span className="text-gray-400">(wide banner, ~1200×400px, under 2MB — shown full-width in the /mbp carousel)</span>
+                  </p>
+                  <label className="block cursor-pointer">
+                    <div className={[
+                      'rounded-xl border-2 border-dashed p-4 text-center transition',
+                      form.sponsor_banner_url ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-white/10 hover:border-white/25',
+                    ].join(' ')}>
+                      {bannerUploading ? (
+                        <p className="text-xs text-gray-400">Uploading…</p>
+                      ) : form.sponsor_banner_url ? (
+                        <p className="text-xs text-emerald-400">✓ Banner uploaded — click to replace</p>
+                      ) : (
+                        <p className="text-xs text-gray-300">Click to upload banner image</p>
+                      )}
+                    </div>
+                    <input
+                      ref={bannerFileRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={bannerUploading}
+                      className="sr-only"
+                      onChange={handleBannerFile}
+                    />
+                  </label>
+                  {bannerError && <p className="text-xs text-red-400 mt-1">{bannerError}</p>}
+                  {form.sponsor_banner_url && !bannerUploading && (
+                    <div className="mt-2 rounded-lg overflow-hidden border border-white/10" style={{ aspectRatio: '3 / 1' }}>
+                      <img src={form.sponsor_banner_url} alt="Banner preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           {error && <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>}
 
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || bannerUploading}
               className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-xl transition"
             >
               {loading ? 'Saving…' : 'Save Profile'}
@@ -294,6 +436,9 @@ export default function AdminHouses({ identity = ADMIN_IDENTITY }) {
                       )}
                       {house.logo_url && (
                         <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded">logo</span>
+                      )}
+                      {house.is_sponsor && (
+                        <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded">★ featured</span>
                       )}
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5 truncate">
