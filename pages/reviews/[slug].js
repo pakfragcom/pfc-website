@@ -103,38 +103,47 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
   async function handleSave() {
     if (text.trim().length < 80) { setError('Review must be at least 80 characters.'); return; }
     setSaving(true); setError('');
-    const res = await fetch('/api/reviews/edit', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: review.id,
-        review_text: text,
-        rating_overall: Number(overall),
-        rating_longevity: longevity ? Number(longevity) : null,
-        rating_sillage: sillage ? Number(sillage) : null,
-        rating_value: value ? Number(value) : null,
-        occasion: occasion || null,
-        season: season || null,
-        cover_image_url: coverImg || null,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) { setError(data.error || 'Failed to save'); setSaving(false); return; }
-    onSaved();
+    try {
+      const res = await fetch('/api/reviews/edit', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: review.id,
+          review_text: text,
+          rating_overall: Number(overall),
+          rating_longevity: longevity ? Number(longevity) : null,
+          rating_sillage: sillage ? Number(sillage) : null,
+          rating_value: value ? Number(value) : null,
+          occasion: occasion || null,
+          season: season || null,
+          cover_image_url: coverImg || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Failed to save'); setSaving(false); return; }
+      onSaved();
+    } catch {
+      setError('Something went wrong. Please try again.');
+      setSaving(false);
+    }
   }
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-5">
       <h3 className="text-sm font-semibold text-white">Edit Review</h3>
-      <textarea
-        value={text} onChange={e => setText(e.target.value)} rows={6}
-        className="w-full rounded-xl bg-black/40 ring-1 ring-white/10 px-4 py-3 text-sm text-white outline-none focus:ring-white/25 resize-y placeholder-gray-600"
-        placeholder="Your review..." />
+      <div>
+        <label htmlFor="edit-review-text" className="sr-only">Review text</label>
+        <textarea
+          id="edit-review-text"
+          value={text} onChange={e => setText(e.target.value)} rows={6}
+          className="w-full rounded-xl bg-black/40 ring-1 ring-white/10 px-4 py-3 text-sm text-white outline-none focus:ring-white/25 resize-y placeholder-gray-600"
+          placeholder="Your review..." />
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[['Overall', overall, setOverall], ['Longevity', longevity, setLongevity], ['Sillage', sillage, setSillage], ['Value', value, setValue]].map(([label, val, setter]) => (
           <div key={label}>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">{label}</label>
-            <input type="number" min="1" max="5" step="0.5" value={val}
+            <label htmlFor={`edit-rating-${label.toLowerCase()}`} className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">{label}</label>
+            <input id={`edit-rating-${label.toLowerCase()}`} type="number" min="1" max="5" step="0.5" value={val}
               onChange={e => setter(e.target.value)}
               className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25" />
           </div>
@@ -142,8 +151,8 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Occasion</label>
-          <select value={occasion} onChange={e => setOccasion(e.target.value)}
+          <label htmlFor="edit-occasion" className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Occasion</label>
+          <select id="edit-occasion" value={occasion} onChange={e => setOccasion(e.target.value)}
             className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25">
             <option value="">—</option>
             <option value="casual">Casual</option>
@@ -154,8 +163,8 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
           </select>
         </div>
         <div>
-          <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Season</label>
-          <select value={season} onChange={e => setSeason(e.target.value)}
+          <label htmlFor="edit-season" className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Season</label>
+          <select id="edit-season" value={season} onChange={e => setSeason(e.target.value)}
             className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25">
             <option value="">—</option>
             <option value="spring">Spring</option>
@@ -167,8 +176,8 @@ function EditReviewPanel({ review, onCancel, onSaved }) {
         </div>
       </div>
       <div>
-        <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Cover Image URL</label>
-        <input type="url" value={coverImg} onChange={e => setCoverImg(e.target.value)}
+        <label htmlFor="edit-cover-image" className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5">Cover Image URL</label>
+        <input id="edit-cover-image" type="url" value={coverImg} onChange={e => setCoverImg(e.target.value)}
           placeholder="https://..."
           className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-1.5 text-sm text-white outline-none focus:ring-white/25 placeholder-gray-600" />
       </div>

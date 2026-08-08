@@ -63,11 +63,14 @@ function StarRating({ label, hint, value, onChange }) {
     <div>
       <p className="text-xs font-medium text-white mb-0.5">{label}</p>
       {hint && <p className="text-[10px] text-gray-400 mb-2">{hint}</p>}
-      <div className="flex gap-1">
+      <div role="radiogroup" aria-label={label} className="flex gap-1">
         {[1, 2, 3, 4, 5].map(n => (
           <button
             key={n}
             type="button"
+            role="radio"
+            aria-checked={n === value}
+            aria-label={`${n} star${n > 1 ? 's' : ''}`}
             onClick={() => onChange(n === value ? null : n)}
             className={`text-xl transition ${n <= (value || 0) ? 'text-[#94aea7]' : 'text-white/15 hover:text-white/40'}`}
           >
@@ -100,8 +103,9 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
 
       {/* Fragrance name with autocomplete */}
       <div className="relative">
-        <label className="block text-xs text-gray-400 mb-1.5">Fragrance name <span className="text-red-400">*</span></label>
+        <label htmlFor={`item-name-${item.id}`} className="block text-xs text-gray-400 mb-1.5">Fragrance name <span className="text-red-400">*</span></label>
         <input
+          id={`item-name-${item.id}`}
           type="text"
           placeholder="e.g. Bleu de Chanel"
           value={item.fragrance_name}
@@ -128,8 +132,9 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
 
       {/* House */}
       <div>
-        <label className="block text-xs text-gray-400 mb-1.5">House / Brand</label>
+        <label htmlFor={`item-house-${item.id}`} className="block text-xs text-gray-400 mb-1.5">House / Brand</label>
         <input
+          id={`item-house-${item.id}`}
           type="text"
           placeholder="e.g. Chanel"
           value={item.house}
@@ -141,8 +146,9 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
       {/* Type + Price + Qty */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 mb-1.5">Type <span className="text-red-400">*</span></label>
+          <label htmlFor={`item-type-${item.id}`} className="block text-xs text-gray-400 mb-1.5">Type <span className="text-red-400">*</span></label>
           <select
+            id={`item-type-${item.id}`}
             value={item.item_type}
             onChange={e => onChange('item_type', e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none focus:border-white/25 transition appearance-none"
@@ -152,10 +158,11 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
           </select>
         </div>
         <div>
-          <label className="block text-xs text-gray-400 mb-1.5">Price (PKR) <span className="text-red-400">*</span></label>
+          <label htmlFor={`item-price-${item.id}`} className="block text-xs text-gray-400 mb-1.5">Price (PKR) <span className="text-red-400">*</span></label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Rs</span>
             <input
+              id={`item-price-${item.id}`}
               type="number"
               min="1"
               placeholder="12500"
@@ -170,8 +177,9 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
       {/* Qty + notes */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 mb-1.5">Qty</label>
+          <label htmlFor={`item-qty-${item.id}`} className="block text-xs text-gray-400 mb-1.5">Qty</label>
           <input
+            id={`item-qty-${item.id}`}
             type="number"
             min="1"
             value={item.quantity}
@@ -180,8 +188,9 @@ function ItemRow({ item, index, total, onChange, onRemove, fragranceSuggestions,
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 mb-1.5">Item note</label>
+          <label htmlFor={`item-note-${item.id}`} className="block text-xs text-gray-400 mb-1.5">Item note</label>
           <input
+            id={`item-note-${item.id}`}
             type="text"
             placeholder="Optional"
             value={item.notes}
@@ -204,6 +213,11 @@ export default function LogTransaction({ sellers = [] }) {
   const [sellerQuery, setSellerQuery]     = useState('');
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [items, setItems]                 = useState([newItem()]);
+  const stepHeadingRef = useRef(null);
+
+  useEffect(() => {
+    stepHeadingRef.current?.focus();
+  }, [step]);
 
   // Per-item autocomplete state
   const [suggestionMap, setSuggestionMap] = useState({}); // { itemId: suggestions[] }
@@ -268,11 +282,15 @@ export default function LogTransaction({ sellers = [] }) {
       return;
     }
     suggestTimers.current[itemId] = setTimeout(async () => {
-      const res = await fetch(`/api/fragrances/lookup?q=${encodeURIComponent(val)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSuggestionMap(m => ({ ...m, [itemId]: data.slice(0, 6) }));
-        setShowMap(m => ({ ...m, [itemId]: true }));
+      try {
+        const res = await fetch(`/api/fragrances/search?q=${encodeURIComponent(val)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSuggestionMap(m => ({ ...m, [itemId]: data.slice(0, 6) }));
+          setShowMap(m => ({ ...m, [itemId]: true }));
+        }
+      } catch {
+        // Silently ignore — this is a best-effort autocomplete, not a required step
       }
     }, 250);
   }
@@ -443,12 +461,14 @@ export default function LogTransaction({ sellers = [] }) {
           {step === 1 && (
             <div className="space-y-4">
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-                <h2 className="text-sm font-semibold text-white mb-4">Who did you buy from?</h2>
+                <h2 ref={stepHeadingRef} tabIndex={-1} className="text-sm font-semibold text-white mb-4">Who did you buy from?</h2>
                 <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 focus-within:border-white/25 transition">
                   <svg className="w-4 h-4 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" />
                   </svg>
+                  <label htmlFor="seller-query" className="sr-only">Search sellers by name or code</label>
                   <input
+                    id="seller-query"
                     type="text"
                     autoFocus
                     placeholder="Search by name or code (e.g. SM-222)"
@@ -493,6 +513,7 @@ export default function LogTransaction({ sellers = [] }) {
           {/* ── Step 2: Items ──────────────────────────────────────────────── */}
           {step === 2 && selectedSeller && (
             <div className="space-y-4">
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">Add your items</h2>
               {/* Seller chip */}
               <SellerChip seller={selectedSeller} onClear={() => { setSelectedSeller(null); setStep(1); }} />
 
@@ -553,6 +574,7 @@ export default function LogTransaction({ sellers = [] }) {
           {/* ── Step 3: Rate ───────────────────────────────────────────────── */}
           {step === 3 && (
             <div className="space-y-4">
+              <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">Rate the experience</h2>
               <SellerChip seller={selectedSeller} onClear={() => setStep(2)} clearLabel="← Edit items" />
 
               {/* Summary chip */}
@@ -563,12 +585,12 @@ export default function LogTransaction({ sellers = [] }) {
 
               {/* Outcome */}
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-5">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">Overall outcome <span className="text-red-400">*</span></h2>
-                <div className="space-y-2">
+                <h2 id="outcome-label" className="text-xs font-semibold uppercase tracking-wider text-gray-400">Overall outcome <span className="text-red-400">*</span></h2>
+                <div role="radiogroup" aria-labelledby="outcome-label" className="space-y-2">
                   {OUTCOMES.map(o => {
                     const active = outcome === o.id;
                     return (
-                      <button key={o.id} type="button" onClick={() => setOutcome(o.id)}
+                      <button key={o.id} type="button" role="radio" aria-checked={active} onClick={() => setOutcome(o.id)}
                         className={[
                           'flex w-full items-center gap-4 rounded-xl border px-4 py-3.5 text-left transition',
                           active
@@ -626,8 +648,9 @@ export default function LogTransaction({ sellers = [] }) {
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">More details (optional)</h2>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Your city</label>
+                  <label htmlFor="tx-city" className="block text-xs text-gray-400 mb-1.5">Your city</label>
                   <select
+                    id="tx-city"
                     value={city}
                     onChange={e => setCity(e.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-white/25 transition appearance-none"
@@ -638,8 +661,9 @@ export default function LogTransaction({ sellers = [] }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Short note</label>
+                  <label htmlFor="tx-notes" className="block text-xs text-gray-400 mb-1.5">Short note</label>
                   <input
+                    id="tx-notes"
                     type="text"
                     placeholder="e.g. Fast shipping, well-packed"
                     value={notes}
@@ -649,8 +673,9 @@ export default function LogTransaction({ sellers = [] }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Write a review</label>
+                  <label htmlFor="tx-review-text" className="block text-xs text-gray-400 mb-1.5">Write a review</label>
                   <textarea
+                    id="tx-review-text"
                     rows={4}
                     placeholder="Share your experience with the community…"
                     value={reviewText}

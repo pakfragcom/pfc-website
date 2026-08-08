@@ -55,10 +55,14 @@ export default function SellPage() {
 
   const searchFragrances = useCallback(async (q) => {
     if (q.trim().length < 2) { setSuggestions([]); return; }
-    const res = await fetch(`/api/fragrances/lookup?q=${encodeURIComponent(q)}`);
-    if (res.ok) {
-      const data = await res.json();
-      setSuggestions(data.slice(0, 8));
+    try {
+      const res = await fetch(`/api/fragrances/search?q=${encodeURIComponent(q)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data.slice(0, 8));
+      }
+    } catch {
+      // Silently ignore — this is a best-effort autocomplete, not a required step
     }
   }, []);
 
@@ -218,8 +222,9 @@ export default function SellPage() {
 
               {/* Fragrance name with autocomplete */}
               <div className="relative">
-                <label className="block text-xs text-gray-400 mb-1.5">Fragrance name <span className="text-red-400">*</span></label>
+                <label htmlFor="sell-name" className="block text-xs text-gray-400 mb-1.5">Fragrance name <span className="text-red-400">*</span></label>
                 <input
+                  id="sell-name"
                   type="text"
                   placeholder="e.g. Sauvage Elixir"
                   value={form.fragrance_name}
@@ -246,8 +251,9 @@ export default function SellPage() {
 
               {/* House */}
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">House / Brand <span className="text-red-400">*</span></label>
+                <label htmlFor="sell-house" className="block text-xs text-gray-400 mb-1.5">House / Brand <span className="text-red-400">*</span></label>
                 <input
+                  id="sell-house"
                   type="text"
                   placeholder="e.g. Dior"
                   value={form.house}
@@ -258,8 +264,9 @@ export default function SellPage() {
 
               {/* Concentration */}
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Concentration</label>
+                <label htmlFor="sell-concentration" className="block text-xs text-gray-400 mb-1.5">Concentration</label>
                 <select
+                  id="sell-concentration"
                   value={form.concentration}
                   onChange={e => setField('concentration', e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-white/25 transition appearance-none"
@@ -278,6 +285,7 @@ export default function SellPage() {
                   <button
                     key={c.id}
                     type="button"
+                    aria-pressed={form.condition === c.id}
                     onClick={() => setField('condition', c.id)}
                     className={[
                       'rounded-xl border px-3 py-3 text-left transition',
@@ -295,8 +303,9 @@ export default function SellPage() {
               {/* Fill level — only for partial / decant */}
               {(form.condition === 'partial' || form.condition === 'decant') && (
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Fill level (%)</label>
+                  <label htmlFor="sell-fill-level" className="block text-xs text-gray-400 mb-1.5">Fill level (%)</label>
                   <input
+                    id="sell-fill-level"
                     type="number"
                     min="1"
                     max="99"
@@ -315,10 +324,11 @@ export default function SellPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Price (PKR) <span className="text-red-400">*</span></label>
+                  <label htmlFor="sell-price" className="block text-xs text-gray-400 mb-1.5">Price (PKR) <span className="text-red-400">*</span></label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">Rs</span>
                     <input
+                      id="sell-price"
                       type="number"
                       min="1"
                       placeholder="12500"
@@ -329,8 +339,9 @@ export default function SellPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Quantity</label>
+                  <label htmlFor="sell-quantity" className="block text-xs text-gray-400 mb-1.5">Quantity</label>
                   <input
+                    id="sell-quantity"
                     type="number"
                     min="1"
                     value={form.quantity}
@@ -361,8 +372,9 @@ export default function SellPage() {
               <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">More Details</h2>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Your city</label>
+                <label htmlFor="sell-city" className="block text-xs text-gray-400 mb-1.5">Your city</label>
                 <select
+                  id="sell-city"
                   value={form.city}
                   onChange={e => setField('city', e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-white/25 transition appearance-none"
@@ -373,8 +385,9 @@ export default function SellPage() {
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Description</label>
+                <label htmlFor="sell-description" className="block text-xs text-gray-400 mb-1.5">Description</label>
                 <textarea
+                  id="sell-description"
                   rows={4}
                   placeholder="Describe the bottle, box condition, purchase year, reason for selling, etc."
                   value={form.description}

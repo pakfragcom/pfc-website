@@ -6,6 +6,7 @@ import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '../../lib/supabase-admin';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
+import { useFocusTrap } from '../../lib/use-focus-trap';
 
 const PAKISTAN_CITIES = [
   'Karachi','Lahore','Islamabad','Rawalpindi','Faisalabad','Multan',
@@ -51,6 +52,7 @@ function EditProfileModal({ profile, onClose, onSave }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const modalRef = useFocusTrap(true, onClose);
 
   async function submit(e) {
     e.preventDefault();
@@ -61,29 +63,37 @@ function EditProfileModal({ profile, onClose, onSave }) {
       bio: form.bio,
     };
     if (canChangeUsername) body.username = form.username;
-    const res = await fetch('/api/profile/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      onClose();
-      router.reload();
-    } else {
-      const d = await res.json();
-      setError(d.error || 'Failed to save');
+    try {
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        onClose();
+        router.reload();
+      } else {
+        const d = await res.json();
+        setError(d.error || 'Failed to save');
+        setLoading(false);
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
       setLoading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <div className="bg-[#111] ring-1 ring-white/10 rounded-2xl p-6 w-full max-w-md">
-        <h3 className="font-semibold text-lg mb-5">Edit Profile</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="edit-profile-title"
+        className="bg-[#111] ring-1 ring-white/10 rounded-2xl p-6 w-full max-w-md">
+        <h3 id="edit-profile-title" className="font-semibold text-lg mb-5">Edit Profile</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Display Name</label>
+            <label htmlFor="edit-display-name" className="text-xs text-gray-400 block mb-1">Display Name</label>
             <input
+              id="edit-display-name"
               type="text"
               value={form.display_name}
               onChange={e => setForm({ ...form, display_name: e.target.value })}
@@ -95,7 +105,7 @@ function EditProfileModal({ profile, onClose, onSave }) {
 
           {/* One-time username change */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">
+            <label htmlFor="edit-username" className="text-xs text-gray-400 block mb-1">
               Username
               {canChangeUsername
                 ? <span className="ml-1.5 text-[#94aea7]">— you can change this once</span>
@@ -104,6 +114,7 @@ function EditProfileModal({ profile, onClose, onSave }) {
             <div className="flex items-center gap-0 ring-1 ring-white/10 rounded-lg overflow-hidden bg-black/40">
               <span className="px-3 py-2 text-sm text-gray-400 select-none border-r border-white/10">pakfrag.com/u/</span>
               <input
+                id="edit-username"
                 type="text"
                 value={form.username}
                 onChange={e => setForm({ ...form, username: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
@@ -119,8 +130,9 @@ function EditProfileModal({ profile, onClose, onSave }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">City</label>
+            <label htmlFor="edit-city" className="text-xs text-gray-400 block mb-1">City</label>
             <select
+              id="edit-city"
               value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })}
               className="w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25"
@@ -130,10 +142,11 @@ function EditProfileModal({ profile, onClose, onSave }) {
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">
+            <label htmlFor="edit-bio" className="text-xs text-gray-400 block mb-1">
               Bio <span className="text-gray-400">{form.bio.length}/280</span>
             </label>
             <textarea
+              id="edit-bio"
               value={form.bio}
               onChange={e => setForm({ ...form, bio: e.target.value })}
               maxLength={280}
@@ -260,16 +273,21 @@ function ClaimSellerSection({ onClaimed }) {
   async function submit(e) {
     e.preventDefault();
     setLoading(true); setError('');
-    const res = await fetch('/api/profile/claim-seller', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
-    });
-    if (res.ok) {
-      router.reload();
-    } else {
-      const d = await res.json();
-      setError(d.error || 'Something went wrong');
+    try {
+      const res = await fetch('/api/profile/claim-seller', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      if (res.ok) {
+        router.reload();
+      } else {
+        const d = await res.json();
+        setError(d.error || 'Something went wrong');
+        setLoading(false);
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
       setLoading(false);
     }
   }
@@ -281,7 +299,9 @@ function ClaimSellerSection({ onClaimed }) {
         If you are a PFC-verified seller, enter your verification code below to link your account and see your subscription status.
       </p>
       <form onSubmit={submit} className="flex gap-2">
+        <label htmlFor="claim-seller-code" className="sr-only">Verification code</label>
         <input
+          id="claim-seller-code"
           type="text"
           value={code}
           onChange={e => setCode(e.target.value.toUpperCase())}

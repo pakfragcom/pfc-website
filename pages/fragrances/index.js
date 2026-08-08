@@ -203,7 +203,9 @@ export default function FragrancesIndex({ fragrances = [] }) {
                     <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" />
                     </svg>
+                    <label htmlFor="fragrances-search" className="sr-only">Search fragrances or houses</label>
                     <input
+                      id="fragrances-search"
                       type="text" value={query}
                       onChange={e => {
                         const val = e.target.value;
@@ -214,10 +216,10 @@ export default function FragrancesIndex({ fragrances = [] }) {
                       className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 ring-1 ring-white/10 text-sm text-white placeholder-gray-500 outline-none focus:ring-white/20 transition"
                     />
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div role="group" aria-label="Sort fragrances" className="flex items-center gap-1.5">
                     <span className="text-[10px] uppercase tracking-wider text-gray-400 mr-1">Sort</span>
                     {SORT_OPTIONS.map(opt => (
-                      <button key={opt.id} onClick={() => { setSortBy(opt.id); updateFilter(activeCategory, query, opt.id); }}
+                      <button key={opt.id} aria-pressed={sortBy === opt.id} onClick={() => { setSortBy(opt.id); updateFilter(activeCategory, query, opt.id); }}
                         className={['px-3 py-1.5 rounded-full text-xs font-medium transition',
                           sortBy === opt.id
                             ? 'bg-white/10 text-white ring-1 ring-white/20'

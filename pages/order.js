@@ -50,6 +50,7 @@ export default function OrderPage() {
   const [termsChecked, setTermsChecked]       = useState(false);
 
   const searchTimer = useRef(null);
+  const stepHeadingRef = useRef(null);
 
   useEffect(() => {
     const { fragrance, fid } = router.query;
@@ -58,6 +59,10 @@ export default function OrderPage() {
       if (fid) setFragranceId(fid);
     }
   }, [router.query]);
+
+  useEffect(() => {
+    stepHeadingRef.current?.focus();
+  }, [step]);
 
   async function handleFragranceInput(val) {
     setFragranceName(val);
@@ -193,12 +198,13 @@ export default function OrderPage() {
               {/* Step 1: Fragrance */}
               {step === 1 && (
                 <div className="space-y-6">
-                  <h2 className="text-base font-semibold text-white">What fragrance do you want?</h2>
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="text-base font-semibold text-white">What fragrance do you want?</h2>
 
                   {/* Fragrance search */}
                   <div className="relative">
-                    <label className={labelCls}>Fragrance name *</label>
+                    <label htmlFor="order-fragrance-name" className={labelCls}>Fragrance name *</label>
                     <input
+                      id="order-fragrance-name"
                       type="text" value={fragranceName}
                       onChange={e => handleFragranceInput(e.target.value)}
                       onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
@@ -225,10 +231,10 @@ export default function OrderPage() {
 
                   {/* Type */}
                   <div>
-                    <label className={labelCls}>What are you looking for? *</label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <label id="order-type-label" className={labelCls}>What are you looking for? *</label>
+                    <div role="radiogroup" aria-labelledby="order-type-label" className="grid grid-cols-2 gap-3">
                       {TYPES.map(t => (
-                        <button key={t.id} type="button" onClick={() => setType(t.id)}
+                        <button key={t.id} type="button" role="radio" aria-checked={type === t.id} onClick={() => setType(t.id)}
                           className={`text-left rounded-xl border px-4 py-3 transition ${
                             type === t.id
                               ? 'border-[#557d72] bg-[#2a5c4f]/20 text-white'
@@ -244,15 +250,15 @@ export default function OrderPage() {
                   {/* Quantity + budget */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>Quantity</label>
-                      <select value={quantity} onChange={e => setQuantity(Number(e.target.value))}
+                      <label htmlFor="order-quantity" className={labelCls}>Quantity</label>
+                      <select id="order-quantity" value={quantity} onChange={e => setQuantity(Number(e.target.value))}
                         className={inputCls}>
                         {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className={labelCls}>Budget (optional)</label>
-                      <input type="text" value={budget} onChange={e => setBudget(e.target.value)}
+                      <label htmlFor="order-budget" className={labelCls}>Budget (optional)</label>
+                      <input id="order-budget" type="text" value={budget} onChange={e => setBudget(e.target.value)}
                         placeholder="e.g. PKR 5,000" className={inputCls} />
                     </div>
                   </div>
@@ -262,17 +268,17 @@ export default function OrderPage() {
               {/* Step 2 (gift only): Gift details */}
               {step === 2 && isGift && (
                 <div className="space-y-6">
-                  <h2 className="text-base font-semibold text-white">Gift details</h2>
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="text-base font-semibold text-white">Gift details</h2>
                   <div>
-                    <label className={labelCls}>Recipient name</label>
-                    <input type="text" value={giftRecipient} onChange={e => setGiftRecipient(e.target.value)}
+                    <label htmlFor="order-gift-recipient" className={labelCls}>Recipient name</label>
+                    <input id="order-gift-recipient" type="text" value={giftRecipient} onChange={e => setGiftRecipient(e.target.value)}
                       placeholder="Who is this for?" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>Occasion</label>
-                    <div className="flex flex-wrap gap-2">
+                    <label id="order-gift-occasion-label" className={labelCls}>Occasion</label>
+                    <div role="radiogroup" aria-labelledby="order-gift-occasion-label" className="flex flex-wrap gap-2">
                       {OCCASIONS.map(o => (
-                        <button key={o} type="button" onClick={() => setGiftOccasion(o)}
+                        <button key={o} type="button" role="radio" aria-checked={giftOccasion === o} onClick={() => setGiftOccasion(o)}
                           className={`px-3 py-1.5 rounded-full text-xs border transition ${
                             giftOccasion === o
                               ? 'border-[#557d72] bg-[#2a5c4f]/20 text-white'
@@ -284,8 +290,8 @@ export default function OrderPage() {
                     </div>
                   </div>
                   <div>
-                    <label className={labelCls}>Gift message (optional)</label>
-                    <textarea value={giftMessage} onChange={e => setGiftMessage(e.target.value)}
+                    <label htmlFor="order-gift-message" className={labelCls}>Gift message (optional)</label>
+                    <textarea id="order-gift-message" value={giftMessage} onChange={e => setGiftMessage(e.target.value)}
                       rows={3} placeholder="Any personal message to include with the gift…"
                       className={inputCls + ' resize-none'} />
                   </div>
@@ -295,28 +301,28 @@ export default function OrderPage() {
               {/* Contact step */}
               {((step === 2 && !isGift) || (step === 3 && isGift)) && (
                 <div className="space-y-6">
-                  <h2 className="text-base font-semibold text-white">Your contact details</h2>
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="text-base font-semibold text-white">Your contact details</h2>
                   <div>
-                    <label className={labelCls}>Full name *</label>
-                    <input type="text" value={name} onChange={e => setName(e.target.value)}
+                    <label htmlFor="order-name" className={labelCls}>Full name *</label>
+                    <input id="order-name" type="text" value={name} onChange={e => setName(e.target.value)}
                       placeholder="Your name" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>WhatsApp number *</label>
-                    <input type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)}
+                    <label htmlFor="order-whatsapp" className={labelCls}>WhatsApp number *</label>
+                    <input id="order-whatsapp" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)}
                       placeholder="03xx-xxxxxxx" className={inputCls} />
                     <p className="mt-1 text-xs text-gray-400">We'll only use this to confirm your order.</p>
                   </div>
                   <div>
-                    <label className={labelCls}>City</label>
-                    <input type="text" value={city} onChange={e => setCity(e.target.value)}
+                    <label htmlFor="order-city" className={labelCls}>City</label>
+                    <input id="order-city" type="text" value={city} onChange={e => setCity(e.target.value)}
                       placeholder="Karachi, Lahore, Islamabad…" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>How did you hear about us?</label>
-                    <div className="flex flex-wrap gap-2">
+                    <label id="order-referral-label" className={labelCls}>How did you hear about us?</label>
+                    <div role="radiogroup" aria-labelledby="order-referral-label" className="flex flex-wrap gap-2">
                       {REFERRALS.map(r => (
-                        <button key={r} type="button" onClick={() => setReferral(r)}
+                        <button key={r} type="button" role="radio" aria-checked={referral === r} onClick={() => setReferral(r)}
                           className={`px-3 py-1.5 rounded-full text-xs border transition ${
                             referral === r
                               ? 'border-[#557d72] bg-[#2a5c4f]/20 text-white'
@@ -333,7 +339,7 @@ export default function OrderPage() {
               {/* Confirm + terms step */}
               {step === totalSteps && (
                 <div className="space-y-6">
-                  <h2 className="text-base font-semibold text-white">Review & confirm</h2>
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="text-base font-semibold text-white">Review & confirm</h2>
 
                   {/* Summary */}
                   <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4 space-y-2 text-sm">

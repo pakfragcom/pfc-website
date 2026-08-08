@@ -183,14 +183,14 @@ export default function FragranceSubmit() {
                 {/* Name + House + Auto-fill */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5 font-medium">Fragrance Name <span className="text-red-400">*</span></label>
-                    <input type="text" value={form.name} onChange={set('name')} required
+                    <label htmlFor="frag-name" className="block text-xs text-gray-400 mb-1.5 font-medium">Fragrance Name <span className="text-red-400">*</span></label>
+                    <input id="frag-name" type="text" value={form.name} onChange={set('name')} required
                       placeholder="e.g. Bleu de Chanel EDP"
                       className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:ring-white/25 transition" />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5 font-medium">House / Brand <span className="text-red-400">*</span></label>
-                    <input type="text" value={form.house} onChange={set('house')} required
+                    <label htmlFor="frag-house" className="block text-xs text-gray-400 mb-1.5 font-medium">House / Brand <span className="text-red-400">*</span></label>
+                    <input id="frag-house" type="text" value={form.house} onChange={set('house')} required
                       placeholder="e.g. Chanel"
                       className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:ring-white/25 transition" />
                   </div>
@@ -235,8 +235,8 @@ export default function FragranceSubmit() {
                 {/* Category + Concentration + Year */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5 font-medium">Category <span className="text-red-400">*</span></label>
-                    <select value={form.category} onChange={set('category')} required
+                    <label htmlFor="frag-category" className="block text-xs text-gray-400 mb-1.5 font-medium">Category <span className="text-red-400">*</span></label>
+                    <select id="frag-category" value={form.category} onChange={set('category')} required
                       className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:ring-white/25 transition appearance-none">
                       <option value="" disabled>Select…</option>
                       {CATEGORIES.map(c => (
@@ -245,14 +245,14 @@ export default function FragranceSubmit() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5 font-medium">Concentration</label>
-                    <input type="text" value={form.concentration} onChange={set('concentration')}
+                    <label htmlFor="frag-concentration" className="block text-xs text-gray-400 mb-1.5 font-medium">Concentration</label>
+                    <input id="frag-concentration" type="text" value={form.concentration} onChange={set('concentration')}
                       placeholder="EDP, EDT, Parfum…"
                       className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:ring-white/25 transition" />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5 font-medium">Year Released</label>
-                    <input type="number" value={form.year_released} onChange={set('year_released')}
+                    <label htmlFor="frag-year" className="block text-xs text-gray-400 mb-1.5 font-medium">Year Released</label>
+                    <input id="frag-year" type="number" value={form.year_released} onChange={set('year_released')}
                       placeholder="e.g. 2015" min="1900" max="2030"
                       className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:ring-white/25 transition" />
                   </div>
@@ -260,17 +260,17 @@ export default function FragranceSubmit() {
 
                 {/* Description */}
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5 font-medium">Description</label>
-                  <textarea value={form.description} onChange={set('description')} rows={3}
+                  <label htmlFor="frag-description" className="block text-xs text-gray-400 mb-1.5 font-medium">Description</label>
+                  <textarea id="frag-description" value={form.description} onChange={set('description')} rows={3}
                     placeholder="A brief description of the fragrance…"
                     className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:ring-white/25 transition resize-none" />
                 </div>
 
                 {/* Image URL + preview */}
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5 font-medium">Bottle Image URL</label>
+                  <label htmlFor="frag-image-url" className="block text-xs text-gray-400 mb-1.5 font-medium">Bottle Image URL</label>
                   <div className="flex gap-3 items-start">
-                    <input type="url" value={form.image_url} onChange={set('image_url')}
+                    <input id="frag-image-url" type="url" value={form.image_url} onChange={set('image_url')}
                       placeholder="https://…"
                       className="flex-1 bg-black/40 ring-1 ring-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:ring-white/25 transition" />
                     {form.image_url && (
@@ -289,8 +289,8 @@ export default function FragranceSubmit() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {[['notes_top', 'Top Notes'], ['notes_heart', 'Heart Notes'], ['notes_base', 'Base Notes']].map(([field, label]) => (
                       <div key={field}>
-                        <label className="block text-[11px] text-gray-400 mb-1">{label}</label>
-                        <input type="text" value={form[field]} onChange={set(field)}
+                        <label htmlFor={`frag-${field}`} className="block text-[11px] text-gray-400 mb-1">{label}</label>
+                        <input id={`frag-${field}`} type="text" value={form[field]} onChange={set(field)}
                           placeholder="e.g. Bergamot, Lemon"
                           className="w-full bg-black/40 ring-1 ring-white/10 rounded-xl px-3 py-2 text-white text-xs placeholder-gray-600 outline-none focus:ring-white/25 transition" />
                       </div>

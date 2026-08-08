@@ -7,6 +7,7 @@ import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
 import { useUser, useSupabaseClient } from '../../lib/auth-context';
 import { track } from '../../lib/analytics';
+import { useFocusTrap } from '../../lib/use-focus-trap';
 
 const EASE = [0.25, 0.46, 0.45, 0.94];
 
@@ -37,6 +38,15 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
   const [suggestFile, setSuggestFile] = useState(null);
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [suggestDone, setSuggestDone] = useState(false);
+  const [suggestError, setSuggestError] = useState(null);
+  const [wishlistError, setWishlistError] = useState(null);
+
+  function closeSuggestModal() {
+    setSuggestOpen(false);
+    setSuggestFile(null);
+    setSuggestError(null);
+  }
+  const suggestModalRef = useFocusTrap(suggestOpen, closeSuggestModal);
 
   useEffect(() => {
     if (!user || !supabaseClient) return;
@@ -62,47 +72,68 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
     const wasLiked = !!myLikes[reviewId];
     setMyLikes(m => ({ ...m, [reviewId]: !wasLiked }));
     setLikes(l => ({ ...l, [reviewId]: (l[reviewId] || 0) + (wasLiked ? -1 : 1) }));
-    await fetch('/api/reviews/like', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ review_id: reviewId }),
-    });
+    try {
+      const res = await fetch('/api/reviews/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review_id: reviewId }),
+      });
+      if (!res.ok) throw new Error('Like request failed');
+    } catch {
+      // Roll back the optimistic update on failure
+      setMyLikes(m => ({ ...m, [reviewId]: wasLiked }));
+      setLikes(l => ({ ...l, [reviewId]: (l[reviewId] || 0) + (wasLiked ? 1 : -1) }));
+    }
   }
 
   async function handleSuggestUpload() {
     if (!suggestFile) return;
     setSuggestLoading(true);
-    const ext = suggestFile.name.split('.').pop();
-    const urlRes = await fetch(`/api/fragrances/suggest-image?fragrance_id=${fragrance.id}&filename=image.${ext}`);
-    if (!urlRes.ok) { setSuggestLoading(false); return; }
-    const { signedUrl, path, publicUrl } = await urlRes.json();
+    setSuggestError(null);
+    try {
+      const ext = suggestFile.name.split('.').pop();
+      const urlRes = await fetch(`/api/fragrances/suggest-image?fragrance_id=${fragrance.id}&filename=image.${ext}`);
+      if (!urlRes.ok) throw new Error('Could not start upload');
+      const { signedUrl, path } = await urlRes.json();
 
-    await fetch(signedUrl, { method: 'PUT', body: suggestFile, headers: { 'Content-Type': suggestFile.type } });
+      const putRes = await fetch(signedUrl, { method: 'PUT', body: suggestFile, headers: { 'Content-Type': suggestFile.type } });
+      if (!putRes.ok) throw new Error('Upload failed');
 
-    await fetch('/api/fragrances/suggest-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fragrance_id: fragrance.id, storage_path: path, image_url: publicUrl }),
-    });
-    setSuggestLoading(false);
-    setSuggestDone(true);
-    setSuggestFile(null);
+      const confirmRes = await fetch('/api/fragrances/suggest-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fragrance_id: fragrance.id, storage_path: path }),
+      });
+      if (!confirmRes.ok) throw new Error('Could not confirm submission');
+
+      setSuggestDone(true);
+      setSuggestFile(null);
+    } catch (err) {
+      setSuggestError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSuggestLoading(false);
+    }
   }
 
   async function toggleWishlist() {
     if (!user) { window.location.href = '/auth/login'; return; }
     setWishlistLoading(true);
-    const res = await fetch('/api/fragrances/wishlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fragrance_id: fragrance.id }),
-    });
-    const data = await res.json();
-    if (res.ok) {
+    setWishlistError(null);
+    try {
+      const res = await fetch('/api/fragrances/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fragrance_id: fragrance.id }),
+      });
+      if (!res.ok) throw new Error('Something went wrong. Please try again.');
+      const data = await res.json();
       setWishlisted(data.wishlisted);
       track.wishlistToggled(fragrance.id, fragrance.name, data.wishlisted ? 'added' : 'removed');
+    } catch (err) {
+      setWishlistError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setWishlistLoading(false);
     }
-    setWishlistLoading(false);
   }
 
   const avgOverall   = avg(reviews, 'rating_overall');
@@ -307,6 +338,9 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                         {wishlisted ? 'Saved' : 'Want to Try'}
                       </button>
                     </div>
+                    {wishlistError && (
+                      <p className="mt-2 text-xs text-red-400">{wishlistError}</p>
+                    )}
                   </div>
                 </div>
               </m.div>
@@ -372,9 +406,10 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
       {/* Suggest image modal */}
       {suggestOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm"
-          onClick={e => { if (e.target === e.currentTarget) { setSuggestOpen(false); setSuggestFile(null); } }}>
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f0f] p-6">
-            <h3 className="font-semibold text-white mb-1">Suggest an image</h3>
+          onClick={e => { if (e.target === e.currentTarget) closeSuggestModal(); }}>
+          <div ref={suggestModalRef} role="dialog" aria-modal="true" aria-labelledby="suggest-modal-title"
+            className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0f0f0f] p-6">
+            <h3 id="suggest-modal-title" className="font-semibold text-white mb-1">Suggest an image</h3>
             <p className="text-xs text-gray-400 mb-4">
               For <span className="text-gray-300">{fragrance.name}</span>. Admins review before it goes live.
             </p>
@@ -383,7 +418,7 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
               <div className="text-center py-4">
                 <p className="text-emerald-400 text-sm font-medium">Submitted for review</p>
                 <p className="text-xs text-gray-400 mt-1">We'll approve or reject it shortly.</p>
-                <button onClick={() => { setSuggestOpen(false); }}
+                <button onClick={closeSuggestModal}
                   className="mt-4 text-xs bg-white/8 hover:bg-white/15 text-gray-300 px-4 py-2 rounded-lg transition">
                   Close
                 </button>
@@ -411,13 +446,17 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                     onChange={e => setSuggestFile(e.target.files?.[0] || null)} />
                 </label>
 
+                {suggestError && (
+                  <p className="mt-3 text-xs text-red-400">{suggestError}</p>
+                )}
+
                 <div className="flex gap-2 mt-4">
                   <button onClick={handleSuggestUpload}
                     disabled={!suggestFile || suggestLoading}
                     className="flex-1 text-sm bg-[#2a5c4f] hover:bg-[#3a7c6f] disabled:opacity-40 text-white font-medium rounded-xl py-2.5 transition">
                     {suggestLoading ? 'Uploading…' : 'Submit'}
                   </button>
-                  <button onClick={() => { setSuggestOpen(false); setSuggestFile(null); }}
+                  <button onClick={closeSuggestModal}
                     className="text-sm bg-white/5 hover:bg-white/10 text-gray-400 px-4 rounded-xl transition">
                     Cancel
                   </button>

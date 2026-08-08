@@ -24,37 +24,52 @@ function DocUploader({ sellerId, docType, label, onUploaded }) {
   const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState(false);
   const [path, setPath] = useState(null);
+  const [error, setError] = useState(null);
   const fileRef = useRef(null);
 
   async function handle(e) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const res = await fetch('/api/sellers/upload-doc-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ seller_id: sellerId, doc_type: docType, filename: file.name }),
-    });
-    if (!res.ok) { setUploading(false); return; }
-    const { signedUrl, path: p } = await res.json();
-    await fetch(signedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-    setPath(p);
-    setDone(true);
-    setUploading(false);
-    onUploaded(p);
-    if (fileRef.current) fileRef.current.value = '';
+    setError(null);
+    try {
+      const res = await fetch('/api/sellers/upload-doc-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seller_id: sellerId, doc_type: docType, filename: file.name }),
+      });
+      if (!res.ok) throw new Error('Could not start upload');
+      const { signedUrl, path: p } = await res.json();
+
+      const putRes = await fetch(signedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!putRes.ok) throw new Error('Upload failed');
+
+      setPath(p);
+      setDone(true);
+      onUploaded(p);
+      if (fileRef.current) fileRef.current.value = '';
+    } catch (err) {
+      setError(err.message || 'Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
     <label className="block cursor-pointer">
       <div className={[
         'rounded-xl border-2 border-dashed p-4 text-center transition',
-        done ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-white/10 hover:border-white/25',
+        done ? 'border-emerald-500/40 bg-emerald-500/10' : error ? 'border-red-500/40 bg-red-500/5' : 'border-white/10 hover:border-white/25',
       ].join(' ')}>
         {done ? (
           <p className="text-xs text-emerald-400">✓ {label} uploaded</p>
         ) : uploading ? (
           <p className="text-xs text-gray-400">Uploading…</p>
+        ) : error ? (
+          <>
+            <p className="text-xs text-red-400">{error}</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">Tap to try again</p>
+          </>
         ) : (
           <>
             <p className="text-xs text-gray-300">{label}</p>
@@ -81,6 +96,7 @@ export default function SellerDashboard() {
   const [l2Done, setL2Done] = useState(false);
   const [l2Error, setL2Error] = useState('');
   const [copied, setCopied] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
     if (user === undefined) return;
@@ -89,23 +105,31 @@ export default function SellerDashboard() {
   }, [user]);
 
   async function load() {
-    const [sellerRes, listingsRes] = await Promise.all([
-      fetch('/api/sellers/my-seller'),
-      fetch('/api/listings/my-listings').catch(() => ({ ok: false })),
-    ]);
-    const sellerData = await sellerRes.json();
-    if (!sellerData) {
-      router.push('/sellers/apply');
-      return;
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [sellerRes, listingsRes] = await Promise.all([
+        fetch('/api/sellers/my-seller'),
+        fetch('/api/listings/my-listings').catch(() => ({ ok: false })),
+      ]);
+      if (!sellerRes.ok) throw new Error('Could not load your seller profile');
+      const sellerData = await sellerRes.json();
+      if (!sellerData) {
+        router.push('/sellers/apply');
+        return;
+      }
+      setSeller(sellerData);
+
+      // Fetch stats
+      const statsRes = await fetch(`/api/sellers/${sellerData.id}/stats`).catch(() => null);
+      if (statsRes?.ok) setStats(await statsRes.json());
+
+      if (listingsRes.ok) setListings(await listingsRes.json());
+    } catch (err) {
+      setLoadError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setSeller(sellerData);
-
-    // Fetch stats
-    const statsRes = await fetch(`/api/sellers/${sellerData.id}/stats`).catch(() => null);
-    if (statsRes?.ok) setStats(await statsRes.json());
-
-    if (listingsRes.ok) setListings(await listingsRes.json());
-    setLoading(false);
   }
 
   function copyCode() {
@@ -119,26 +143,45 @@ export default function SellerDashboard() {
     if (!l2Paths.cnic_front) { setL2Error('CNIC front photo is required.'); return; }
     setL2Submitting(true);
     setL2Error('');
-    const res = await fetch('/api/sellers/request-l2', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        seller_id: seller.id,
-        cnic_front_path: l2Paths.cnic_front,
-        cnic_back_path: l2Paths.cnic_back,
-        business_proof_path: l2Paths.business_proof,
-      }),
-    });
-    const data = await res.json();
-    if (res.ok) { setL2Done(true); }
-    else { setL2Error(data.error || 'Failed to submit.'); }
-    setL2Submitting(false);
+    try {
+      const res = await fetch('/api/sellers/request-l2', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seller_id: seller.id,
+          cnic_front_path: l2Paths.cnic_front,
+          cnic_back_path: l2Paths.cnic_back,
+          business_proof_path: l2Paths.business_proof,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) { setL2Done(true); }
+      else { setL2Error(data.error || 'Failed to submit.'); }
+    } catch {
+      setL2Error('Something went wrong. Please try again.');
+    } finally {
+      setL2Submitting(false);
+    }
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+      </div>
+    );
+  }
+
+  if (loadError || !seller) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <div className="text-center">
+          <p className="text-sm text-red-400 mb-3">{loadError || 'Could not load your seller profile.'}</p>
+          <button onClick={load}
+            className="text-xs bg-white/10 hover:bg-white/15 text-gray-300 px-4 py-2 rounded-lg transition">
+            Try again
+          </button>
+        </div>
       </div>
     );
   }

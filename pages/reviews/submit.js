@@ -203,7 +203,7 @@ export default function SubmitReview() {
               <Section title="Fragrance">
                 {/* Fragrance name with auto-suggest */}
                 <div ref={suggestionRef} className="relative">
-                  <label className="block text-xs text-gray-400 mb-1.5">
+                  <label htmlFor="review-fragrance-name" className="block text-xs text-gray-400 mb-1.5">
                     Fragrance Name *
                     {fragrance_id && (
                       <span className="ml-2 inline-flex items-center gap-1 text-[#94aea7]">
@@ -215,6 +215,7 @@ export default function SubmitReview() {
                     )}
                   </label>
                   <input
+                    id="review-fragrance-name"
                     type="text"
                     value={form.fragrance_name}
                     onChange={e => handleFragranceNameChange(e.target.value)}
@@ -267,12 +268,13 @@ export default function SubmitReview() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="House / Brand *" value={form.house} onChange={v => set('house', v)} placeholder="e.g. Dior" required />
+                  <Field id="review-house" label="House / Brand *" value={form.house} onChange={v => set('house', v)} placeholder="e.g. Dior" required />
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5">Category *</label>
-                    <div className="flex flex-wrap gap-2">
+                    <label id="review-category-label" className="block text-xs text-gray-400 mb-1.5">Category *</label>
+                    <div role="radiogroup" aria-labelledby="review-category-label" className="flex flex-wrap gap-2">
                       {CATEGORIES.map(c => (
-                        <button key={c.id} type="button" onClick={() => set('category', c.id)}
+                        <button key={c.id} type="button" role="radio" aria-checked={form.category === c.id}
+                          onClick={() => set('category', c.id)}
                           className={['px-4 py-2 rounded-full text-xs font-medium transition',
                             form.category === c.id ? 'bg-white text-black' : 'bg-white/5 ring-1 ring-white/10 text-gray-400 hover:text-white'].join(' ')}>
                           {c.label}
@@ -294,8 +296,9 @@ export default function SubmitReview() {
               {/* Review text */}
               <Section title="Your Review">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Review *</label>
+                  <label htmlFor="review-text" className="block text-xs text-gray-400 mb-1.5">Review *</label>
                   <textarea
+                    id="review-text"
                     value={form.review_text}
                     onChange={e => set('review_text', e.target.value)}
                     rows={8}
@@ -306,8 +309,9 @@ export default function SubmitReview() {
                   <p className="text-xs text-gray-400 mt-1">{form.review_text.length} / 80 minimum</p>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Cover Image URL <span className="text-gray-400">(optional)</span></label>
+                  <label htmlFor="review-cover-image" className="block text-xs text-gray-400 mb-1.5">Cover Image URL <span className="text-gray-400">(optional)</span></label>
                   <input
+                    id="review-cover-image"
                     type="url"
                     value={form.cover_image_url}
                     onChange={e => set('cover_image_url', e.target.value)}
@@ -327,24 +331,24 @@ export default function SubmitReview() {
               <Section title="Context (optional)">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5">Occasion</label>
-                    <select value={form.occasion} onChange={e => set('occasion', e.target.value)}
+                    <label htmlFor="review-occasion" className="block text-xs text-gray-400 mb-1.5">Occasion</label>
+                    <select id="review-occasion" value={form.occasion} onChange={e => set('occasion', e.target.value)}
                       className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[#557d72] transition">
                       <option value="">Select</option>
                       {OCCASIONS.map(o => <option key={o} value={o.toLowerCase()}>{o}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5">Season</label>
-                    <select value={form.season} onChange={e => set('season', e.target.value)}
+                    <label htmlFor="review-season" className="block text-xs text-gray-400 mb-1.5">Season</label>
+                    <select id="review-season" value={form.season} onChange={e => set('season', e.target.value)}
                       className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[#557d72] transition">
                       <option value="">Select</option>
                       {SEASONS.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5">Your City</label>
-                    <select value={form.city} onChange={e => set('city', e.target.value)}
+                    <label htmlFor="review-city" className="block text-xs text-gray-400 mb-1.5">Your City</label>
+                    <select id="review-city" value={form.city} onChange={e => set('city', e.target.value)}
                       className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-[#557d72] transition">
                       <option value="">Select city</option>
                       {PAKISTAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -379,11 +383,11 @@ function Section({ title, children }) {
   );
 }
 
-function Field({ label, value, onChange, placeholder, required }) {
+function Field({ id, label, value, onChange, placeholder, required }) {
   return (
     <div>
-      <label className="block text-xs text-gray-400 mb-1.5">{label}</label>
-      <input type="text" value={value} onChange={e => onChange(e.target.value)}
+      <label htmlFor={id} className="block text-xs text-gray-400 mb-1.5">{label}</label>
+      <input id={id} type="text" value={value} onChange={e => onChange(e.target.value)}
         placeholder={placeholder} required={required}
         className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-[#557d72] focus:ring-1 focus:ring-[#557d72] transition" />
     </div>
@@ -394,9 +398,11 @@ function RatingInput({ label, value, onChange }) {
   return (
     <div className="flex items-center gap-4">
       <span className="text-xs text-gray-400 w-32 flex-shrink-0">{label}</span>
-      <div className="flex items-center gap-1">
+      <div role="radiogroup" aria-label={label} className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map(n => (
-          <button key={n} type="button" onClick={() => onChange(value === n ? 0 : n)}
+          <button key={n} type="button" role="radio" aria-checked={n === value}
+            aria-label={`${n} star${n > 1 ? 's' : ''}`}
+            onClick={() => onChange(value === n ? 0 : n)}
             className="focus:outline-none group">
             <svg className={`h-6 w-6 transition ${n <= value ? 'text-[#94aea7]' : 'text-white/15 hover:text-white/30'}`} fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>

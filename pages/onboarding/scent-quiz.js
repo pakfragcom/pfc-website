@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '../../lib/auth-context';
 import Header from '../../components/layout/Header';
@@ -67,10 +67,15 @@ export default function ScentQuiz() {
   const [currentScents, setCurrentScents] = useState('');
   const [submitting, setSubmitting]   = useState(false);
   const [error, setError]             = useState('');
+  const stepHeadingRef = useRef(null);
 
   useEffect(() => {
     if (user === null) router.replace('/auth/login?next=/onboarding/scent-quiz');
   }, [user]);
+
+  useEffect(() => {
+    stepHeadingRef.current?.focus();
+  }, [step]);
 
   function toggleFamily(id) {
     setFamilies(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
@@ -140,7 +145,7 @@ export default function ScentQuiz() {
           {step === 1 && (
             <div>
               <StepLabel current={1} total={TOTAL_STEPS} />
-              <h1 className="text-2xl font-bold text-[#F5F5F7] mb-2">What scents appeal to you?</h1>
+              <h1 ref={stepHeadingRef} tabIndex={-1} className="text-2xl font-bold text-[#F5F5F7] mb-2">What scents appeal to you?</h1>
               <p className="text-sm text-gray-400 mb-6">Pick all that feel right — you can select multiple.</p>
               <div className="grid grid-cols-2 gap-2.5">
                 {FAMILIES.map(f => (
@@ -165,7 +170,7 @@ export default function ScentQuiz() {
           {step === 2 && (
             <div>
               <StepLabel current={2} total={TOTAL_STEPS} />
-              <h1 className="text-2xl font-bold text-[#F5F5F7] mb-2">When do you wear fragrance?</h1>
+              <h1 ref={stepHeadingRef} tabIndex={-1} className="text-2xl font-bold text-[#F5F5F7] mb-2">When do you wear fragrance?</h1>
               <p className="text-sm text-gray-400 mb-6">Select all that apply.</p>
               <div className="space-y-2.5">
                 {OCCASIONS.map(o => (
@@ -200,7 +205,7 @@ export default function ScentQuiz() {
           {step === 3 && (
             <div>
               <StepLabel current={3} total={TOTAL_STEPS} />
-              <h1 className="text-2xl font-bold text-[#F5F5F7] mb-2">What's your budget per fragrance?</h1>
+              <h1 ref={stepHeadingRef} tabIndex={-1} className="text-2xl font-bold text-[#F5F5F7] mb-2">What's your budget per fragrance?</h1>
               <p className="text-sm text-gray-400 mb-6">Helps us recommend things in your range.</p>
               <div className="space-y-2.5">
                 {BUDGETS.map(b => (
@@ -237,7 +242,7 @@ export default function ScentQuiz() {
           {step === 4 && (
             <div>
               <StepLabel current={4} total={TOTAL_STEPS} />
-              <h1 className="text-2xl font-bold text-[#F5F5F7] mb-2">Which city are you in?</h1>
+              <h1 ref={stepHeadingRef} tabIndex={-1} className="text-2xl font-bold text-[#F5F5F7] mb-2">Which city are you in?</h1>
               <p className="text-sm text-gray-400 mb-6">Climate affects how fragrances perform — we'll factor this in.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {PAKISTAN_CITIES.map(c => (
@@ -269,7 +274,7 @@ export default function ScentQuiz() {
           {step === 5 && (
             <div>
               <StepLabel current={5} total={TOTAL_STEPS} />
-              <h1 className="text-2xl font-bold text-[#F5F5F7] mb-2">What do you currently wear?</h1>
+              <h1 ref={stepHeadingRef} tabIndex={-1} className="text-2xl font-bold text-[#F5F5F7] mb-2">What do you currently wear?</h1>
               <p className="text-sm text-gray-400 mb-6">Optional — helps fine-tune your recommendations.</p>
               <textarea
                 value={currentScents}

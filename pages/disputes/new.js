@@ -167,7 +167,9 @@ export default function NewDisputePage() {
                 <p className="text-xs text-gray-400">
                   Enter the transaction ID from your log-transaction confirmation. It looks like a long string of letters and numbers.
                 </p>
+                <label htmlFor="dispute-tx-id" className="sr-only">Transaction ID</label>
                 <input
+                  id="dispute-tx-id"
                   type="text"
                   value={manualTxId}
                   onChange={e => setManualTxId(e.target.value)}
@@ -194,12 +196,14 @@ export default function NewDisputePage() {
 
             {/* Category */}
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-white">What went wrong?</h2>
-              <div className="space-y-2">
+              <h2 id="dispute-category-label" className="text-sm font-semibold text-white">What went wrong?</h2>
+              <div role="radiogroup" aria-labelledby="dispute-category-label" className="space-y-2">
                 {CATEGORIES.map(cat => (
                   <button
                     key={cat.id}
                     type="button"
+                    role="radio"
+                    aria-checked={category === cat.id}
                     onClick={() => setCategory(cat.id)}
                     className={[
                       'w-full text-left rounded-xl border px-4 py-3 transition',
@@ -219,8 +223,10 @@ export default function NewDisputePage() {
 
             {/* Description */}
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-white">Describe what happened</h2>
+              <h2 id="dispute-description-label" className="text-sm font-semibold text-white">Describe what happened</h2>
+              <label htmlFor="dispute-description" className="sr-only">Describe what happened</label>
               <textarea
+                id="dispute-description"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 rows={5}
@@ -236,7 +242,9 @@ export default function NewDisputePage() {
               <p className="text-xs text-gray-400">
                 Paste image or screenshot links (one per line) — Google Drive, Imgur, WhatsApp Web, etc.
               </p>
+              <label htmlFor="dispute-evidence" className="sr-only">Evidence links</label>
               <textarea
+                id="dispute-evidence"
                 value={evidenceRaw}
                 onChange={e => setEvidenceRaw(e.target.value)}
                 rows={3}

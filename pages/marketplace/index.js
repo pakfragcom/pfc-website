@@ -219,7 +219,9 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
               <svg className="w-4 h-4 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" />
               </svg>
+              <label htmlFor="marketplace-search" className="sr-only">Search fragrance, brand, or seller</label>
               <input
+                id="marketplace-search"
                 type="text"
                 placeholder="Search fragrance, brand, seller…"
                 value={query}
@@ -229,10 +231,11 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
             </div>
 
             {/* Condition pills */}
-            <div className="flex gap-1.5 flex-wrap">
+            <div role="group" aria-label="Filter by condition" className="flex gap-1.5 flex-wrap">
               {['ALL', 'sealed', 'partial', 'decant', 'gift_set'].map(c => (
                 <button
                   key={c}
+                  aria-pressed={condition === c}
                   onClick={() => setCondition(c)}
                   className={[
                     'rounded-full px-3 py-1.5 text-xs font-medium transition',
@@ -247,7 +250,9 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
             </div>
 
             {/* City */}
+            <label htmlFor="marketplace-city" className="sr-only">Filter by city</label>
             <select
+              id="marketplace-city"
               value={city}
               onChange={e => setCity(e.target.value)}
               className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-white/25 transition appearance-none"
@@ -256,7 +261,9 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
             </select>
 
             {/* Sort */}
+            <label htmlFor="marketplace-sort" className="sr-only">Sort listings</label>
             <select
+              id="marketplace-sort"
               value={sort}
               onChange={e => setSort(e.target.value)}
               className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-white/25 transition appearance-none"

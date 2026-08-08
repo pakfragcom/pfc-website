@@ -28,6 +28,7 @@ export default function SellerApply() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [checkError, setCheckError] = useState(false);
 
   const [form, setForm] = useState({
     name: '', city: '', whatsapp: '', seller_type: '',
@@ -40,12 +41,16 @@ export default function SellerApply() {
     if (!user) { router.push('/auth/login?next=/sellers/apply'); return; }
 
     fetch('/api/sellers/my-seller')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Request failed')))
       .then(data => {
         if (data) {
           setAlreadyApplied(true);
           setExistingSeller(data);
         }
+        setChecking(false);
+      })
+      .catch(() => {
+        setCheckError(true);
         setChecking(false);
       });
   }, [user]);
@@ -101,6 +106,20 @@ export default function SellerApply() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+      </div>
+    );
+  }
+
+  if (checkError) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <div className="text-center">
+          <p className="text-sm text-red-400 mb-3">Could not check your seller status. Please try again.</p>
+          <button onClick={() => window.location.reload()}
+            className="text-xs bg-white/10 hover:bg-white/15 text-gray-300 px-4 py-2 rounded-lg transition">
+            Try again
+          </button>
+        </div>
       </div>
     );
   }
@@ -223,27 +242,28 @@ export default function SellerApply() {
             {step === 0 && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Display name <span className="text-red-400">*</span></label>
-                  <input value={form.name} onChange={set('name')} placeholder="e.g. Ahmed Fragrances" className={inputCls} />
+                  <label htmlFor="apply-name" className="block text-xs text-gray-400 mb-1.5">Display name <span className="text-red-400">*</span></label>
+                  <input id="apply-name" value={form.name} onChange={set('name')} placeholder="e.g. Ahmed Fragrances" className={inputCls} />
                   <p className="text-[11px] text-gray-400 mt-1">This is how buyers will see you on PakFrag.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">City <span className="text-red-400">*</span></label>
-                  <input value={form.city} onChange={set('city')} placeholder="e.g. Karachi" className={inputCls} />
+                  <label htmlFor="apply-city" className="block text-xs text-gray-400 mb-1.5">City <span className="text-red-400">*</span></label>
+                  <input id="apply-city" value={form.city} onChange={set('city')} placeholder="e.g. Karachi" className={inputCls} />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">WhatsApp number <span className="text-red-400">*</span></label>
-                  <input value={form.whatsapp} onChange={set('whatsapp')} placeholder="03XXXXXXXXX" className={inputCls} type="tel" />
+                  <label htmlFor="apply-whatsapp" className="block text-xs text-gray-400 mb-1.5">WhatsApp number <span className="text-red-400">*</span></label>
+                  <input id="apply-whatsapp" value={form.whatsapp} onChange={set('whatsapp')} placeholder="03XXXXXXXXX" className={inputCls} type="tel" />
                   <p className="text-[11px] text-gray-400 mt-1">Buyers will contact you here. Not shown publicly without your consent.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-2">Seller type <span className="text-red-400">*</span></label>
-                  <div className="grid grid-cols-1 gap-2">
+                  <label id="apply-seller-type-label" className="block text-xs text-gray-400 mb-2">Seller type <span className="text-red-400">*</span></label>
+                  <div role="radiogroup" aria-labelledby="apply-seller-type-label" className="grid grid-cols-1 gap-2">
                     {SELLER_TYPES.map(t => (
-                      <button key={t.value} onClick={() => setForm(f => ({ ...f, seller_type: t.value }))}
+                      <button key={t.value} type="button" role="radio" aria-checked={form.seller_type === t.value}
+                        onClick={() => setForm(f => ({ ...f, seller_type: t.value }))}
                         className={[
                           'text-left px-4 py-3 rounded-xl border transition',
                           form.seller_type === t.value
@@ -268,18 +288,18 @@ export default function SellerApply() {
             {step === 1 && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">About you / your shop</label>
-                  <textarea value={form.bio} onChange={set('bio')} rows={4}
+                  <label htmlFor="apply-bio" className="block text-xs text-gray-400 mb-1.5">About you / your shop</label>
+                  <textarea id="apply-bio" value={form.bio} onChange={set('bio')} rows={4}
                     placeholder="Tell buyers who you are, what you sell, and what makes you trustworthy…"
                     className={inputCls + ' resize-none'} />
                   <p className="text-[11px] text-gray-400 mt-1">Shown on your public seller profile. Optional but recommended.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Instagram handle</label>
+                  <label htmlFor="apply-instagram" className="block text-xs text-gray-400 mb-1.5">Instagram handle</label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">@</span>
-                    <input value={form.instagram} onChange={set('instagram')} placeholder="yourhandle"
+                    <input id="apply-instagram" value={form.instagram} onChange={set('instagram')} placeholder="yourhandle"
                       className={inputCls + ' pl-8'} />
                   </div>
                 </div>
