@@ -324,14 +324,14 @@ function FragranceCard({ f }) {
         {/* Image / placeholder */}
         <div className="relative h-36 bg-gradient-to-br from-[#2a5c4f]/20 via-black to-[#94aea7]/10 overflow-hidden rounded-t-2xl">
           {f.image_url ? (
-            <img src={f.image_url} alt={f.name}
+            <img src={f.image_url} alt={f.name} loading="lazy"
               className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500" />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
               <span className="text-4xl font-black text-white/10 leading-none select-none">
                 {f.name[0]?.toUpperCase()}
               </span>
-              <span className="text-[9px] uppercase tracking-[0.2em] text-white/10 font-medium px-4 text-center line-clamp-1">
+              <span className="text-[9px] uppercase tracking-[0.2em] text-white/50 font-medium px-4 text-center line-clamp-1">
                 {f.house}
               </span>
             </div>

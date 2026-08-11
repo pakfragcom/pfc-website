@@ -483,7 +483,7 @@ function MyWishlistSection({ items = [] }) {
               className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05] p-3 transition-all">
               <div className="h-10 w-10 rounded-lg flex-shrink-0 overflow-hidden bg-white/5 border border-white/10">
                 {f.image_url
-                  ? <img src={f.image_url} alt={f.name} className="w-full h-full object-cover" />
+                  ? <img src={f.image_url} alt={f.name} loading="lazy" className="w-full h-full object-cover" />
                   : <div className="w-full h-full flex items-center justify-center text-white/20 text-base">◈</div>
                 }
               </div>
@@ -548,7 +548,7 @@ function ReviewCard({ review, pending, rejected }) {
     }`}>
       <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[#2a5c4f]/40 to-[#94aea7]/20 flex-shrink-0 overflow-hidden">
         {review.cover_image_url && (
-          <img src={review.cover_image_url} alt="" className="w-full h-full object-cover opacity-70" />
+          <img src={review.cover_image_url} alt="" loading="lazy" className="w-full h-full object-cover opacity-70" />
         )}
       </div>
       <div className="flex-1 min-w-0">

@@ -87,13 +87,15 @@ export default function IndieLab() {
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Tabs tab={tab} setTab={setTab} />
         <section className="mt-5 sm:mt-6 space-y-6">
-          {tab === "costing" && <Costing />}
-          {tab === "batching" && <Batching />}
-          {tab === "composer" && <Composer />}
-          {tab === "pyramid" && <Pyramid />}
-          {tab === "compliance" && <Compliance />}
-          {tab === "testing" && <Testing />}
-          {tab === "ai" && <AIAssist />}
+          <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} tabIndex={0}>
+            {tab === "costing" && <Costing />}
+            {tab === "batching" && <Batching />}
+            {tab === "composer" && <Composer />}
+            {tab === "pyramid" && <Pyramid />}
+            {tab === "compliance" && <Compliance />}
+            {tab === "testing" && <Testing />}
+            {tab === "ai" && <AIAssist />}
+          </div>
         </section>
 
         <p className="pt-8 pb-4 text-center text-xs text-neutral-500">
@@ -116,15 +118,33 @@ function Tabs({ tab, setTab }) {
     ["testing", "Testing"],
     ["ai", "AI Assist"],
   ];
+
+  function handleKeyDown(e, index) {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    e.preventDefault();
+    let nextIndex;
+    if (e.key === "ArrowLeft") nextIndex = (index - 1 + items.length) % items.length;
+    else if (e.key === "ArrowRight") nextIndex = (index + 1) % items.length;
+    else if (e.key === "Home") nextIndex = 0;
+    else nextIndex = items.length - 1;
+    const nextId = items[nextIndex][0];
+    setTab(nextId);
+    document.getElementById(`tab-${nextId}`)?.focus();
+  }
+
   return (
-    <nav className="sticky top-[52px] z-20 rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
+    <nav role="tablist" aria-label="Indie Lab tools" className="sticky top-[52px] z-20 rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 text-xs sm:text-sm">
         {items.map(([id, label], i) => (
           <button
             key={id}
+            id={`tab-${id}`}
             role="tab"
             aria-selected={tab === id}
+            aria-controls={`panel-${id}`}
+            tabIndex={tab === id ? 0 : -1}
             onClick={() => setTab(id)}
+            onKeyDown={(e) => handleKeyDown(e, i)}
             className={`px-3 py-2 sm:py-3 border-r border-white/10 last:border-r-0 transition ${
               tab === id ? "bg-white/10 text-white font-medium" : "text-neutral-300 hover:text-white hover:bg-white/5"
             }`}

@@ -126,7 +126,7 @@ export default function UserProfile({ profile, reviews = [], sellerType = null, 
                     {/* Mini cover */}
                     <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-[#2a5c4f]/40 to-[#94aea7]/20 flex-shrink-0 overflow-hidden">
                       {review.cover_image_url && (
-                        <img src={review.cover_image_url} alt="" className="w-full h-full object-cover opacity-70" />
+                        <img src={review.cover_image_url} alt="" loading="lazy" className="w-full h-full object-cover opacity-70" />
                       )}
                     </div>
 

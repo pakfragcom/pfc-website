@@ -296,7 +296,7 @@ export default function ReviewPage({ review, fragrance = null, relatedReviews = 
                     className="group flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05] p-3 transition-all duration-300">
                     <div className="w-12 h-12 rounded-lg flex-shrink-0 overflow-hidden border border-white/10 bg-white/5">
                       {fragrance.image_url
-                        ? <img src={fragrance.image_url} alt={fragrance.name} className="w-full h-full object-cover" />
+                        ? <img src={fragrance.image_url} alt={fragrance.name} loading="lazy" className="w-full h-full object-cover" />
                         : <div className="w-full h-full flex items-center justify-center text-white/15 text-lg">◈</div>
                       }
                     </div>

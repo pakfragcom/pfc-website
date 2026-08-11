@@ -227,7 +227,7 @@ export default function FragranceDetail({ fragrance, reviews = [], related = [],
                         <span className="text-8xl font-black text-white/8 leading-none select-none">
                           {fragrance.name[0]?.toUpperCase()}
                         </span>
-                        <span className="text-[10px] uppercase tracking-[0.25em] text-white/15 font-medium px-6 text-center">
+                        <span className="text-[10px] uppercase tracking-[0.25em] text-white/50 font-medium px-6 text-center">
                           {fragrance.house}
                         </span>
                         {user && !suggestDone && (
@@ -737,7 +737,7 @@ function RelatedFragrances({ related, category }) {
             className="group rounded-2xl border border-white/8 bg-white/[0.02] overflow-hidden hover:border-white/20 hover:bg-white/[0.04] transition">
             <div className="relative h-24 bg-gradient-to-br from-[#2a5c4f]/20 via-black to-[#94aea7]/10">
               {f.image_url ? (
-                <img src={f.image_url} alt={f.name} className="w-full h-full object-cover" />
+                <img src={f.image_url} alt={f.name} loading="lazy" className="w-full h-full object-cover" />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-3xl font-black text-white/10 leading-none select-none">{f.name[0]?.toUpperCase()}</span>
