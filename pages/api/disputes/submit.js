@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
 import { isRateLimited } from '../../../lib/rate-limit';
+import { firstTooLong } from '../../../lib/validate';
 
 const VALID_CATEGORIES = ['not_received', 'condition_misrepresented', 'fake', 'price_dispute', 'other'];
 
@@ -20,6 +21,13 @@ export default async function handler(req, res) {
   if (!transaction_id) return res.status(400).json({ error: 'transaction_id is required' });
   if (!category || !VALID_CATEGORIES.includes(category)) return res.status(400).json({ error: 'Invalid category' });
   if (!description || description.trim().length < 10) return res.status(400).json({ error: 'Description must be at least 10 characters' });
+  if (description.trim().length > 3000) return res.status(400).json({ error: 'Description must be 3000 characters or fewer' });
+
+  if (!Array.isArray(evidence_urls) || evidence_urls.length > 10) {
+    return res.status(400).json({ error: 'Maximum 10 evidence links' });
+  }
+  const evidenceLengthError = firstTooLong(evidence_urls.map((url, i) => [`Evidence link ${i + 1}`, url, 500]));
+  if (evidenceLengthError) return res.status(400).json({ error: evidenceLengthError });
 
   // Verify the transaction belongs to this user as the buyer
   const { data: tx, error: txErr } = await supabaseAdmin

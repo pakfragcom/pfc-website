@@ -2,6 +2,7 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
 import { isRateLimited } from '../../../lib/rate-limit';
 import { escapeLikePattern } from '../../../lib/escape-like';
+import { firstTooLong } from '../../../lib/validate';
 
 const VALID_ITEM_TYPES = ['sealed', 'partial', 'decant', 'gift_set'];
 const VALID_OUTCOMES   = ['success', 'issue', 'scam'];
@@ -47,7 +48,21 @@ export default async function handler(req, res) {
     if (!item.fragrance_name?.trim())              return res.status(400).json({ error: `Item ${i + 1}: fragrance name is required.` });
     if (!VALID_ITEM_TYPES.includes(item.item_type)) return res.status(400).json({ error: `Item ${i + 1}: invalid type.` });
     if (!item.price_pkr || Number(item.price_pkr) <= 0) return res.status(400).json({ error: `Item ${i + 1}: price must be greater than 0.` });
+
+    const itemLengthError = firstTooLong([
+      [`Item ${i + 1} fragrance name`, item.fragrance_name, 200],
+      [`Item ${i + 1} house`, item.house, 200],
+      [`Item ${i + 1} notes`, item.notes, 500],
+    ]);
+    if (itemLengthError) return res.status(400).json({ error: itemLengthError });
   }
+
+  const lengthError = firstTooLong([
+    ['City', city, 100],
+    ['Notes', notes, 1000],
+    ['Review text', review_text, 3000],
+  ]);
+  if (lengthError) return res.status(400).json({ error: lengthError });
 
   // Validate ratings if provided
   for (const [key, val] of Object.entries({ rating_delivery, rating_accuracy, rating_communication })) {
