@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
 import { isRateLimited } from '../../../lib/rate-limit';
+import { firstTooLong } from '../../../lib/validate';
 
 export default async function handler(req, res) {
   if (req.method !== 'PATCH') return res.status(405).end();
@@ -20,6 +21,11 @@ export default async function handler(req, res) {
   if (!review_text || review_text.trim().length < 80) return res.status(400).json({ error: 'Review must be at least 80 characters' });
   if (review_text.trim().length > 5000) return res.status(400).json({ error: 'Review must be 5000 characters or fewer' });
   if (!rating_overall || Number(rating_overall) < 1 || Number(rating_overall) > 5) return res.status(400).json({ error: 'Overall rating must be between 1 and 5' });
+
+  const lengthError = firstTooLong([
+    ['Cover image URL', cover_image_url, 500],
+  ]);
+  if (lengthError) return res.status(400).json({ error: lengthError });
 
   const { data: existing } = await supabaseAdmin
     .from('reviews')
