@@ -6,15 +6,35 @@ export default async function handler(req, res) {
   if (!auth.ok) return;
   if (!auth.permissions.can_manage_reviews) return res.status(403).json({ error: 'Forbidden' });
 
-  // GET — list all reviews with author info
+  // GET — list reviews for one status tab (default: pending), plus counts for all tabs
   if (req.method === 'GET') {
-    const { data, error } = await supabaseAdmin
+    const status = ['pending', 'approved', 'rejected'].includes(req.query.status) ? req.query.status : 'pending';
+    const wantAll = req.query.status === 'all';
+
+    let query = supabaseAdmin
       .from('reviews')
       .select('id, fragrance_name, house, category, rating_overall, review_text, status, featured, reject_reason, created_at, published_at, profiles(display_name, city)')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (!wantAll) query = query.eq('status', status);
+
+    const [{ data, error }, { count: pending }, { count: approved }, { count: rejected }] = await Promise.all([
+      query,
+      supabaseAdmin.from('reviews').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabaseAdmin.from('reviews').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
+      supabaseAdmin.from('reviews').select('id', { count: 'exact', head: true }).eq('status', 'rejected'),
+    ]);
 
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(data);
+    return res.status(200).json({
+      reviews: data,
+      counts: {
+        pending: pending ?? 0,
+        approved: approved ?? 0,
+        rejected: rejected ?? 0,
+        all: (pending ?? 0) + (approved ?? 0) + (rejected ?? 0),
+      },
+    });
   }
 
   // PATCH — approve, reject, or toggle featured

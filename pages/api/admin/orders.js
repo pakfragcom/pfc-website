@@ -10,11 +10,22 @@ export default async function handler(req, res) {
     let query = supabaseAdmin
       .from('order_requests')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(200);
     if (status && status !== 'all') query = query.eq('status', status);
-    const { data, error } = await query;
+
+    const STATUSES = ['pending', 'contacted', 'fulfilled', 'cancelled'];
+    const [{ data, error }, ...countResults] = await Promise.all([
+      query,
+      ...STATUSES.map(s => supabaseAdmin.from('order_requests').select('id', { count: 'exact', head: true }).eq('status', s)),
+    ]);
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(data);
+
+    const counts = {};
+    STATUSES.forEach((s, i) => { counts[s] = countResults[i].count ?? 0; });
+    counts.all = STATUSES.reduce((sum, s) => sum + counts[s], 0);
+
+    return res.status(200).json({ orders: data, counts });
   }
 
   if (req.method === 'PATCH') {

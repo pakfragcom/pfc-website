@@ -25,49 +25,62 @@ const ADMIN_IDENTITY = { type: 'admin', displayName: 'Admin', permissions: { is_
 export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
   const router = useRouter();
   const [orders, setOrders]         = useState([]);
+  const [counts, setCounts]         = useState({ pending: 0, contacted: 0, fulfilled: 0, cancelled: 0, all: 0 });
   const [loading, setLoading]       = useState(true);
+  const [loadError, setLoadError]   = useState('');
   const [filter, setFilter]         = useState('pending');
   const [expanded, setExpanded]     = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
   const [noteEdits, setNoteEdits]   = useState({});
 
-  async function load() {
-    const res = await fetch('/api/admin/orders');
-    if (res.status === 401) { router.push('/pfc-mgmt/login'); return; }
-    const data = await res.json();
-    setOrders(Array.isArray(data) ? data : []);
-    setLoading(false);
+  async function load(status) {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const res = await fetch(`/api/admin/orders?status=${status}`);
+      if (res.status === 401) { router.push('/pfc-mgmt/login'); return; }
+      if (!res.ok) throw new Error('Failed to load orders');
+      const data = await res.json();
+      setOrders(Array.isArray(data.orders) ? data.orders : []);
+      setCounts(data.counts || {});
+    } catch {
+      setLoadError('Could not load orders. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(filter); }, [filter]);
 
   async function updateStatus(id, status) {
     setActionLoading(id + status);
-    await fetch('/api/admin/orders', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status }),
-    });
-    await load();
-    setActionLoading(null);
+    try {
+      await fetch('/api/admin/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      await load(filter);
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   async function saveNote(id) {
     setActionLoading(id + 'note');
-    await fetch('/api/admin/orders', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, admin_notes: noteEdits[id] ?? '' }),
-    });
-    await load();
-    setActionLoading(null);
+    try {
+      await fetch('/api/admin/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, admin_notes: noteEdits[id] ?? '' }),
+      });
+      await load(filter);
+    } finally {
+      setActionLoading(null);
+    }
   }
 
-  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
-  const counts = FILTERS.reduce((acc, f) => {
-    acc[f] = f === 'all' ? orders.length : orders.filter(o => o.status === f).length;
-    return acc;
-  }, {});
+  const filtered = orders;
 
   async function handleLogout() {
     if (identity?.type === 'admin') await fetch('/api/admin/auth', { method: 'DELETE' });
@@ -101,7 +114,15 @@ export default function AdminOrders({ identity = ADMIN_IDENTITY }) {
             ))}
           </div>
 
-          {loading ? (
+          {loadError ? (
+            <div className="text-center py-20">
+              <p className="text-sm text-red-400 mb-3">{loadError}</p>
+              <button onClick={() => load(filter)}
+                className="text-xs bg-white/10 hover:bg-white/15 text-gray-300 px-4 py-2 rounded-lg transition">
+                Try again
+              </button>
+            </div>
+          ) : loading ? (
             <div className="text-center py-20 text-gray-400">Loading…</div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20 text-gray-400">No {filter === 'all' ? '' : filter} orders.</div>

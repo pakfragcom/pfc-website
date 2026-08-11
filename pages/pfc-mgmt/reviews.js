@@ -20,21 +20,32 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
   const router = useRouter();
   const supabase = useSupabaseClient();
   const [reviews, setReviews]   = useState([]);
+  const [counts, setCounts]     = useState({ pending: 0, approved: 0, rejected: 0, all: 0 });
   const [loading, setLoading]   = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [filter, setFilter]     = useState('pending');
   const [expanded, setExpanded] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
 
-  async function load() {
-    const res = await fetch('/api/admin/reviews');
-    if (res.status === 401) { router.push('/pfc-mgmt/login'); return; }
-    const data = await res.json();
-    setReviews(data);
-    setLoading(false);
+  async function load(status) {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const res = await fetch(`/api/admin/reviews?status=${status}`);
+      if (res.status === 401) { router.push('/pfc-mgmt/login'); return; }
+      if (!res.ok) throw new Error('Failed to load reviews');
+      const data = await res.json();
+      setReviews(data.reviews);
+      setCounts(data.counts);
+    } catch {
+      setLoadError('Could not load reviews. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(filter); }, [filter]);
 
   async function handleLogout() {
     if (identity?.type === 'admin') await fetch('/api/admin/auth', { method: 'DELETE' });
@@ -44,41 +55,41 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
 
   async function action(reviewId, status, reason) {
     setActionLoading(reviewId);
-    await fetch('/api/admin/reviews', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: reviewId, status, reject_reason: reason || null }),
-    });
-    await load();
-    setExpanded(null);
-    setRejectReason('');
-    setActionLoading(null);
+    try {
+      await fetch('/api/admin/reviews', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: reviewId, status, reject_reason: reason || null }),
+      });
+      await load(filter);
+      setExpanded(null);
+      setRejectReason('');
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   async function toggleFeatured(reviewId, current) {
     setActionLoading(reviewId);
-    await fetch('/api/admin/reviews', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: reviewId, featured: !current }),
-    });
-    await load();
-    setActionLoading(null);
+    try {
+      await fetch('/api/admin/reviews', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: reviewId, featured: !current }),
+      });
+      await load(filter);
+    } finally {
+      setActionLoading(null);
+    }
   }
 
-  const filtered = reviews.filter(r => filter === 'all' || r.status === filter);
-
-  const counts = {
-    pending:  reviews.filter(r => r.status === 'pending').length,
-    approved: reviews.filter(r => r.status === 'approved').length,
-    rejected: reviews.filter(r => r.status === 'rejected').length,
-  };
+  const filtered = reviews;
 
   const FILTERS = [
     { id: 'pending',  label: `Pending (${counts.pending})` },
     { id: 'approved', label: `Approved (${counts.approved})` },
     { id: 'rejected', label: `Rejected (${counts.rejected})` },
-    { id: 'all',      label: `All (${reviews.length})` },
+    { id: 'all',      label: `All (${counts.all})` },
   ];
 
   if (!identity.permissions.can_manage_reviews && !identity.permissions.is_admin) {
@@ -126,7 +137,15 @@ export default function AdminReviews({ identity = ADMIN_IDENTITY }) {
             ))}
           </div>
 
-          {loading ? (
+          {loadError ? (
+            <div className="text-center py-16">
+              <p className="text-sm text-red-400 mb-3">{loadError}</p>
+              <button onClick={() => load(filter)}
+                className="text-xs bg-white/10 hover:bg-white/15 text-gray-300 px-4 py-2 rounded-lg transition">
+                Try again
+              </button>
+            </div>
+          ) : loading ? (
             <div className="text-gray-400 text-sm py-10 text-center">Loading…</div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
