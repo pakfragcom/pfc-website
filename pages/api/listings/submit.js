@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   const {
     fragrance_name, house, concentration, condition,
     fill_level_pct, price_pkr, is_negotiable,
-    quantity, city, description, images, fragrance_id,
+    quantity, city, description, images, fragrance_id, size_ml,
   } = req.body || {};
 
   if (!fragrance_name?.trim())               return res.status(400).json({ error: 'Fragrance name is required.' });
@@ -48,11 +48,56 @@ export default async function handler(req, res) {
   ]);
   if (lengthError) return res.status(400).json({ error: lengthError });
 
+  // Resolve (or create) a catalog variant when the seller linked a canonical
+  // fragrance and gave a size — optional, additive, doesn't block the listing.
+  let variant_id = null;
+  if (fragrance_id && size_ml) {
+    const sizeNum = Number(size_ml);
+    if (!Number.isInteger(sizeNum) || sizeNum <= 0 || sizeNum > 5000) {
+      return res.status(400).json({ error: 'Size (ml) must be a whole number between 1 and 5000.' });
+    }
+    const concText = concentration?.trim() || '';
+
+    const { data: existingVariant } = await supabaseAdmin
+      .from('product_variants')
+      .select('id')
+      .eq('fragrance_id', fragrance_id)
+      .eq('size_ml', sizeNum)
+      .eq('concentration', concText)
+      .maybeSingle();
+
+    if (existingVariant) {
+      variant_id = existingVariant.id;
+    } else {
+      const { data: newVariant } = await supabaseAdmin
+        .from('product_variants')
+        .insert({ fragrance_id, size_ml: sizeNum, concentration: concText })
+        .select('id')
+        .maybeSingle();
+
+      if (newVariant) {
+        variant_id = newVariant.id;
+      } else {
+        // Lost a race with another concurrent submission creating the same
+        // variant — the unique constraint rejected our insert, so it exists now.
+        const { data: retryVariant } = await supabaseAdmin
+          .from('product_variants')
+          .select('id')
+          .eq('fragrance_id', fragrance_id)
+          .eq('size_ml', sizeNum)
+          .eq('concentration', concText)
+          .maybeSingle();
+        variant_id = retryVariant?.id || null;
+      }
+    }
+  }
+
   const { data: listing, error: insertError } = await supabaseAdmin
     .from('listings')
     .insert({
       seller_id:      seller.id,
       fragrance_id:   fragrance_id || null,
+      variant_id,
       fragrance_name: fragrance_name.trim(),
       house:          house.trim(),
       concentration:  concentration?.trim() || null,

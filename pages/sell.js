@@ -27,8 +27,10 @@ export default function SellPage() {
 
   const [form, setForm] = useState({
     fragrance_name: '',
+    fragrance_id: '',
     house: '',
     concentration: '',
+    size_ml: '',
     condition: '',
     fill_level_pct: '',
     price_pkr: '',
@@ -67,7 +69,8 @@ export default function SellPage() {
   }, []);
 
   function handleNameChange(val) {
-    setField('fragrance_name', val);
+    // Typing invalidates any previously-picked catalog match
+    setForm(f => ({ ...f, fragrance_name: val, fragrance_id: '' }));
     clearTimeout(suggestTimeout.current);
     if (val.trim().length >= 2) {
       suggestTimeout.current = setTimeout(() => {
@@ -84,6 +87,7 @@ export default function SellPage() {
     setForm(f => ({
       ...f,
       fragrance_name: s.name,
+      fragrance_id: s.id,
       house: s.house || f.house,
     }));
     setSuggestions([]);
@@ -173,7 +177,7 @@ export default function SellPage() {
               <button
                 onClick={() => {
                   setDone(false); setDoneId(null);
-                  setForm({ fragrance_name: '', house: '', concentration: '', condition: '', fill_level_pct: '', price_pkr: '', is_negotiable: false, quantity: '1', city: '', description: '' });
+                  setForm({ fragrance_name: '', fragrance_id: '', house: '', concentration: '', size_ml: '', condition: '', fill_level_pct: '', price_pkr: '', is_negotiable: false, quantity: '1', city: '', description: '' });
                 }}
                 className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-2.5 text-sm font-medium text-gray-300 transition"
               >
@@ -274,6 +278,24 @@ export default function SellPage() {
                   <option value="">Select (optional)</option>
                   {CONCENTRATIONS.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
+              </div>
+
+              {/* Size */}
+              <div>
+                <label htmlFor="sell-size-ml" className="block text-xs text-gray-400 mb-1.5">Bottle size (ml)</label>
+                <input
+                  id="sell-size-ml"
+                  type="number"
+                  min="1"
+                  max="5000"
+                  placeholder="e.g. 100"
+                  value={form.size_ml}
+                  onChange={e => setField('size_ml', e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-white/25 transition"
+                />
+                {!form.fragrance_id && (
+                  <p className="mt-1 text-[11px] text-gray-400">Pick a fragrance from the suggestions above to link this size to the catalog.</p>
+                )}
               </div>
             </section>
 
