@@ -12,7 +12,6 @@ export default function Navbar({ onLinkClick }) {
       { label: 'MBP',           href: '/mbp',          external: false },
       { label: 'Fragrances',    href: '/fragrances',   external: false },
       { label: 'Reviews',       href: '/reviews',      external: false },
-      { label: 'Marketplace',     href: '/marketplace',       external: false },
     ],
     []
   )
