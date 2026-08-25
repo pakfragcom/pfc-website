@@ -20,6 +20,285 @@ const STATUS_CONFIG = {
   expired: { label: 'Expired',        cls: 'text-red-400 bg-red-500/10 ring-red-500/20' },
 };
 
+const INVENTORY_CONDITIONS = [
+  { id: 'sealed',   label: 'Sealed / BNIB' },
+  { id: 'partial',  label: 'Partial Bottle' },
+  { id: 'decant',   label: 'Decant / Vial' },
+  { id: 'gift_set', label: 'Gift Set' },
+];
+const INVENTORY_CONCENTRATIONS = ['EDP', 'EDT', 'EDP Intense', 'Parfum', 'EDC', 'Attar / Oil', 'Other'];
+
+function InventoryPilotSection() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [rowSaving, setRowSaving] = useState(null);
+
+  const [form, setForm] = useState({
+    fragrance_name: '', fragrance_id: '', house: '', size_ml: '', concentration: '',
+    condition: 'sealed', stock_qty: '1', price_pkr: '', is_negotiable: false,
+  });
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestTimeout = useRef(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  async function load() {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const res = await fetch('/api/sellers/inventory');
+      if (!res.ok) throw new Error('Could not load inventory');
+      setItems(await res.json());
+    } catch {
+      setLoadError('Could not load your inventory. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
+
+  function handleNameChange(val) {
+    setForm(f => ({ ...f, fragrance_name: val, fragrance_id: '' }));
+    clearTimeout(suggestTimeout.current);
+    if (val.trim().length < 2) { setSuggestions([]); setShowSuggestions(false); return; }
+    suggestTimeout.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/fragrances/search?q=${encodeURIComponent(val)}`);
+        if (res.ok) { setSuggestions((await res.json()).slice(0, 8)); setShowSuggestions(true); }
+      } catch {
+        // best-effort autocomplete
+      }
+    }, 250);
+  }
+
+  function pickSuggestion(s) {
+    setForm(f => ({ ...f, fragrance_name: s.name, fragrance_id: s.id, house: s.house || f.house }));
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    if (!form.fragrance_id) { setSubmitError('Pick a fragrance from the suggestions.'); return; }
+    if (!form.size_ml || Number(form.size_ml) <= 0) { setSubmitError('Enter a valid size.'); return; }
+    if (!form.price_pkr || Number(form.price_pkr) <= 0) { setSubmitError('Enter a valid price.'); return; }
+
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const res = await fetch('/api/sellers/inventory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fragrance_id: form.fragrance_id,
+          size_ml: Number(form.size_ml),
+          concentration: form.concentration,
+          condition: form.condition,
+          stock_qty: Number(form.stock_qty) || 0,
+          price_pkr: Number(form.price_pkr),
+          is_negotiable: form.is_negotiable,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Could not save this item.');
+      setForm({ fragrance_name: '', fragrance_id: '', house: '', size_ml: '', concentration: '', condition: 'sealed', stock_qty: '1', price_pkr: '', is_negotiable: false });
+      setShowAdd(false);
+      await load();
+    } catch (err) {
+      setSubmitError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function saveRow(item, patch) {
+    setRowSaving(item.id);
+    try {
+      const res = await fetch('/api/sellers/inventory', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: item.id, ...patch }),
+      });
+      if (res.ok) await load();
+    } finally {
+      setRowSaving(null);
+      setEditingId(null);
+    }
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-sm font-semibold text-white">Inventory <span className="text-[10px] text-sky-400 bg-sky-500/15 rounded-full px-2 py-0.5 ml-1">Beta</span></h2>
+          <p className="text-xs text-gray-400 mt-0.5">Structured stock, tied to the fragrance catalog — this is what the new shop will read from.</p>
+        </div>
+        <button onClick={() => setShowAdd(v => !v)}
+          className="text-xs bg-white/8 hover:bg-white/15 text-gray-200 px-3 py-1.5 rounded-lg transition flex-shrink-0">
+          {showAdd ? 'Cancel' : '+ Add item'}
+        </button>
+      </div>
+
+      {showAdd && (
+        <form onSubmit={handleAdd} className="rounded-xl border border-white/8 bg-white/[0.02] p-4 mb-4 space-y-3">
+          <div className="relative">
+            <label htmlFor="inv-fragrance" className="block text-xs text-gray-400 mb-1">Fragrance</label>
+            <input id="inv-fragrance" type="text" value={form.fragrance_name}
+              onChange={e => handleNameChange(e.target.value)}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              placeholder="Start typing to search the catalog…" autoComplete="off"
+              className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-2 text-sm text-white placeholder-gray-600 outline-none focus:ring-white/25" />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-20 top-full mt-1 left-0 right-0 rounded-xl border border-white/10 bg-[#111] shadow-2xl overflow-hidden">
+                {suggestions.map(s => (
+                  <button key={s.id} type="button" onMouseDown={() => pickSuggestion(s)}
+                    className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-white/5 transition">
+                    <span className="text-sm text-white">{s.name}</span>
+                    <span className="text-xs text-gray-400">{s.house}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {!form.fragrance_id && (
+              <p className="mt-1 text-[11px] text-gray-400">Only catalog fragrances can be added — pick one from the list.</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label htmlFor="inv-size" className="block text-xs text-gray-400 mb-1">Size (ml)</label>
+              <input id="inv-size" type="number" min="1" max="5000" value={form.size_ml}
+                onChange={e => setForm(f => ({ ...f, size_ml: e.target.value }))}
+                className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-2 text-sm text-white outline-none focus:ring-white/25" />
+            </div>
+            <div>
+              <label htmlFor="inv-conc" className="block text-xs text-gray-400 mb-1">Concentration</label>
+              <select id="inv-conc" value={form.concentration}
+                onChange={e => setForm(f => ({ ...f, concentration: e.target.value }))}
+                className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-2 text-sm text-white outline-none focus:ring-white/25 appearance-none">
+                <option value="">—</option>
+                {INVENTORY_CONCENTRATIONS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="inv-condition" className="block text-xs text-gray-400 mb-1">Condition</label>
+              <select id="inv-condition" value={form.condition}
+                onChange={e => setForm(f => ({ ...f, condition: e.target.value }))}
+                className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-2 text-sm text-white outline-none focus:ring-white/25 appearance-none">
+                {INVENTORY_CONDITIONS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="inv-stock" className="block text-xs text-gray-400 mb-1">Stock</label>
+              <input id="inv-stock" type="number" min="0" value={form.stock_qty}
+                onChange={e => setForm(f => ({ ...f, stock_qty: e.target.value }))}
+                className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-2 text-sm text-white outline-none focus:ring-white/25" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 items-end">
+            <div>
+              <label htmlFor="inv-price" className="block text-xs text-gray-400 mb-1">Price (PKR)</label>
+              <input id="inv-price" type="number" min="1" value={form.price_pkr}
+                onChange={e => setForm(f => ({ ...f, price_pkr: e.target.value }))}
+                className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-3 py-2 text-sm text-white outline-none focus:ring-white/25" />
+            </div>
+            <label className="flex items-center gap-2 pb-2.5">
+              <input type="checkbox" checked={form.is_negotiable}
+                onChange={e => setForm(f => ({ ...f, is_negotiable: e.target.checked }))}
+                className="rounded" />
+              <span className="text-sm text-gray-300">Negotiable</span>
+            </label>
+          </div>
+
+          {submitError && <p className="text-xs text-red-400">{submitError}</p>}
+
+          <button type="submit" disabled={submitting}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-xl transition">
+            {submitting ? 'Saving…' : 'Save item'}
+          </button>
+        </form>
+      )}
+
+      {loadError ? (
+        <div className="text-center py-6">
+          <p className="text-xs text-red-400 mb-2">{loadError}</p>
+          <button onClick={load} className="text-xs bg-white/10 hover:bg-white/15 text-gray-300 px-3 py-1.5 rounded-lg transition">Try again</button>
+        </div>
+      ) : loading ? (
+        <p className="text-xs text-gray-400 text-center py-6">Loading…</p>
+      ) : items.length === 0 ? (
+        <p className="text-xs text-gray-400 text-center py-6">No inventory yet — add your first item above.</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map(item => {
+            const frag = item.product_variants?.fragrances;
+            const isEditing = editingId === item.id;
+            return (
+              <div key={item.id} className="rounded-xl border border-white/8 bg-white/[0.02] px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white truncate">{frag?.name || 'Unknown fragrance'} · {item.product_variants?.size_ml}ml{item.product_variants?.concentration ? ` ${item.product_variants.concentration}` : ''}</p>
+                    <p className="text-xs text-gray-400">{frag?.house} · Rs {Number(item.price_pkr).toLocaleString()} · {item.condition} · {item.stock_qty} in stock</p>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${item.status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : item.status === 'paused' ? 'bg-white/8 text-gray-400' : 'bg-red-500/10 text-red-400'}`}>
+                    {item.status.replace('_', ' ')}
+                  </span>
+                  <button onClick={() => setEditingId(isEditing ? null : item.id)}
+                    className="text-xs bg-white/8 hover:bg-white/15 text-gray-300 px-2.5 py-1 rounded-lg transition flex-shrink-0">
+                    {isEditing ? 'Close' : 'Edit'}
+                  </button>
+                </div>
+
+                {isEditing && (
+                  <InventoryRowEditor item={item} saving={rowSaving === item.id} onSave={patch => saveRow(item, patch)} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InventoryRowEditor({ item, saving, onSave }) {
+  const [stock, setStock] = useState(String(item.stock_qty));
+  const [price, setPrice] = useState(String(item.price_pkr));
+
+  return (
+    <div className="mt-3 pt-3 border-t border-white/8 grid grid-cols-2 sm:grid-cols-4 gap-2 items-end">
+      <div>
+        <label className="block text-[10px] text-gray-400 mb-1">Stock</label>
+        <input type="number" min="0" value={stock} onChange={e => setStock(e.target.value)}
+          className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-2 py-1.5 text-xs text-white outline-none focus:ring-white/25" />
+      </div>
+      <div>
+        <label className="block text-[10px] text-gray-400 mb-1">Price (PKR)</label>
+        <input type="number" min="1" value={price} onChange={e => setPrice(e.target.value)}
+          className="w-full rounded-lg bg-black/40 ring-1 ring-white/10 px-2 py-1.5 text-xs text-white outline-none focus:ring-white/25" />
+      </div>
+      <button
+        disabled={saving}
+        onClick={() => onSave({ stock_qty: Number(stock) || 0, price_pkr: Number(price) || item.price_pkr })}
+        className="text-xs bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium py-2 rounded-lg transition">
+        {saving ? 'Saving…' : 'Save'}
+      </button>
+      <button
+        disabled={saving}
+        onClick={() => onSave({ status: item.status === 'paused' ? 'active' : 'paused' })}
+        className="text-xs bg-white/8 hover:bg-white/15 text-gray-300 py-2 rounded-lg transition disabled:opacity-50">
+        {item.status === 'paused' ? 'Resume' : 'Pause'}
+      </button>
+    </div>
+  );
+}
+
 function DocUploader({ sellerId, docType, label, onUploaded }) {
   const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState(false);
@@ -379,6 +658,13 @@ export default function SellerDashboard() {
                     <p className="text-xs text-emerald-400">Documents submitted. Admin will review within 24 hours.</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Structured inventory (pilot) */}
+            {seller.inventory_pilot_enabled && (
+              <div className="mb-8">
+                <InventoryPilotSection />
               </div>
             )}
 

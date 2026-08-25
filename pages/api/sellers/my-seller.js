@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   const { data } = await supabaseAdmin
     .from('sellers')
-    .select('id, name, slug, code, status, seller_type, verification_tier, trust_score, city, contact_whatsapp, whatsapp, instagram, bio, added_at, subscription_expires_at')
+    .select('id, name, slug, code, status, seller_type, verification_tier, trust_score, city, contact_whatsapp, whatsapp, instagram, bio, added_at, subscription_expires_at, inventory_pilot_enabled')
     .eq('user_id', user.id)
     .maybeSingle();
 

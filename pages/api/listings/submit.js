@@ -2,6 +2,7 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { escHtml, firstTooLong } from '../../../lib/validate';
 import { isRateLimited } from '../../../lib/rate-limit';
 import { createApiSupabaseClient } from '../../../lib/server-supabase';
+import { resolveOrCreateVariant } from '../../../lib/product-variants';
 
 const VALID_CONDITIONS = ['sealed', 'partial', 'decant', 'gift_set'];
 
@@ -56,40 +57,7 @@ export default async function handler(req, res) {
     if (!Number.isInteger(sizeNum) || sizeNum <= 0 || sizeNum > 5000) {
       return res.status(400).json({ error: 'Size (ml) must be a whole number between 1 and 5000.' });
     }
-    const concText = concentration?.trim() || '';
-
-    const { data: existingVariant } = await supabaseAdmin
-      .from('product_variants')
-      .select('id')
-      .eq('fragrance_id', fragrance_id)
-      .eq('size_ml', sizeNum)
-      .eq('concentration', concText)
-      .maybeSingle();
-
-    if (existingVariant) {
-      variant_id = existingVariant.id;
-    } else {
-      const { data: newVariant } = await supabaseAdmin
-        .from('product_variants')
-        .insert({ fragrance_id, size_ml: sizeNum, concentration: concText })
-        .select('id')
-        .maybeSingle();
-
-      if (newVariant) {
-        variant_id = newVariant.id;
-      } else {
-        // Lost a race with another concurrent submission creating the same
-        // variant — the unique constraint rejected our insert, so it exists now.
-        const { data: retryVariant } = await supabaseAdmin
-          .from('product_variants')
-          .select('id')
-          .eq('fragrance_id', fragrance_id)
-          .eq('size_ml', sizeNum)
-          .eq('concentration', concText)
-          .maybeSingle();
-        variant_id = retryVariant?.id || null;
-      }
-    }
+    variant_id = await resolveOrCreateVariant({ fragrance_id, size_ml, concentration });
   }
 
   const { data: listing, error: insertError } = await supabaseAdmin

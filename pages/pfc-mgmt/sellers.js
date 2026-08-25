@@ -325,6 +325,17 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
     setTierLoading(null);
   }
 
+  async function toggleInventoryPilot(seller) {
+    setTierLoading(seller.id + 'pilot');
+    const res = await fetch("/api/admin/sellers", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: seller.id, inventory_pilot_enabled: !seller.inventory_pilot_enabled }),
+    });
+    if (res.ok) { const d = await res.json(); patchLocal(d); }
+    setTierLoading(null);
+  }
+
   const filtered = useMemo(() => {
     let list = sellers;
     if (filter === "active")   list = list.filter((s) => s.status === "active");
@@ -533,6 +544,18 @@ export default function AdminSellers({ identity = ADMIN_IDENTITY }) {
                                     {tierLoading === seller.id + 'recalc' ? '…' : '↺'}
                                   </button>
                                 </div>
+                                <button
+                                  onClick={() => toggleInventoryPilot(seller)}
+                                  disabled={tierLoading === seller.id + 'pilot'}
+                                  title={seller.inventory_pilot_enabled ? 'Inventory pilot enabled — click to disable' : 'Enable structured inventory pilot for this seller'}
+                                  className={`text-[10px] px-1.5 py-0.5 rounded ring-1 transition disabled:opacity-40 w-fit ${
+                                    seller.inventory_pilot_enabled
+                                      ? 'text-sky-300 bg-sky-500/15 ring-sky-500/30'
+                                      : 'text-gray-400 bg-white/5 ring-white/10 hover:text-gray-300'
+                                  }`}
+                                >
+                                  {tierLoading === seller.id + 'pilot' ? '…' : seller.inventory_pilot_enabled ? '📦 Inventory pilot ON' : '📦 Inventory pilot'}
+                                </button>
                               </div>
                             </td>
                             <td className="px-4 py-3">

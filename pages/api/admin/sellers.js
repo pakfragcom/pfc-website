@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const { data, error } = await supabaseAdmin
       .from("sellers")
-      .select("id, name, code, seller_type, status, verification_tier, trust_score, slug, subscription_expires_at, contact_whatsapp, city, added_at, user_id")
+      .select("id, name, code, seller_type, status, verification_tier, trust_score, slug, subscription_expires_at, contact_whatsapp, city, added_at, user_id, inventory_pilot_enabled")
       .order("name");
 
     if (error) return res.status(500).json({ error: error.message });
@@ -61,6 +61,9 @@ export default async function handler(req, res) {
     // Ensure verification_tier is a number if provided
     if (updates.verification_tier !== undefined) {
       updates.verification_tier = Number(updates.verification_tier);
+    }
+    if (updates.inventory_pilot_enabled !== undefined) {
+      updates.inventory_pilot_enabled = !!updates.inventory_pilot_enabled;
     }
 
     const { data, error } = await supabaseAdmin
