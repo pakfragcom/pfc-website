@@ -1,34 +1,8 @@
 import { supabaseAdmin } from '../../lib/supabase-admin';
 import { createApiSupabaseClient } from '../../lib/server-supabase';
+import { getFamilyCatalog, FAMILY_KEYWORDS } from '../../lib/recommendation-cache';
 
-// Family → keyword groups (any match in notes_top/heart/base or name)
-const FAMILY_KEYWORDS = {
-  Oud:       ['oud', 'agarwood', 'aoud', 'bakhoor', 'agar'],
-  Woody:     ['wood', 'cedar', 'sandalwood', 'vetiver', 'patchouli', 'guaiac', 'birch', 'oak'],
-  Fresh:     ['fresh', 'green', 'ozonic', 'aquatic', 'light', 'clean', 'crisp', 'dewy'],
-  Floral:    ['rose', 'jasmine', 'lily', 'iris', 'peony', 'violet', 'gardenia', 'tuberose', 'floral', 'flower'],
-  Sweet:     ['vanilla', 'caramel', 'honey', 'tonka', 'praline', 'gourmand', 'sugar', 'cocoa', 'chocolate'],
-  Spicy:     ['pepper', 'cinnamon', 'cardamom', 'clove', 'ginger', 'saffron', 'spice', 'nutmeg', 'chili'],
-  Citrus:    ['lemon', 'bergamot', 'orange', 'grapefruit', 'lime', 'mandarin', 'citrus', 'yuzu', 'neroli'],
-  Oriental:  ['amber', 'incense', 'resin', 'myrrh', 'benzoin', 'balsam', 'oriental', 'musk', 'labdanum'],
-  Musk:      ['musk', 'ambrette', 'cashmeran', 'musky', 'skin'],
-  Aquatic:   ['aquatic', 'marine', 'ocean', 'sea', 'water', 'watery', 'ozonic'],
-};
-
-function scoreFragrance(frag, families) {
-  const haystack = [
-    frag.name, frag.house, frag.notes_top, frag.notes_heart, frag.notes_base
-  ].join(' ').toLowerCase();
-
-  let score = 0;
-  for (const family of families) {
-    const keywords = FAMILY_KEYWORDS[family] || [];
-    for (const kw of keywords) {
-      if (haystack.includes(kw)) { score += 2; break; } // +2 per matched family
-    }
-  }
-  return score;
-}
+const ALL_FAMILIES = Object.keys(FAMILY_KEYWORDS);
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
@@ -37,53 +11,39 @@ export default async function handler(req, res) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: 'Not authenticated' });
 
-  // Fetch scent profile
+  // Single indexed row — cheap, unlike the catalog-wide work below.
   const { data: profile } = await supabaseAdmin
     .from('scent_profiles')
-    .select('preferred_families, budget_range')
+    .select('preferred_families')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  const families = profile?.preferred_families?.length ? profile.preferred_families : Object.keys(FAMILY_KEYWORDS);
+  const families = profile?.preferred_families?.length ? profile.preferred_families : ALL_FAMILIES;
 
-  // Fetch all approved fragrances
-  const { data: fragrances, error: fragErr } = await supabaseAdmin
-    .from('fragrances')
-    .select('id, name, slug, house, category, image_url, notes_top, notes_heart, notes_base')
-    .eq('status', 'approved');
+  // Shared, TTL-cached across all visitors — the full-table fetch + family
+  // matching only actually runs once per cache window, not once per request.
+  const byFamily = await getFamilyCatalog();
 
-  if (fragErr) return res.status(500).json({ error: fragErr.message });
-
-  // Fetch average ratings per fragrance
-  const { data: ratings } = await supabaseAdmin
-    .from('reviews')
-    .select('fragrance_id, rating_overall')
-    .eq('status', 'approved')
-    .not('fragrance_id', 'is', null);
-
-  const ratingMap = {};
-  for (const r of ratings || []) {
-    if (!ratingMap[r.fragrance_id]) ratingMap[r.fragrance_id] = { sum: 0, count: 0 };
-    ratingMap[r.fragrance_id].sum += Number(r.rating_overall);
-    ratingMap[r.fragrance_id].count += 1;
+  // Merge matches across the user's families; a fragrance matching more of
+  // the user's preferred families ranks higher (mirrors the old +2-per-family
+  // scoring, just computed over the cached per-family lists instead of a
+  // fresh full-table scan).
+  const merged = new Map();
+  for (const family of families) {
+    for (const frag of byFamily[family] || []) {
+      const entry = merged.get(frag.id) || { frag, familyMatches: 0 };
+      entry.familyMatches += 1;
+      merged.set(frag.id, entry);
+    }
   }
 
-  // Score and rank
-  const scored = (fragrances || []).map(frag => {
-    const familyScore = scoreFragrance(frag, families);
-    const ratingEntry = ratingMap[frag.id];
-    const avgRating   = ratingEntry ? ratingEntry.sum / ratingEntry.count : 0;
-    const reviewCount = ratingEntry?.count || 0;
-    // Combined score: family match weighted heavily, then rating
-    const total = familyScore * 10 + avgRating * 2 + Math.min(reviewCount, 10);
-    return { ...frag, avgRating: Math.round(avgRating * 10) / 10, reviewCount, _score: total };
+  const scored = Array.from(merged.values()).map(({ frag, familyMatches }) => {
+    const total = familyMatches * 20 + frag.avgRating * 2 + Math.min(frag.reviewCount, 10);
+    return { ...frag, _score: total };
   });
-
   scored.sort((a, b) => b._score - a._score);
 
   const top = scored.slice(0, 12).map(({ _score, notes_top, notes_heart, notes_base, ...f }) => f);
-
-  // Determine primary matching family for "Because you like X" label
   const primaryFamily = families[0] || null;
 
   res.setHeader('Cache-Control', 'private, max-age=300, stale-while-revalidate=600');
