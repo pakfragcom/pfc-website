@@ -319,6 +319,7 @@ export default function Header() {
             <Link href="/mbp" onClick={handleLinkClick} className="block hover:text-gray-300 transition">MBP</Link>
             <Link href="/fragrances" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Fragrances</Link>
             <Link href="/reviews" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Reviews</Link>
+            <Link href="/iso" onClick={handleLinkClick} className="block hover:text-gray-300 transition">ISO</Link>
             {user && (
               <>
                 <Link href="/reviews/submit" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Write a Review</Link>
