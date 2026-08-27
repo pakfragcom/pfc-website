@@ -1,9 +1,11 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useReducedMotion } from 'framer-motion';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabaseAdmin } from '../../lib/supabase-admin';
+import { useBubbleSimulation } from '../../lib/use-bubble-simulation';
 
 const ACCENTS = [
   '#2a5c4f','#3d6b5e','#1e4d40','#4a7c6f',
@@ -92,6 +94,7 @@ export default function IsoExplore({ board, insights }) {
   const [selected, setSelected] = useState(null);
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [insightsWindow, setInsightsWindow] = useState('7d');
+  const [viewMode, setViewMode] = useState('bubble');
 
   const maxTotal = board.length ? board[0].total : 1;
 
@@ -113,17 +116,33 @@ export default function IsoExplore({ board, insights }) {
                 <p className="text-xs uppercase tracking-[0.25em] text-[#94aea7] mb-2">Live demand</p>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white">What the community is looking for</h1>
               </div>
-              <button
-                onClick={() => setInsightsOpen(v => !v)}
-                aria-expanded={insightsOpen}
-                aria-controls="insights-panel"
-                className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 px-4 py-2 text-xs font-medium text-gray-200 hover:text-white transition"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2" />
-                </svg>
-                Insights
-              </button>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex gap-1 rounded-full bg-white/5 border border-white/10 p-1" role="group" aria-label="View mode">
+                  <button onClick={() => setViewMode('bubble')} aria-pressed={viewMode === 'bubble'}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                      viewMode === 'bubble' ? 'bg-[#2a5c4f] text-white' : 'text-gray-400 hover:text-white'
+                    }`}>
+                    Bubbles
+                  </button>
+                  <button onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                      viewMode === 'list' ? 'bg-[#2a5c4f] text-white' : 'text-gray-400 hover:text-white'
+                    }`}>
+                    List
+                  </button>
+                </div>
+                <button
+                  onClick={() => setInsightsOpen(v => !v)}
+                  aria-expanded={insightsOpen}
+                  aria-controls="insights-panel"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 px-4 py-2 text-xs font-medium text-gray-200 hover:text-white transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2" />
+                  </svg>
+                  Insights
+                </button>
+              </div>
             </div>
             <p className="text-sm text-gray-400 max-w-xl mb-10">
               Ranked by open requests right now. Tap a fragrance to see the BNIB / Partial / Decant breakdown.
@@ -167,6 +186,8 @@ export default function IsoExplore({ board, insights }) {
                   Post an ISO
                 </Link>
               </div>
+            ) : viewMode === 'bubble' ? (
+              <BubbleBoard items={board} onSelect={setSelected} />
             ) : (
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list">
                 {board.map(item => {
@@ -219,6 +240,78 @@ export default function IsoExplore({ board, insights }) {
         {selected && <BreakdownModal item={selected} onClose={() => setSelected(null)} />}
       </div>
     </>
+  );
+}
+
+function BubbleBoard({ items, onSelect }) {
+  const containerRef = useRef(null);
+  const canvasRef = useRef(null);
+  const pointerDownRef = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => {
+      const height = Math.max(360, Math.min(560, window.innerHeight * 0.55));
+      setSize({ width: el.clientWidth, height });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const colorFor = useCallback(name => accentColor(name), []);
+
+  const { hitTest } = useBubbleSimulation({
+    canvasRef, items, width: size.width, height: size.height, reduceMotion, colorFor,
+  });
+
+  function handlePointerDown(e) {
+    pointerDownRef.current = { x: e.clientX, y: e.clientY };
+  }
+
+  function handlePointerUp(e) {
+    const start = pointerDownRef.current;
+    pointerDownRef.current = null;
+    if (!start) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (dx * dx + dy * dy > 100) return; // moved too far — a drag, not a tap
+    const node = hitTest(e.clientX, e.clientY);
+    if (node) onSelect(node);
+  }
+
+  return (
+    <div>
+      <div
+        ref={containerRef}
+        className="relative rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden"
+        style={{ height: size.height || 420 }}
+      >
+        <canvas
+          ref={canvasRef}
+          aria-hidden="true"
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          className="absolute inset-0 cursor-pointer touch-none"
+        />
+      </div>
+      {/* Always-mounted, real accessible equivalent — same data, same click
+          target, just visually hidden while the canvas is showing. Screen
+          readers and keyboard users get full parity, not a degraded mode. */}
+      <ul className="sr-only" role="list">
+        {items.map(item => (
+          <li key={item.key}>
+            <button type="button" onClick={() => onSelect(item)}>
+              {item.name} — {item.total} open {item.total === 1 ? 'request' : 'requests'}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
