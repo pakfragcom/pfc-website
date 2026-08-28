@@ -323,6 +323,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
   const router = useRouter();
   const supabase = useSupabaseClient();
   const [fragrances, setFragrances] = useState([]);
+  const [counts, setCounts] = useState({ pending: 0, approved: 0, no_image: 0, all: 0 });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
@@ -333,11 +334,13 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
   const [imgActionLoading, setImgActionLoading] = useState(null);
   const [imagePickerFrag, setImagePickerFrag] = useState(null);
 
-  async function load() {
-    const res = await fetch('/api/admin/fragrances');
+  async function load(status = filter) {
+    setLoading(true);
+    const res = await fetch(`/api/admin/fragrances?status=${status}`);
     if (res.status === 401) { router.push('/pfc-mgmt/login'); return; }
     const data = await res.json();
-    setFragrances(Array.isArray(data) ? data : []);
+    setFragrances(Array.isArray(data.fragrances) ? data.fragrances : []);
+    setCounts(data.counts || { pending: 0, approved: 0, no_image: 0, all: 0 });
     setLoading(false);
   }
 
@@ -348,7 +351,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
     setImgSubsLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(filter); }, [filter]);
   useEffect(() => { if (activeTab === 'images') loadImgSubs(); }, [activeTab]);
 
   async function approveImg(id) {
@@ -386,7 +389,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: 'approved' }),
     });
-    await load();
+    await load(filter);
     setActionLoading(null);
   }
 
@@ -397,7 +400,7 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: 'pending' }),
     });
-    await load();
+    await load(filter);
     setActionLoading(null);
   }
 
@@ -409,25 +412,17 @@ export default function AdminFragrances({ identity = ADMIN_IDENTITY }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    await load();
+    await load(filter);
     setActionLoading(null);
   }
 
-  const filtered = fragrances.filter(f => {
-    if (filter === 'no_image') return f.status === 'approved' && !f.image_url;
-    return filter === 'all' || f.status === filter;
-  });
-  const counts = {
-    pending:  fragrances.filter(f => f.status === 'pending').length,
-    approved: fragrances.filter(f => f.status === 'approved').length,
-    no_image: fragrances.filter(f => f.status === 'approved' && !f.image_url).length,
-  };
+  const filtered = fragrances;
 
   const FILTERS = [
     { id: 'pending',  label: `Pending (${counts.pending})` },
     { id: 'approved', label: `Approved (${counts.approved})` },
     { id: 'no_image', label: `No Image (${counts.no_image})` },
-    { id: 'all',      label: `All (${fragrances.length})` },
+    { id: 'all',      label: `All (${counts.all})` },
   ];
 
   return (

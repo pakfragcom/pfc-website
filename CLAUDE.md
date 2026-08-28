@@ -8,9 +8,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev      # start dev server on localhost:3000
 npm run build    # production build (also runs next-sitemap postbuild)
 npm start        # serve production build
+npm test         # vitest run — lib/**/*.test.js, enforced in CI on every push/PR
 ```
 
-There are no lint or test scripts — the project has no ESLint config and no test suite.
+There is no ESLint config. There is a small Vitest suite under `lib/**/*.test.js` — extend it when adding logic to `lib/`, and see the Fluid CPU guardrail below before adding a new API route.
+
+### Fluid Active CPU guardrail
+
+In 2026-08, an API route (`/api/recommendations`) ran two unbounded full-table Supabase fetches plus O(n×m) scoring on every homepage view for every logged-in visitor, uncached — it quietly burned through the Vercel Hobby plan's 4 CPU-hour monthly allowance over several weeks. Fixed by caching the shared (non-per-user) part of the computation in-memory with a TTL (`lib/recommendation-cache.js`), the same pattern `lib/rate-limit.js` already used.
+
+Two conventions came out of that incident, both enforced by `lib/query-safety.test.js` in CI:
+
+1. **Every Supabase read in `pages/api/**` must be bounded** — `.limit()`, `.single()`, `.maybeSingle()`, `.range()`, `count:'exact',head:true`, or scoped to one owner's rows via `.eq('*_id', ...)`. A page that fetches an entire table and filters by status client-side (the exact shape of the original `reviews.js`/`orders.js` bug, later also found in `fragrances.js`) is the pattern to avoid — fetch one status server-side, get counts for the others via a parallel `head:true` count query instead. A handful of small, genuinely admin-only tables are allowlisted in that test file with a one-line reason; add to the allowlist only after checking the table's real size and traffic shape, not as a way to silence a failing test.
+2. **Anything computed identically for every visitor must not be recomputed per-request** — especially on high-traffic pages. If it can't be ISR-cached (e.g. because it's gated by session auth), cache it in-memory with a TTL instead, matching `lib/recommendation-cache.js`.
 
 ## Stack
 

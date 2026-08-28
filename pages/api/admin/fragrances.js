@@ -8,16 +8,42 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
-  // GET — list all fragrances ordered by status then name
+  // GET — list fragrances for one filter tab (default: pending), plus counts for all tabs
   if (req.method === 'GET') {
-    const { data, error } = await supabaseAdmin
+    const VALID_FILTERS = ['pending', 'approved', 'no_image', 'all'];
+    const filter = VALID_FILTERS.includes(req.query.status) ? req.query.status : 'pending';
+
+    let query = supabaseAdmin
       .from('fragrances')
       .select('id, name, slug, house, category, concentration, status, image_url, created_at, submitted_by, profiles:submitted_by(display_name)')
       .order('status')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (filter === 'pending' || filter === 'approved') {
+      query = query.eq('status', filter);
+    } else if (filter === 'no_image') {
+      query = query.eq('status', 'approved').or('image_url.is.null,image_url.eq.');
+    }
+
+    const [{ data, error }, { count: pending }, { count: approved }, { count: noImage }, { count: all }] = await Promise.all([
+      query,
+      supabaseAdmin.from('fragrances').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabaseAdmin.from('fragrances').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
+      supabaseAdmin.from('fragrances').select('id', { count: 'exact', head: true }).eq('status', 'approved').or('image_url.is.null,image_url.eq.'),
+      supabaseAdmin.from('fragrances').select('id', { count: 'exact', head: true }),
+    ]);
 
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(data);
+    return res.status(200).json({
+      fragrances: data,
+      counts: {
+        pending: pending ?? 0,
+        approved: approved ?? 0,
+        no_image: noImage ?? 0,
+        all: all ?? 0,
+      },
+    });
   }
 
   // PATCH — update status and/or fragrance details
