@@ -19,5 +19,17 @@ Sentry.init({
     /unsafe-eval/,
     // Facebook in-app browser extension (browser_declutter)
     /browser_declutter/,
+    // Facebook Android in-app browser's own navigation-performance bridge
+    /Error invoking postMessage/,
+    // Instagram iOS in-app browser's own Private Click Measurement bridge
+    /_pcmBridgeCallbackHandler/,
+  ],
+  denyUrls: [
+    // Scripts injected by an in-app browser (Facebook/Instagram WebView
+    // bridges) or a browser extension report as app:// / app:/// pseudo-URLs
+    // rather than a real page URL — never our own bundled code, which is
+    // always served from /_next/static/. Broader and more durable than
+    // chasing each new injected-script message individually.
+    /^app:\/\//,
   ],
 });
