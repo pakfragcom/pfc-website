@@ -119,8 +119,8 @@ pages/
   houses/[slug].js      — individual house profile (ISR)
   reviews/
     index.js            — reviews listing (ISR)
-    [slug].js           — individual review (ISR)
-    submit.js           — review submission form (auth-gated client-side)
+    [slug].js            — individual review (ISR)
+    submit.js            — review submission form (auth-gated client-side)
   u/
     me.js               — private profile page (SSR, auth-gated)
     [username].js       — public profile page (ISR)
@@ -142,3 +142,60 @@ pages/
 ## CSP Note
 
 `next.config.js` has a strict CSP. If you add new external script/connect sources (e.g. a new analytics provider or API), add them to the relevant directive in the `headers()` config or requests will be blocked.
+
+---
+
+## Marketplace rebuild (2026)
+
+Rebuilding pakfrag.com's marketplace so real transactions move off the PFC
+Facebook group and onto the site. This is a merge into this codebase — new
+routes/modules behind a feature flag, not a separate app. Full roadmap and data
+model: `PROJECT_PLAN.md`. Hosting/infra decisions: `INFRA.md`.
+
+### Auth — reuses existing system, does not add a new one
+
+**Correction from an earlier draft of this plan:** the original plan called for
+manually-issued username/password accounts for sellers and members. Now that the
+existing `profiles` / `sellers` / `subscriptions` / RLS / `pfc-mgmt` system is
+visible, that plan is superseded — building a parallel credential system next to
+a working OAuth + status-driven one would mean maintaining two auth systems for
+no real benefit.
+
+- Sellers and Members sign up through the **existing Google OAuth flow**, same as
+  any other user — no new signup path.
+- "Becoming a Seller" is an admin action on the existing `sellers` table
+  (`status: pending → active`), logged in the existing `subscriptions` table —
+  this is the same manual-quarterly-review process already described in
+  `PROJECT_PLAN.md`, just executed through infrastructure that already exists.
+- Password reset is Google's problem, not ours — this removes the
+  admin-mediated-recovery build item entirely.
+- `pfc-mgmt` gets a new permission, `can_manage_marketplace`, following the exact
+  pattern `can_manage_sellers` already uses — not a new portal.
+
+### Before writing new schema
+
+Have Claude Code inspect the actual current schema first (there's likely an
+existing `fragrances`-adjacent table given the `fragrances.js` mention in the
+CPU guardrail note above). Extend what's there rather than creating a duplicate
+"master products" table from scratch. New, genuinely new tables (listings,
+partial-specific attributes, ISO requests, quotes) can use a clear prefix (e.g.
+`mp_`) to stay distinguishable, but don't prefix or duplicate `sellers`,
+`subscriptions`, or `profiles` — extend those directly.
+
+### Search and the Fluid CPU guardrail — read before building
+
+The CPU guardrail above isn't a hypothetical for this feature — it's already
+happened once, on a lighter workload than full-text marketplace search. Any new
+search/listing endpoint must follow the same bounded-query rules
+(`lib/query-safety.test.js`) from the first commit, not as a retrofit. This is
+also a second, concrete reason (on top of the Hobby plan's non-commercial terms)
+to move to Vercel Pro before this feature ships — see `INFRA.md`.
+
+### Do / Don't, updated
+
+- Do extend `sellers`/`subscriptions`/`profiles` and the `pfc-mgmt` permission
+  system rather than building parallel infrastructure.
+- Do check for an existing product/fragrance catalog table before creating one.
+- Don't build a manual username/password system — superseded, see above.
+- Don't add a new unbounded query pattern for search — this bug class has
+  already happened once in this repo.
