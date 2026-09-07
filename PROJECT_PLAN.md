@@ -3,129 +3,153 @@
 ## Background
 
 - AVANX runs the Pakistan Fragrance Community (PFC), a 160,000+ member Facebook
-  group, since 2016. pakfrag.com is the associated website but isn't where real
-  transactions happen today — sellers and buyers connect and quote each other
-  inside Facebook posts, which don't support real search.
+  group, since 2016. Real transactions have historically happened inside
+  Facebook posts, which don't support real search — this project moves that
+  activity onto pakfrag.com.
 - Sellers register with AVANX, pay a manual quarterly subscription (existing
-  sellers: 4-month cycle, new sellers: 3-month cycle), and sell BNIB (brand new in
-  box), Testers, and Vials/Decants.
+  sellers: 4-month cycle, new sellers: 3-month cycle), and sell BNIB (brand new
+  in box), Testers, and Vials/Decants.
 - Partials (opened/used bottles at varying fill levels and conditions) are a
-  separate category, sellable by both subscribed Sellers and unsubscribed Members.
-- There is no Pakistani payment gateway integrated today, so all transactions
-  happen off-platform (typically WhatsApp) after buyer and seller connect.
+  separate category, sellable by both subscribed Sellers and unsubscribed
+  Members.
+- There is no live Pakistani payment gateway today — real transactions happen
+  off-platform (typically WhatsApp) after buyer and seller connect via the site.
 
-## Product decisions (recap — see CLAUDE.md for the short version)
+## Current state (schema audit, September 2026)
 
-- Search-first discovery; ISO/quote is a fallback, not the primary flow.
-- One master product groups BNIB / Tester / Partial listings underneath it.
+A schema audit of the `marketplace-v2` branch found that most of what this
+document originally described as future work is **already built and live**,
+from earlier work on this same project. Status per table, traced through actual
+API routes and pages:
+
+**Fully built, v1-aligned, already shipped:**
+- `listings` — public browse pages, seller submission flow, admin
+  approve/reject/sold/expire. WhatsApp-based, no payment fields.
+- `order_requests` — a "request a fragrance" concierge flow, admin-managed.
+- `iso_requests` — live and in the main nav today (see Decision 1 below).
+- `transactions` / `transaction_items` — logs deals that happened off-platform,
+  feeding seller ratings. Not a charge — a record.
+- `disputes` — buyer-initiated, admin resolve/escalate, can downgrade a
+  seller's verification tier.
+- `seller_trust_scores`, `seller_transaction_stats`, `city_transaction_demand`
+  — working DB views feeding public seller/city stats pages.
+- `fragrances` / `fragrance_houses` / `product_variants` — the catalog spine
+  already exists; this is the "master product" table the original plan called
+  for building from scratch. **Extend this, don't recreate it.**
+
+**Partially built:**
+- `seller_inventory` — built, but gated behind a pilot flag
+  (`sellers.inventory_pilot_enabled`). Structured stock (`stock_qty`,
+  `reserved_qty`) — the substrate for in-platform checkout.
+- `seller_tier_requests` — written by the L2 verification form, but nothing
+  reads it back yet. Needs a small admin view to close the loop.
+
+**Schema + dev-only, no real payment behind it:**
+- `orders` — assumes platform-mediated payment (`pending_payment`/`paid`,
+  `payment_provider`, `paid_at`). Only referenced by an admin dev-simulation
+  route with a comment noting it stands in for a real payment webhook.
+- `reserve_seller_inventory` / `commit_reservation` (Postgres RPCs) — a
+  reserve-then-commit-on-payment flow, currently only called by that dev
+  simulation.
+- `lib/inventory-routing.js` — scores sellers by price/trust/tier/stock to
+  auto-pick a match for a buyer. Built, not yet wired to a real user flow.
+
+This means Phase 1 through most of Phase 3 below are **already done**. The
+remaining work is smaller than the original plan assumed, concentrated in two
+places: a few product decisions that the existing code had implicitly already
+made, and Phase 4 (real payment integration), which has a genuine head start.
+
+## Decisions made in light of the audit
+
+1. **ISO is currently a primary nav feature, not a fallback.** Decision: demote
+   it to fallback-only — remove/de-emphasize in the main nav, and instead
+   surface it as a prompt when a search returns no listings ("Nothing found —
+   post an ISO request instead"). This is a UI/routing change, not a schema
+   change; the underlying `iso_requests` flow stays as-is.
+2. **Checkout model: offer both, buyer choice is the default.** `lib/inventory-routing.js`
+   already implements platform auto-assignment; that becomes an optional
+   "Quick match" fast path rather than the only path. Default experience is
+   browsing `seller_inventory`/`listings` and picking a seller directly. Both
+   paths converge on the same `reserve_seller_inventory` → `commit_reservation`
+   flow — the only difference is how a specific inventory row gets chosen
+   before that call.
+3. **Naming collision to fix before `orders` goes live:** `orders` (in-platform
+   checkout, currently dev-only) and `order_requests` (WhatsApp concierge,
+   live) are easy to confuse. Since `orders` has zero production users today,
+   rename it now (e.g. `checkout_orders`) rather than after real data exists in
+   it.
+
+## Product decisions (recap)
+
+- Search-first discovery; ISO/quote is a fallback (see Decision 1).
+- Fragrance + variant catalog groups BNIB / Tester / Partial listings
+  underneath it via the existing `fragrances`/`product_variants` tables.
 - Listing cards show source: verified Seller vs. unverified Member.
-- Platform accountability (ratings, disputes) covers Sellers only.
-- **Superseded:** manual account provisioning was the original plan before the
-  existing codebase's auth system was visible. Sellers and Members now sign up
-  through the site's existing Google OAuth flow, and "becoming a Seller" is an
-  admin action on the existing `sellers`/`subscriptions` tables — see
-  `CLAUDE.md` § Marketplace rebuild for the corrected version.
-- Subscription-only revenue in v1; escrow/commission is a v2 addition, layered on
-  top of subscriptions, not a replacement for them.
-
-## Data model (core entities)
-
-- **Sellers** — the existing `sellers` table already covers this: status
-  (`active`/`grace`/`expired`/`pending`), `user_id` link to the OAuth account.
-  Likely just needs new columns for cycle length (3 vs. 4 month) and a
-  verification badge flag rather than a new table.
-- **Members** — already covered by `profiles.role = 'member'`. No new table
-  needed; a Member is simply any authenticated user without an active `sellers`
-  row.
-- **Master Products** — check for an existing fragrance/product catalog table
-  before building this (see CLAUDE.md note re: `fragrances.js`). If one exists,
-  extend it; if not, this is the one genuinely new core table.
-- **Listings** — a Seller's or Member's specific instance of a master product:
-  price, condition, photos, listing type (BNIB / Tester / Partial), stock status.
-- **Partial attributes** — fill %, seal/box condition, batch visibility, lister
-  type (Seller or Member).
-- **ISO Requests** (v1.5) — buyer posts what they want when search turns up
-  nothing.
-- **Quotes** (v1.5) — Seller responses to an ISO request.
-- **Subscriptions** — manually tracked per Seller; drives listing visibility.
+- Platform accountability (ratings, disputes) covers Sellers only — already
+  reflected in how `disputes` is scoped to logged `transactions`.
+- Sellers and Members sign up through the existing Google OAuth flow;
+  "becoming a Seller" is an admin action on `sellers`/`subscriptions` — no new
+  auth system.
+- Subscription-only revenue in v1; the checkout/escrow layer (Phase 4) is
+  additive, not a replacement, and turns on only when a real payment gateway
+  replaces the dev simulation.
 
 ## Phase 0 — Cold-start catalog seeding
 
-**Goal:** launch with real inventory, not an empty marketplace.
+**Goal:** make sure the existing `fragrances` catalog and current `listings`
+actually reflect real, current seller inventory before any public push.
 
-- Seed the master product catalog first, using your own knowledge of the
-  200–500 fragrances that account for most PFC volume, before any seller touches
-  the system.
 - Use Claude to extract structured listings (product, brand, size, price,
-  condition, seller) from existing seller posts, price lists, or screenshots.
+  condition, seller) from existing seller posts, price lists, or screenshots,
+  matched against the existing `fragrances`/`product_variants` catalog.
 - **Every AI-extracted batch goes through human review before publishing.**
-  Never auto-publish extracted prices or product matches directly — a misread
-  price or wrong product match at launch is exactly the kind of error that costs
-  early trust.
-- White-glove onboard your 15–20 most active sellers: have your team enter their
-  current inventory for them once, rather than asking for self-service data entry
-  up front.
+- White-glove onboard the most active sellers whose current listings are stale
+  or missing, rather than waiting for self-service updates.
 
-## Phase 1 — Core platform build
+## Phase 1–3 — Mostly shipped; remaining gaps
 
-- Extend `pfc-mgmt` with a `can_manage_marketplace` permission (same pattern as
-  `can_manage_sellers`) for subscription/expiry tracking and auto-hiding
-  listings when a Seller's subscription lapses — not a new admin portal.
-- Auth: none needed — reuses existing OAuth. See CLAUDE.md correction.
-- Master product catalog with fuzzy-match-before-create (suggest existing matches
-  before allowing a new entry) and an admin merge tool for fixing duplicates after
-  the fact.
-- Search across the catalog; product pages grouping BNIB / Tester / Partial
-  listings.
-- WhatsApp-connect call-to-action on each listing (no in-platform checkout in v1).
-- Seller verification badges vs. "Member listing — deal directly" labeling.
+- Apply Decision 1 (demote ISO from main nav to fallback prompt).
+- Close the `seller_tier_requests` loop with a small admin read view.
+- Confirm search quality against the real catalog is good enough for public
+  traffic before any wider announcement — this is now a content/tuning task,
+  not a build task.
+- Have a basic Terms of Service and privacy note in place before wider public
+  push, if not already present — should state plainly that platform
+  accountability covers Sellers only, not Member-to-Member partial deals.
 
-## Phase 2 — Soft launch
+## Phase 4 — Real payment integration (has a head start)
 
-- Launch quietly to the seeded, white-glove-onboarded sellers only.
-- Validate search quality and onboarding friction before any public
-  announcement — an empty or broken-feeling catalog at public launch is hard to
-  recover from.
-
-## Phase 3 — Public launch + ISO fallback
-
-- Open to the wider PFC community once search reliably surfaces real inventory.
-- Add the ISO/quote flow as the fallback for items nobody has listed yet.
-- Add Seller ratings/reviews and a buyer reporting channel.
-- Have a basic Terms of Service and privacy note in place before this point —
-  it should state plainly that platform accountability covers Sellers only, not
-  Member-to-Member partial deals.
-
-## Phase 4 — Escrow and commission (v2)
-
-- Integrate a State Bank of Pakistan–regulated payment provider (e.g. PayFast,
-  Safepay) or a unified aggregator (e.g. Simpaisa, Rapid Gateway) that bundles
-  JazzCash, Easypaisa, and cards under one integration.
-- Build an optional "Fulfilled" checkout: buyer pays through the platform,
-  platform holds funds, releases to Seller minus commission after delivery is
-  confirmed (or after a no-dispute window).
-- Start with higher-value BNIB listings only — this is additive to the
-  subscription model, not a replacement, and it should launch only once trust and
-  transaction volume justify the added complexity (refunds, disputes, PSP
-  onboarding/KYC).
+- Rename `orders` → `checkout_orders` (Decision 3) before connecting it to
+  anything real.
+- Replace `dev-simulate-checkout.js` with a real State Bank of
+  Pakistan–regulated payment provider (e.g. PayFast, Safepay) or unified
+  aggregator (e.g. Simpaisa, Rapid Gateway) calling `commit_reservation` from
+  an actual webhook instead of the dev harness.
+- Build the buyer-facing checkout UI: default browse-and-choose against
+  `seller_inventory`, with "Quick match" as the optional auto-assign path
+  (Decision 2) using the existing `lib/inventory-routing.js` scoring.
+- Turn on `sellers.inventory_pilot_enabled` for a small test group before a
+  full rollout — the pilot flag already exists for exactly this.
+- Start with higher-value BNIB listings only; this stays additive to the
+  subscription model, launching once trust and transaction volume justify the
+  added complexity (refunds, disputes, PSP onboarding/KYC).
 
 ## Open inputs still needed
 
-- Who is building this, and on what timeline/budget? This determines whether the
-  phase sequence above is a matter of weeks or several months.
-- Confirm whether this ships as new routes on the existing pakfrag.com domain or
-  a subdomain — recommendation is new routes on the same app (see CLAUDE.md).
-- Initial seed list of top 200–500 products for Phase 0.
+- Who is building this, and on what timeline/budget?
+- Confirm the ISO nav-demotion UX (Decision 1) doesn't break any existing
+  user habits — some buyers may already rely on ISO as their main entry point
+  given it's been live and prominent.
 
 ## Risks worth tracking
 
-- **Cold-start:** a marketplace with search but no real listings is worse than
-  Facebook. Don't publicly launch before Phase 0/2 are genuinely done.
-- **Off-platform trust exposure:** no escrow in v1 means transactions happen
-  outside platform visibility. Ratings and a reporting channel for Sellers are the
-  main defense.
-- **Catalog curation load:** fuzzy-match-before-create plus a merge tool reduces
-  this, but someone still owns ongoing catalog quality as an operational task, not
-  a one-time build.
-- **Scope discipline:** commission/escrow is deferred to v2 for good reason — resist
-  pulling it forward into v1.
+- **Off-platform trust exposure (v1):** already mitigated in code via
+  `transactions`/`disputes`/`seller_trust_scores` — keep these central to the
+  experience rather than treating them as an add-on.
+- **Checkout complexity (v2):** two fulfillment paths (browse vs. quick-match)
+  converging on one reservation system is elegant but needs solid test
+  coverage before real money moves through it — this is the highest-stakes
+  code in the whole project.
+- **Scope discipline:** it's tempting to rush the payment integration now that
+  so much scaffolding already exists — resist connecting a real PSP before the
+  naming collision (Decision 3) and reservation-flow testing are done.
