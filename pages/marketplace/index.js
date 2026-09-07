@@ -280,13 +280,45 @@ export default function MarketplacePage({ listings = [], lastUpdated }) {
 
           {/* Grid */}
           {filtered.length === 0 ? (
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] py-20 text-center">
-              <p className="text-gray-400 font-medium">No listings found</p>
-              <p className="text-sm text-gray-400 mt-1">Try adjusting your filters, or be the first to post one.</p>
-              <Link href="/sell" className="inline-block mt-5 rounded-xl border border-white/15 px-5 py-2.5 text-sm text-gray-300 hover:text-white hover:border-white/30 transition">
-                + Post a listing
-              </Link>
-            </div>
+            query.trim() ? (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] py-16 px-6 text-center">
+                <p className="text-white font-semibold">
+                  Nothing found for &ldquo;{query.trim()}&rdquo;
+                </p>
+                <p className="text-sm text-gray-400 mt-1.5 max-w-sm mx-auto">
+                  No active listings match your search. Post an ISO request and sellers
+                  can reach out when they have it.
+                </p>
+                <Link
+                  href={`/iso/post?q=${encodeURIComponent(query.trim())}`}
+                  className="inline-flex items-center gap-2 mt-5 rounded-xl bg-gradient-to-r from-[#2a5c4f] to-[#557d72] px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110 transition"
+                >
+                  Post an ISO request
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+                <p className="mt-4 text-xs text-gray-500">
+                  Or{' '}
+                  <button
+                    type="button"
+                    onClick={() => setQuery('')}
+                    className="text-gray-400 hover:text-white underline underline-offset-2 transition"
+                  >
+                    clear your search
+                  </button>
+                  .
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] py-20 text-center">
+                <p className="text-gray-400 font-medium">No listings found</p>
+                <p className="text-sm text-gray-400 mt-1">Try adjusting your filters, or be the first to post one.</p>
+                <Link href="/sell" className="inline-block mt-5 rounded-xl border border-white/15 px-5 py-2.5 text-sm text-gray-300 hover:text-white hover:border-white/30 transition">
+                  + Post a listing
+                </Link>
+              </div>
+            )
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filtered.map(l => <ListingCard key={l.id} listing={l} />)}

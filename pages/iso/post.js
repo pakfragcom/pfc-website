@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { supabase } from '../../lib/supabase';
@@ -42,10 +43,22 @@ export default function PostIso() {
 
   const searchTimer = useRef(null);
   const stepHeadingRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     stepHeadingRef.current?.focus();
   }, [step]);
+
+  // Prefill the fragrance name when arriving from a marketplace search that
+  // returned nothing (e.g. /iso/post?q=Aventus). Entry-point convenience only —
+  // the visitor can still edit or clear it.
+  const prefilledRef = useRef(false);
+  useEffect(() => {
+    if (!router.isReady || prefilledRef.current) return;
+    prefilledRef.current = true;
+    const q = typeof router.query.q === 'string' ? router.query.q.trim() : '';
+    if (q) setFragranceName(q.slice(0, 200));
+  }, [router.isReady, router.query.q]);
 
   async function handleFragranceInput(val) {
     setFragranceName(val);
