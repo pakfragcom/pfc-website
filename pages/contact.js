@@ -34,8 +34,8 @@ const CONTACT_ITEMS = [
     ),
     label: 'Instagram',
     description: 'Follow our community updates, featured fragrances, and new brand listings.',
-    href: 'https://instagram.com/pakfragcom_mbp',
-    cta: '@pakfragcom_mbp',
+    href: 'https://www.instagram.com/pakfragcom/?hl=en',
+    cta: '@pakfragcom',
   },
 ]
 
@@ -48,7 +48,7 @@ export default function Contact() {
         <meta name="robots" content="index,follow" />
       </Head>
 
-      <div className="bg-black text-white font-sans">
+      <div className="bg-[var(--bg)] text-white font-sans">
         <Header />
 
         <main className="max-w-3xl mx-auto px-6 py-16 sm:py-24">
