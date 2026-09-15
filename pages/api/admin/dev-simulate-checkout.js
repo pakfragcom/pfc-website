@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
   // 1) Draft order — mirrors what the real checkout API creates in Sprint 4
   const { data: order, error: orderError } = await supabaseAdmin
-    .from('orders')
+    .from('checkout_orders')
     .insert({
       buyer_id,
       status: 'pending_payment',
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     p_buyer_id: buyer_id,
   });
   if (reserveError) {
-    await supabaseAdmin.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
+    await supabaseAdmin.from('checkout_orders').update({ status: 'cancelled' }).eq('id', order.id);
     return res.status(400).json({ error: `reserve failed: ${reserveError.message}` });
   }
 
@@ -71,11 +71,11 @@ export default async function handler(req, res) {
     p_unit_price_pkr: inventoryRow.price_pkr,
   });
   if (commitError) {
-    await supabaseAdmin.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
+    await supabaseAdmin.from('checkout_orders').update({ status: 'cancelled' }).eq('id', order.id);
     return res.status(400).json({ error: `commit failed: ${commitError.message}` });
   }
 
-  await supabaseAdmin.from('orders').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', order.id);
+  await supabaseAdmin.from('checkout_orders').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', order.id);
 
   return res.status(200).json({ ok: true, order_id: order.id, line_item_id: lineItemId, seller_inventory_id: targetInventoryId });
 }

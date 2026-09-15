@@ -45,9 +45,10 @@ API routes and pages:
   reads it back yet. Needs a small admin view to close the loop.
 
 **Schema + dev-only, no real payment behind it:**
-- `orders` — assumes platform-mediated payment (`pending_payment`/`paid`,
-  `payment_provider`, `paid_at`). Only referenced by an admin dev-simulation
-  route with a comment noting it stands in for a real payment webhook.
+- `checkout_orders` (renamed from `orders`, Decision 3) — assumes
+  platform-mediated payment (`pending_payment`/`paid`, `payment_provider`,
+  `paid_at`). Only referenced by an admin dev-simulation route with a comment
+  noting it stands in for a real payment webhook.
 - `reserve_seller_inventory` / `commit_reservation` (Postgres RPCs) — a
   reserve-then-commit-on-payment flow, currently only called by that dev
   simulation.
@@ -73,11 +74,12 @@ made, and Phase 4 (real payment integration), which has a genuine head start.
    paths converge on the same `reserve_seller_inventory` → `commit_reservation`
    flow — the only difference is how a specific inventory row gets chosen
    before that call.
-3. **Naming collision to fix before `orders` goes live:** `orders` (in-platform
-   checkout, currently dev-only) and `order_requests` (WhatsApp concierge,
-   live) are easy to confuse. Since `orders` has zero production users today,
-   rename it now (e.g. `checkout_orders`) rather than after real data exists in
-   it.
+3. **Naming collision fixed:** `orders` (in-platform checkout, dev-only) and
+   `order_requests` (WhatsApp concierge, live) were easy to confuse. Since
+   `orders` had zero rows, it was renamed to `checkout_orders` (table, its
+   indexes/constraints, and the owner-read RLS policy). The
+   `reserve_seller_inventory` / `commit_reservation` RPCs never referenced it by
+   name, and the `order_line_items` FK followed the rename automatically.
 
 ## Product decisions (recap)
 
@@ -119,8 +121,7 @@ actually reflect real, current seller inventory before any public push.
 
 ## Phase 4 — Real payment integration (has a head start)
 
-- Rename `orders` → `checkout_orders` (Decision 3) before connecting it to
-  anything real.
+- ~~Rename `orders` → `checkout_orders` (Decision 3)~~ — done.
 - Replace `dev-simulate-checkout.js` with a real State Bank of
   Pakistan–regulated payment provider (e.g. PayFast, Safepay) or unified
   aggregator (e.g. Simpaisa, Rapid Gateway) calling `commit_reservation` from
