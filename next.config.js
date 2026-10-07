@@ -41,10 +41,20 @@ const nextConfig = {
         ],
       },
       // 3) HTML — short TTL at the edge, revalidate quickly
+      // Excludes /api/* — API routes must never be edge-cached (some are
+      // per-session/auth-gated; even public ones like sellers search/blacklist
+      // need to reflect Supabase writes immediately, not a stale edge copy).
       {
-        source: '/:path*',
+        source: '/:path((?!api/).*)',
         headers: [
           { key: 'Cache-Control', value: `public, s-maxage=${ONE_DAY}, max-age=0, must-revalidate` },
+        ],
+      },
+      // 3b) API routes — never cached at the edge
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store' },
         ],
       },
       // 4) Security headers (baseline; we can tighten CSP later with nonces)
