@@ -36,6 +36,18 @@ const CopyIcon = () => (
   </svg>
 );
 
+const WarnIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 shrink-0" aria-hidden="true">
+    <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const ChevronIcon = ({ open }) => (
+  <svg viewBox="0 0 24 24" fill="none" className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">
+    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 // --------------------------- PAGE -------------------------------
 export default function VerifySellerPage() {
   const [query, setQuery] = useState("");
@@ -44,6 +56,10 @@ export default function VerifySellerPage() {
   const [copied, setCopied] = useState(null);
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [showBlacklist, setShowBlacklist] = useState(false);
+  const [blacklist, setBlacklist] = useState([]);
+  const [blacklistLoading, setBlacklistLoading] = useState(false);
+  const [blacklistFetched, setBlacklistFetched] = useState(false);
   const inputRef = useRef(null);
   const debounceRef = useRef(null);
 
@@ -85,6 +101,25 @@ export default function VerifySellerPage() {
     setQuery("");
     setSelected(null);
     inputRef.current?.focus();
+  };
+
+  const handleToggleBlacklist = async () => {
+    const next = !showBlacklist;
+    setShowBlacklist(next);
+    if (next && !blacklistFetched) {
+      setBlacklistLoading(true);
+      try {
+        const res = await fetch('/api/sellers/blacklist');
+        const data = await res.json();
+        setBlacklist(Array.isArray(data) ? data : []);
+        trackEvent("blacklist_viewed", { result_count: Array.isArray(data) ? data.length : 0 });
+      } catch {
+        setBlacklist([]);
+      } finally {
+        setBlacklistLoading(false);
+        setBlacklistFetched(true);
+      }
+    }
   };
 
   return (
@@ -299,6 +334,42 @@ export default function VerifySellerPage() {
             </div>
           </div>
         )}
+
+        {/* Blacklisted sellers */}
+        <div className="mt-10">
+          <button
+            onClick={handleToggleBlacklist}
+            className="flex w-full items-center justify-between gap-3 rounded-2xl border border-red-500/20 bg-red-500/5 px-5 py-4 text-left hover:bg-red-500/8 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+            aria-expanded={showBlacklist}
+          >
+            <span className="flex items-center gap-2.5 text-red-300">
+              <WarnIcon />
+              <span className="text-sm font-semibold">Blacklisted Sellers</span>
+            </span>
+            <ChevronIcon open={showBlacklist} />
+          </button>
+
+          {showBlacklist && (
+            <div className="mt-3 rounded-2xl border border-red-500/15 bg-red-500/5 px-5 py-4">
+              {blacklistLoading ? (
+                <p className="text-sm text-gray-400">Loading…</p>
+              ) : blacklist.length === 0 ? (
+                <p className="text-sm text-gray-400">No blacklisted sellers on record.</p>
+              ) : (
+                <ul className="divide-y divide-white/5">
+                  {blacklist.map((entry, i) => (
+                    <li key={i} className="py-3 first:pt-0 last:pb-0">
+                      <p className="text-sm font-medium text-red-200">{entry.name}</p>
+                      {entry.reason && (
+                        <p className="mt-0.5 text-xs text-red-200/60">{entry.reason}</p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Footer note */}
         <p className="mt-12 text-xs text-gray-400 text-center">
