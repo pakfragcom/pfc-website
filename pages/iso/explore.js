@@ -86,7 +86,7 @@ export async function getStaticProps() {
 
   return {
     props: { board, insights },
-    revalidate: 180,
+    revalidate: 900,
   };
 }
 
