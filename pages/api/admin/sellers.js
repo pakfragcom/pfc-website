@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "../../../lib/supabase-admin";
 import { resolveApiAuth } from "../../../lib/api-auth";
+import { invalidateSellersCache } from "../../../lib/sellers-cache";
 
 export default async function handler(req, res) {
   const auth = await resolveApiAuth(req, res);
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
 
     if (error) return res.status(500).json({ error: error.message });
 
+    invalidateSellersCache();
     try { await res.revalidate("/tools/verify-seller"); } catch (_) {}
 
     return res.status(201).json(data);
@@ -75,6 +77,7 @@ export default async function handler(req, res) {
 
     if (error) return res.status(500).json({ error: error.message });
 
+    invalidateSellersCache();
     try { await res.revalidate("/tools/verify-seller"); } catch (_) {}
 
     return res.status(200).json(data);
@@ -88,6 +91,7 @@ export default async function handler(req, res) {
     const { error } = await supabaseAdmin.from("sellers").delete().eq("id", id);
     if (error) return res.status(500).json({ error: error.message });
 
+    invalidateSellersCache();
     try { await res.revalidate("/tools/verify-seller"); } catch (_) {}
 
     return res.status(200).json({ ok: true });
