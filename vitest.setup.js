@@ -1,3 +1,5 @@
+
+
 import crypto from 'crypto';
 
 // admin-auth.js reads ADMIN_PASS_HASH once at module-load time, so it must be
@@ -9,3 +11,7 @@ process.env.ADMIN_PASS_HASH = crypto
   .createHash('sha256')
   .update(TEST_ADMIN_PASSWORD)
   .digest('hex');
+
+// admin-auth.js signs session cookies with a secret independent of the
+// password hash; the signing tests need it present at module-load time.
+process.env.ADMIN_SESSION_SECRET = 'test-session-secret-not-a-real-secret';
