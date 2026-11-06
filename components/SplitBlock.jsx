@@ -135,7 +135,7 @@ export default function SplitBlock({ topRated = [] }) {
                 </p>
                 <h3 id="splitblock-title" className="relative mb-4 text-3xl font-semibold leading-tight text-white md:text-4xl">
                   <span>Discover.</span>{' '}
-                  <span>Review.</span>{' '}
+                  <span>Verify.</span>{' '}
                   <span className="bg-clip-text text-transparent"
                     style={{ backgroundImage: 'linear-gradient(90deg, var(--brand-2), var(--brand-3))' }}>
                     Trade.
@@ -144,7 +144,7 @@ export default function SplitBlock({ topRated = [] }) {
                 <p className="relative mb-8 text-base leading-relaxed text-white/70">
                   Whether you&apos;re searching for a signature scent or sharing your experience,
                   <span className="text-white/90"> PFC</span> is the trusted hub for perfume enthusiasts across Pakistan.
-                  Join our community, read real reviews, and get ready for our upcoming marketplace.
+                  Join our community, verify sellers before you buy, and get ready for our upcoming marketplace.
                 </p>
                 <ul className="relative mb-8 space-y-3.5 text-sm text-white/80">
                   <Bullet>Curated discussions &amp; real-world wear tests</Bullet>
@@ -157,10 +157,10 @@ export default function SplitBlock({ topRated = [] }) {
                     style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3))' }}>
                     Join the Community
                   </a>
-                  <a href="/reviews"
+                  <Link href="/tools/verify-seller"
                     className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/10">
-                    Read Reviews
-                  </a>
+                    Verify a Seller
+                  </Link>
                 </div>
               </>
             )}

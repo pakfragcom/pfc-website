@@ -226,21 +226,9 @@ export default function Header() {
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
                       My Profile
                     </Link>
-                    <Link href="/reviews/submit" onClick={handleLinkClick}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
-                      Write a Review
-                    </Link>
-                    <Link href="/fragrances/submit" onClick={handleLinkClick}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
-                      Submit a Fragrance
-                    </Link>
                     <Link href="/log-transaction" onClick={handleLinkClick}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
                       Log a Transaction
-                    </Link>
-                    <Link href="/onboarding/scent-quiz" onClick={handleLinkClick}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
-                      🧬 Scent Quiz
                     </Link>
                     <div className="border-t border-white/10 mt-1 pt-1">
                       <Link href="/sellers/dashboard" onClick={handleLinkClick}
@@ -317,15 +305,10 @@ export default function Header() {
           <div className="space-y-4 text-center text-sm uppercase tracking-wide">
             <Link href="/" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Home</Link>
             <Link href="/mbp" onClick={handleLinkClick} className="block hover:text-gray-300 transition">MBP</Link>
-            <Link href="/fragrances" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Fragrances</Link>
-            <Link href="/reviews" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Reviews</Link>
             <Link href="/iso" onClick={handleLinkClick} className="block hover:text-gray-300 transition">ISO</Link>
             {user && (
               <>
-                <Link href="/reviews/submit" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Write a Review</Link>
-                <Link href="/fragrances/submit" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Submit a Fragrance</Link>
                 <Link href="/log-transaction" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Log a Transaction</Link>
-                <Link href="/onboarding/scent-quiz" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Scent Quiz</Link>
                 <Link href="/sellers/dashboard" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Seller Dashboard</Link>
               </>
             )}

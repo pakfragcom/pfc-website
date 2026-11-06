@@ -18,6 +18,11 @@ module.exports = {
     '/pfc-mgmt/*',
     '/u/me',
     '/auth/callback',
+    '/fragrances',
+    '/fragrances/*',
+    '/reviews',
+    '/reviews/*',
+    '/onboarding/scent-quiz',
   ],
   changefreq: 'weekly',
   priority: 0.7,
@@ -40,15 +45,11 @@ module.exports = {
     const supabase = createClient(url, key);
 
     const [
-      { data: fragrances, error: fragrancesError },
-      { data: reviews, error: reviewsError },
       { data: houses, error: housesError },
       { data: sellers, error: sellersError },
       { data: profiles, error: profilesError },
       { data: listings, error: listingsError },
     ] = await Promise.all([
-      supabase.from('fragrances').select('slug').eq('status', 'approved'),
-      supabase.from('reviews').select('slug').eq('status', 'approved'),
       supabase.from('fragrance_houses').select('slug').in('status', ['active', 'grace']),
       supabase.from('sellers').select('slug').in('status', ['active', 'grace']),
       supabase.from('profiles').select('username').not('username', 'is', null),
@@ -56,21 +57,19 @@ module.exports = {
     ]);
 
     for (const [label, err] of [
-      ['fragrances', fragrancesError], ['reviews', reviewsError], ['houses', housesError],
+      ['houses', housesError],
       ['sellers', sellersError], ['profiles', profilesError], ['listings', listingsError],
     ]) {
       if (err) console.error(`[next-sitemap] ${label} fetch error:`, err.message);
     }
 
     const paths = [];
-    for (const f of fragrances || []) if (f.slug) paths.push(await config.transform(config, `/fragrances/${f.slug}`));
-    for (const r of reviews || [])    if (r.slug) paths.push(await config.transform(config, `/reviews/${r.slug}`));
     for (const h of houses || [])     if (h.slug) paths.push(await config.transform(config, `/houses/${h.slug}`));
     for (const s of sellers || [])    if (s.slug) paths.push(await config.transform(config, `/sellers/${s.slug}`));
     for (const p of profiles || [])   if (p.username) paths.push(await config.transform(config, `/u/${p.username}`));
     for (const l of listings || [])   paths.push(await config.transform(config, `/marketplace/${l.id}`));
 
-    console.log(`[next-sitemap] Added ${paths.length} dynamic paths (${(fragrances||[]).length} fragrances, ${(reviews||[]).length} reviews, ${(houses||[]).length} houses, ${(sellers||[]).length} sellers, ${(profiles||[]).length} profiles, ${(listings||[]).length} listings)`);
+    console.log(`[next-sitemap] Added ${paths.length} dynamic paths (${(houses||[]).length} houses, ${(sellers||[]).length} sellers, ${(profiles||[]).length} profiles, ${(listings||[]).length} listings)`);
     return paths;
   },
 }
