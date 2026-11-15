@@ -1,5 +1,16 @@
 # PakFrag marketplace — project plan
 
+> **Status, 2026-11-16 — this plan is superseded in two places.** (1) The
+> Phase 4 "real payment gateway" direction is replaced by a **dropship,
+> advance-bank-transfer shop**: PFC (Abdullah) is merchant of record, customers
+> pay PFC's bank and upload a receipt, PFC verifies manually and forwards the
+> order to the seller; on-request items go through a quotation step first. No
+> card/PSP integration. (2) The `marketplace-v2` branch referenced below is
+> **retired**; all work happens on `shop`, branched from `main` (production).
+> Phase 0 (security cleanup, Next 16 upgrade, transaction-submit hardening)
+> shipped 2026-11-15. The existing tables below are still the foundation —
+> extend them, don't rebuild.
+
 ## Background
 
 - AVANX runs the Pakistan Fragrance Community (PFC), a 160,000+ member Facebook
