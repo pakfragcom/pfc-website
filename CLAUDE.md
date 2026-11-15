@@ -24,7 +24,7 @@ Two conventions came out of that incident, both enforced by `lib/query-safety.te
 
 ## Stack
 
-- **Next.js 13** (Pages Router — not App Router) with React 18
+- **Next.js 16** (Pages Router — not App Router, Turbopack builds) with React 19. Request-time routing lives in `proxy.js` (the Next 16 name for middleware) and client-side Sentry init in `instrumentation-client.js`
 - **Tailwind CSS** for all styling; no CSS modules or styled-components
 - **Supabase** as database, auth, and storage
 - **Framer Motion** for animations

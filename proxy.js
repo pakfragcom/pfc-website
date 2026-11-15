@@ -26,7 +26,7 @@ function isBlockedBot(ua) {
   return BLOCKED_UA_PATTERNS.some(p => lower.includes(p));
 }
 
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl;
   const ua = request.headers.get('user-agent') || '';
 

@@ -1,14 +1,16 @@
 /** @type {import('next').NextConfig} */
-const { withSentryConfig } = require('@sentry/nextjs');
+const { withSentryConfig } = require('@sentry/nextjs/config');
 const ONE_YEAR = 60 * 60 * 24 * 365
 const ONE_DAY = 60 * 60 * 24
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
 
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Next 16 defaults qualities to [75]; Hero uses quality={90}, so allow it
+    // explicitly or it gets coerced down (and direct ?q=90 requests 400).
+    qualities: [75, 90],
     remotePatterns: [
       // Allow forum assets (avatars, images) if you embed them
       { protocol: 'https', hostname: 'forum.pakfrag.com' },
