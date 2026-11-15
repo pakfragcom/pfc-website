@@ -105,8 +105,16 @@ The identity object shape used everywhere:
 | `reviews` | Community fragrance reviews; `status`: `pending`, `approved`, `rejected` |
 | `subscriptions` | Payment ledger for seller subscriptions |
 | `moderator_permissions` | Per-moderator section toggles (`user_id` PK) |
+| `blacklisted_sellers` | Public scam blacklist shown on verify-seller; edited directly in Supabase |
+| `fragrances` / `product_variants` | Catalog spine; a variant has `size_ml`, `concentration`, `kind` (bottle / decant / tester) |
+| `shop_products` | What PFC itself sells (Phase 2+): one row per variant with PFC's `price_pkr`, `availability` (in_stock / on_request), internal `source_seller_id` / `seller_cost_pkr`, `authenticity_badge`, `is_active` |
+| `checkout_orders` / `order_line_items` | Shop orders. Status: awaiting_quote, quoted, pending_payment, paid, sent_to_seller, shipped, delivered, or cancelled (legacy processing / partially_fulfilled / fulfilled / refunded still valid) |
+| `payment_receipts` | Bank-transfer receipts (file in the private `order-receipts` bucket); `status` pending / verified / rejected |
+| `customer_addresses` | Saved customer addresses (owner-read RLS) |
+| `shop_settings` | Admin-edited key/value: `shop_enabled`, `bank_details`, `shipping_policy`, `cancellation_policy`, `order_contact_whatsapp`. RLS on with no policies: the server reads it with the service role |
+| `seller_inventory`, `cart_reservations`, `reserve_seller_inventory()` / `commit_reservation()` | Seller-managed stock and the reserve-then-commit flow, kept for the future seller dashboard; `shop_products.source_inventory_id` can point at it later |
 
-RLS is enabled on all tables. Public reads are restricted to active/grace status. `supabaseAdmin` bypasses RLS for server-side operations.
+RLS is enabled on all tables. Public reads are restricted to active/grace status. No browser role has INSERT/UPDATE/DELETE on any table (revoked 2026-11-15, re-applied to the Phase 2 tables): every write goes through a server route with `supabaseAdmin`. Schema changes are kept as SQL files under `supabase/migrations/` and applied through the Supabase MCP or the SQL Editor.
 
 ## Page Structure
 
