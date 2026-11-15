@@ -60,3 +60,13 @@ the homepage became fully static.
 Canonical fix (SEO.jsx) and the MBP accent-text contrast fix confirmed. The
 verify-seller breadcrumb underline (a11y 97 → expected 100) ships with the
 next deploy; re-check it then.
+
+## After the homepage motion pass + verify-seller underline — 2026-11-16 (live, same method)
+
+| Page | Perf | A11y | Best | SEO | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|---|
+| `/` (new scroll motion + 3 feature sections) | **99** (was 97) | 100 | 100 | 100 | 0.9 s | 120 ms | 0 |
+| `/tools/verify-seller` | 99 | **100** (was 97) | 100 | 100 | 0.8 s | 130 ms | 0 |
+
+All four audited pages now sit at a11y 100 / best 100 / SEO 100 with CLS 0.
+Scroll-linked motion is transform-only and did not introduce layout shift.
