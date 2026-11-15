@@ -2,11 +2,11 @@
 const siteName = "PFC - Pakistan's Fragrance Community";
 const siteUrl = "https://pakfrag.com";
 const defaultDescription =
-  "Pakistan's premier fragrance community. 100,000+ members. Real reviews of designer, Middle Eastern, niche & local Pakistani perfume brands. Verified sellers. Free tools.";
+  "Pakistan's premier fragrance community. 100,000+ members. Verify a seller before you buy, check the public blacklist, explore Pakistani fragrance houses, and use free fragrance tools.";
 
 const seoConfig = {
   "/": {
-    title: siteName + " | Reviews, Verified Sellers & Local Brands",
+    title: siteName + " | Verified Sellers, Fragrance Houses & Tools",
     description: defaultDescription,
     url: siteUrl,
   },
@@ -25,8 +25,26 @@ const seoConfig = {
   "/tools/verify-seller": {
     title: "Verify a Fragrance Seller Pakistan - PFC Trusted Seller Check",
     description:
-      "Check if a Pakistani fragrance seller is PFC-verified before you buy. 100+ verified sellers. Search by name or code.",
+      "Check if a Pakistani fragrance seller is PFC-verified before you buy. 170+ verified sellers and a public blacklist. Search by name or code.",
     url: siteUrl + "/tools/verify-seller",
+  },
+  "/log-transaction": {
+    title: "Log a Fragrance Transaction - Rate a Seller | PFC",
+    description:
+      "Bought from a PFC seller? Log the deal and rate delivery, accuracy and communication to help the community buy safely.",
+    url: siteUrl + "/log-transaction",
+  },
+  "/sellers/apply": {
+    title: "Become a PFC Verified Seller | Pakistan Fragrance Community",
+    description:
+      "Apply to sell fragrances as a PFC-verified seller. Get a verification code buyers can check, a public profile, and a trusted badge.",
+    url: siteUrl + "/sellers/apply",
+  },
+  "/sell": {
+    title: "List a Fragrance for Sale | PFC",
+    description:
+      "Verified PFC sellers can list sealed bottles, partials and decants for the Pakistan fragrance community.",
+    url: siteUrl + "/sell",
   },
   "/tools/decant": {
     title: "Perfume Decant Calculator Pakistan | PFC",
