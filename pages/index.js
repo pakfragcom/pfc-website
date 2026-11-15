@@ -1,9 +1,14 @@
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import Hero from '../components/Hero';
 import Intro from '../components/Intro';
 import SplitBlock from '../components/SplitBlock';
+
+// Server-rendered for SEO, but split into its own chunk so the scroll-motion
+// code only ships with the homepage.
+const HomeFeatures = dynamic(() => import('../components/HomeFeatures'), { ssr: true });
 
 export default function Home() {
   return (
@@ -26,6 +31,7 @@ export default function Home() {
       <div className="bg-black text-white font-sans">
         <Header />
         <Hero />
+        <HomeFeatures />
         <Intro />
         <SplitBlock />
         <Footer />

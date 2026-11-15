@@ -1,9 +1,18 @@
 'use client'
 import Image from 'next/image'
-import { LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion'
+import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 
 export default function Hero() {
   const reduce = useReducedMotion()
+
+  // Scroll-linked parallax: background drifts down and swells slightly while
+  // the copy lifts and fades, so the hero feels like it recedes as you scroll.
+  // Transform-only, so no layout shift; disabled under reduced motion.
+  const { scrollY } = useScroll()
+  const bgY = useTransform(scrollY, [0, 800], [0, reduce ? 0 : 140])
+  const bgScale = useTransform(scrollY, [0, 800], [1, reduce ? 1 : 1.1])
+  const contentOpacity = useTransform(scrollY, [0, 420], [1, reduce ? 1 : 0])
+  const contentY = useTransform(scrollY, [0, 420], [0, reduce ? 0 : -36])
 
   return (
     <LazyMotion features={domAnimation}>
@@ -13,25 +22,29 @@ export default function Hero() {
         aria-describedby="hero-subheading"
         className="relative flex w-full items-center justify-center min-h-[100svh] overflow-hidden bg-black"
       >
-        {/* Background with cinematic zoom */}
+        {/* Background: scroll parallax (outer) + cinematic entry zoom (inner) */}
         <m.div
-          initial={{ scale: 1.04 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: reduce ? 0 : 5, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 will-change-transform"
-          style={{ transform: 'translateZ(0)' }}
+          style={{ y: bgY, scale: bgScale }}
           aria-hidden="true"
         >
-          <Image
-            src="/hero.jpg"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            quality={90}
-            draggable={false}
-            className="select-none object-cover object-center"
-          />
+          <m.div
+            initial={{ scale: 1.04 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: reduce ? 0 : 5, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0"
+          >
+            <Image
+              src="/hero.jpg"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              quality={90}
+              draggable={false}
+              className="select-none object-cover object-center"
+            />
+          </m.div>
         </m.div>
 
         {/* Depth overlays — slightly deeper for more pop */}
@@ -47,10 +60,14 @@ export default function Hero() {
 
         {/* Content */}
         <m.div
+          className="relative z-10 flex w-full justify-center"
+          style={{ opacity: contentOpacity, y: contentY }}
+        >
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: reduce ? 0 : 0.6, ease: 'easeOut', delay: 0.1 }}
-          className="relative z-10 max-w-4xl px-6 text-center"
+          className="max-w-4xl px-6 text-center"
         >
           <m.span
             initial={{ opacity: 0, y: 6 }}
@@ -117,6 +134,7 @@ export default function Hero() {
               Explore Pakistan&apos;s Perfumery
             </a>
           </m.div>
+        </m.div>
         </m.div>
 
         {/* Scroll cue — smooth float instead of mechanical bounce */}
