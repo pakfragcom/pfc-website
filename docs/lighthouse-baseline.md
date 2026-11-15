@@ -49,3 +49,14 @@ the homepage became fully static.
   the dark background.
 - CLS is 0 everywhere and LCP is under 1 s on all four pages — keep it that
   way; motion work in Phase 6 must not introduce layout shift.
+
+## After Phase 1 fixes — 2026-11-16 (same method)
+
+| Page | Perf | A11y | Best | SEO | LCP | CLS |
+|---|---|---|---|---|---|---|
+| `/mbp` | 98 | **100** (was 97) | 100 | 100 | 0.9 s | 0 |
+| `/sellers/abdur-rehman` | 99 | 100 | 100 | **100** (was 92) | 0.9 s | 0 |
+
+Canonical fix (SEO.jsx) and the MBP accent-text contrast fix confirmed. The
+verify-seller breadcrumb underline (a11y 97 → expected 100) ships with the
+next deploy; re-check it then.
