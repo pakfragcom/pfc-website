@@ -130,7 +130,7 @@ export default function VerifySellerPage() {
 
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="mb-10 text-sm text-gray-400">
-          <Link href="/" className="hover:text-white transition">Home</Link>
+          <Link href="/" className="underline underline-offset-2 decoration-white/30 hover:text-white hover:decoration-white transition">Home</Link>
           <span className="mx-2">/</span>
           <span className="text-gray-300">Verify Seller</span>
         </nav>
