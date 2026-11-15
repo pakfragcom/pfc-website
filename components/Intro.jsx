@@ -71,16 +71,19 @@ export default function Intro() {
             <Stat
               icon={<ShieldIcon className="h-5 w-5 text-[#94aea7]" />}
               label="Verified Sellers"
-              valueEnd={100}
+              valueEnd={170}
               suffix="+"
               reduce={reduce}
-              ariaLabel="One hundred plus verified sellers"
+              ariaLabel="One hundred seventy plus verified sellers"
             />
           </div>
-          <StatInfinity
+          <Stat
             icon={<StarIcon className="h-5 w-5 text-[#94aea7]" />}
-            label="Reviews"
-            ariaLabel="Infinite reviews"
+            label="Fragrance Houses"
+            valueEnd={140}
+            suffix="+"
+            reduce={reduce}
+            ariaLabel="One hundred forty plus fragrance houses"
           />
         </m.div>
       </section>
@@ -114,18 +117,6 @@ function Stat({ icon, label, valueEnd, suffix = '', reduce, ariaLabel }) {
       <div className="text-xl font-bold leading-none text-white tabular-nums" aria-label={ariaLabel}>
         {formatNumber(value)}{suffix}
       </div>
-      <div className="text-[10px] uppercase tracking-widest text-white/45">{label}</div>
-    </div>
-  )
-}
-
-function StatInfinity({ icon, label, ariaLabel }) {
-  return (
-    <div className="flex flex-col items-center gap-2 py-6 px-4">
-      <div className="inline-flex items-center justify-center rounded-full border border-white/10 bg-gradient-to-br from-white/8 to-white/3 p-2.5">
-        {icon}
-      </div>
-      <div className="text-xl font-bold leading-none text-white" aria-label={ariaLabel}>∞</div>
       <div className="text-[10px] uppercase tracking-widest text-white/45">{label}</div>
     </div>
   )
