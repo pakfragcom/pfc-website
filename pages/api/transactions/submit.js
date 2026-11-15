@@ -3,6 +3,15 @@ import { createApiSupabaseClient } from '../../../lib/server-supabase';
 import { isRateLimited } from '../../../lib/rate-limit';
 import { escapeLikePattern } from '../../../lib/escape-like';
 import { firstTooLong } from '../../../lib/validate';
+import {
+  evaluateSellerRepeat,
+  exceedsDailyCap,
+  isUuid,
+  stripHtml,
+  SELLER_REPEAT_WINDOW_DAYS,
+  SELLER_REPEAT_REJECT_AT,
+  DAILY_CAP,
+} from '../../../lib/transaction-limits';
 
 const VALID_ITEM_TYPES = ['sealed', 'partial', 'decant', 'gift_set'];
 const VALID_OUTCOMES   = ['success', 'issue', 'scam'];
@@ -20,6 +29,8 @@ export default async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return res.status(401).json({ error: 'Sign in to log a transaction.' });
 
+  // First line only — resets per instance, so the DB-backed caps below are
+  // what actually hold under a scripted burst.
   if (isRateLimited(`transactions:${user.id}`, { windowMs: 60 * 60_000, max: 15 })) {
     return res.status(429).json({ error: 'Too many transactions logged. Please try again later.' });
   }
@@ -37,7 +48,7 @@ export default async function handler(req, res) {
   } = req.body || {};
 
   // --- Validate ---
-  if (!seller_id)                          return res.status(400).json({ error: 'Seller is required.' });
+  if (!isUuid(seller_id))                  return res.status(400).json({ error: 'Seller is required.' });
   if (!VALID_OUTCOMES.includes(outcome))   return res.status(400).json({ error: 'Invalid outcome.' });
   if (!Array.isArray(items) || items.length === 0)
     return res.status(400).json({ error: 'At least one item is required.' });
@@ -45,9 +56,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Maximum 20 items per transaction.' });
 
   for (const [i, item] of items.entries()) {
-    if (!item.fragrance_name?.trim())              return res.status(400).json({ error: `Item ${i + 1}: fragrance name is required.` });
+    if (!stripHtml(item.fragrance_name))            return res.status(400).json({ error: `Item ${i + 1}: fragrance name is required.` });
     if (!VALID_ITEM_TYPES.includes(item.item_type)) return res.status(400).json({ error: `Item ${i + 1}: invalid type.` });
     if (!item.price_pkr || Number(item.price_pkr) <= 0) return res.status(400).json({ error: `Item ${i + 1}: price must be greater than 0.` });
+    if (item.fragrance_id != null && !isUuid(item.fragrance_id))
+      return res.status(400).json({ error: `Item ${i + 1}: invalid fragrance reference.` });
 
     const itemLengthError = firstTooLong([
       [`Item ${i + 1} fragrance name`, item.fragrance_name, 200],
@@ -87,19 +100,39 @@ export default async function handler(req, res) {
   if (accountAge < 7 * 24 * 60 * 60 * 1000)
     return res.status(403).json({ error: 'Your account must be at least 7 days old to log transactions.' });
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { count } = await supabaseAdmin
-    .from('transactions')
-    .select('id', { count: 'exact', head: true })
-    .eq('buyer_id', user.id)
-    .eq('seller_id', seller_id)
-    .gte('created_at', thirtyDaysAgo);
-  const flagged = count >= 3;
+  const windowStart = new Date(Date.now() - SELLER_REPEAT_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const dayStart    = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  const [{ count: sellerCount }, { count: dayCount }] = await Promise.all([
+    supabaseAdmin
+      .from('transactions')
+      .select('id', { count: 'exact', head: true })
+      .eq('buyer_id', user.id)
+      .eq('seller_id', seller_id)
+      .gte('created_at', windowStart),
+    supabaseAdmin
+      .from('transactions')
+      .select('id', { count: 'exact', head: true })
+      .eq('buyer_id', user.id)
+      .gte('created_at', dayStart),
+  ]);
+
+  if (exceedsDailyCap(dayCount)) {
+    return res.status(429).json({ error: `You can log at most ${DAILY_CAP} transactions per day.` });
+  }
+
+  const repeat = evaluateSellerRepeat(sellerCount);
+  if (!repeat.allowed) {
+    return res.status(429).json({
+      error: `You've already logged ${SELLER_REPEAT_REJECT_AT} transactions with this seller in the last ${SELLER_REPEAT_WINDOW_DAYS} days.`,
+    });
+  }
+  const flagged = repeat.flagged;
 
   // --- Resolve fragrance IDs for each item ---
   const resolvedItems = await Promise.all(items.map(async (item) => {
-    const name  = item.fragrance_name.trim();
-    const house = item.house?.trim() || null;
+    const name  = stripHtml(item.fragrance_name);
+    const house = stripHtml(item.house) || null;
 
     let fragrance_id = item.fragrance_id || null;
 
@@ -136,7 +169,7 @@ export default async function handler(req, res) {
       item_type:  item.item_type,
       price_pkr:  Number(item.price_pkr),
       quantity:   Math.max(1, Number(item.quantity) || 1),
-      notes:      item.notes?.trim() || null,
+      notes:      stripHtml(item.notes) || null,
     };
   }));
 
@@ -155,10 +188,10 @@ export default async function handler(req, res) {
       fragrance_id:         resolvedItems.length === 1 ? resolvedItems[0].fragrance_id : null,
       condition:            resolvedItems.length === 1 ? resolvedItems[0].item_type : null,
       price_pkr:            totalPkr,
-      city:                 city?.trim() || null,
+      city:                 stripHtml(city) || null,
       outcome,
-      notes:                notes?.trim() || null,
-      review_text:          review_text?.trim() || null,
+      notes:                stripHtml(notes) || null,
+      review_text:          stripHtml(review_text) || null,
       rating_delivery:      rating_delivery     ? Number(rating_delivery)     : null,
       rating_accuracy:      rating_accuracy     ? Number(rating_accuracy)     : null,
       rating_communication: rating_communication ? Number(rating_communication) : null,
