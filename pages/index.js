@@ -53,7 +53,7 @@ export async function getStaticProps() {
       .in('status', ['active', 'grace'])
       .order('is_sponsor', { ascending: false })
       .order('house')
-      .limit(40),
+      .limit(200),
     supabase
       .from('fragrance_houses')
       .select('id', { count: 'exact', head: true })
