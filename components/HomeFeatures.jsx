@@ -11,7 +11,8 @@ const EASE = [0.25, 0.46, 0.45, 0.94]
 // a visual card on the other, alternating. Text lifts in on view; the card
 // drifts on scroll (transform only, no layout shift). All motion collapses to
 // zero under prefers-reduced-motion.
-export default function HomeFeatures() {
+export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
+  const housesLabel = housesTotal >= 10 ? `${Math.floor(housesTotal / 10) * 10}+` : '80+'
   return (
     <LazyMotion features={domAnimation}>
       <div className="relative overflow-hidden">
@@ -27,13 +28,14 @@ export default function HomeFeatures() {
         />
         <Feature
           eyebrow="Made in Pakistan"
-          title={<>140+ fragrance houses, <span className="text-[#94aea7]">one directory.</span></>}
+          title={<>{housesLabel} fragrance houses, <span className="text-[#94aea7]">one directory.</span></>}
           body="Explore Pakistani perfumers and local brands — creative directors, catalogues and community reviews, all in one place."
           cta="Explore the houses"
           href="/mbp"
-          visual={<HousesMosaic />}
+          visual={<HousesMosaic houses={houses} total={housesTotal} />}
           halo="#557d72"
           flip
+          interactive
         />
         <Feature
           eyebrow="Free tools"
@@ -186,21 +188,61 @@ const HOUSES = [
   ['J.', '#2a5c4f'], ['SA', '#5c4a2a'], ['KH', '#2a3d5c'], ['AL', '#5c2a3d'], ['MN', '#3d6b5e'], ['RZ', '#6b5e3d'],
 ]
 
-function HousesMosaic() {
+const ACCENT_PALETTE = ['#2a5c4f', '#5c4a2a', '#2a3d5c', '#5c2a3d', '#3d6b5e', '#6b5e3d']
+function accentFor(name) {
+  let n = 0
+  for (let i = 0; i < (name || '').length; i++) n = (n * 31 + name.charCodeAt(i)) >>> 0
+  return ACCENT_PALETTE[n % ACCENT_PALETTE.length]
+}
+function initials(name) {
+  return (name || '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('')
+}
+
+// Real houses from the directory, best-presented first (logo + description);
+// falls back to the decorative mosaic when the build had no data.
+function HousesMosaic({ houses, total }) {
+  if (!houses || houses.length === 0) return <FallbackMosaic />
+  const more = Math.max(0, (total || 0) - houses.length)
   return (
     <div className="mx-auto grid w-full max-w-md grid-cols-3 gap-3">
-      {HOUSES.map(([initials, accent], i) => (
+      {houses.slice(0, 6).map((hs) => (
+        <Link
+          key={hs.slug}
+          href={`/houses/${hs.slug}`}
+          className="group rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-center shadow-lg shadow-black/30 transition hover:border-white/25 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+        >
+          <div className="mx-auto flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white/5">
+            {hs.logo_url
+              ? <img src={hs.logo_url} alt={hs.house} loading="lazy" className="h-full w-full object-contain p-2" />
+              : <span className="text-lg font-bold" style={{ color: lighten(accentFor(hs.house)) }}>{initials(hs.house)}</span>}
+          </div>
+          <p className="mt-2 truncate text-xs font-semibold text-[#F5F5F7]">{hs.house}</p>
+          {hs.description && (
+            <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-gray-400">{hs.description}</p>
+          )}
+        </Link>
+      ))}
+      {more > 0 && (
+        <div className="col-span-3 mt-1 flex items-center justify-center gap-2 text-xs text-white/50">
+          <Building2 className="h-3.5 w-3.5" /> and {more} more in the directory
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FallbackMosaic() {
+  return (
+    <div className="mx-auto grid w-full max-w-md grid-cols-3 gap-3">
+      {HOUSES.map(([ini, accent], i) => (
         <div
           key={i}
           className="flex aspect-square items-center justify-center rounded-2xl border text-lg font-bold shadow-lg shadow-black/30"
           style={{ backgroundColor: accent + '28', borderColor: accent + '55', color: lighten(accent) }}
         >
-          {initials}
+          {ini}
         </div>
       ))}
-      <div className="col-span-3 mt-1 flex items-center justify-center gap-2 text-xs text-white/50">
-        <Building2 className="h-3.5 w-3.5" /> and 130+ more
-      </div>
     </div>
   )
 }

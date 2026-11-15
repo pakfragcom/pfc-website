@@ -5,12 +5,13 @@ import Footer from '../components/layout/Footer';
 import Hero from '../components/Hero';
 import Intro from '../components/Intro';
 import SplitBlock from '../components/SplitBlock';
+import { supabase } from '../lib/supabase';
 
 // Server-rendered for SEO, but split into its own chunk so the scroll-motion
 // code only ships with the homepage.
 const HomeFeatures = dynamic(() => import('../components/HomeFeatures'), { ssr: true });
 
-export default function Home() {
+export default function Home({ houses = [], housesTotal = 0 }) {
   return (
     <>
       <Head>
@@ -31,11 +32,48 @@ export default function Home() {
       <div className="bg-black text-white font-sans">
         <Header />
         <Hero />
-        <HomeFeatures />
+        <HomeFeatures houses={houses} housesTotal={housesTotal} />
         <Intro />
         <SplitBlock />
         <Footer />
       </div>
     </>
   );
+}
+
+const TIER_RANK = { platinum: 0, gold: 1, silver: 2 };
+
+// Six houses for the homepage, best-presented first: logo + description,
+// then sponsors and higher tiers. One bounded query, revalidated hourly.
+export async function getStaticProps() {
+  const [{ data: rows, error }, { count }] = await Promise.all([
+    supabase
+      .from('fragrance_houses')
+      .select('house, slug, logo_url, description, tier, is_sponsor')
+      .in('status', ['active', 'grace'])
+      .order('is_sponsor', { ascending: false })
+      .order('house')
+      .limit(40),
+    supabase
+      .from('fragrance_houses')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['active', 'grace']),
+  ]);
+  if (error) console.error('[home] houses fetch error:', error.message);
+
+  const presentation = (h) => (h.logo_url ? 2 : 0) + (h.description && h.description.trim().length > 40 ? 1 : 0);
+  const houses = (rows || [])
+    .filter((h) => h.slug)
+    .sort((a, b) =>
+      presentation(b) - presentation(a) ||
+      Number(b.is_sponsor) - Number(a.is_sponsor) ||
+      (TIER_RANK[a.tier] ?? 3) - (TIER_RANK[b.tier] ?? 3) ||
+      a.house.localeCompare(b.house))
+    .slice(0, 6)
+    .map(({ house, slug, logo_url, description }) => ({
+      house, slug, logo_url: logo_url || null,
+      description: description ? description.trim().slice(0, 140) : null,
+    }));
+
+  return { props: { houses, housesTotal: count || 0 }, revalidate: 3600 };
 }

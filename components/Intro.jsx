@@ -80,10 +80,10 @@ export default function Intro() {
           <Stat
             icon={<StarIcon className="h-5 w-5 text-[#94aea7]" />}
             label="Fragrance Houses"
-            valueEnd={140}
+            valueEnd={80}
             suffix="+"
             reduce={reduce}
-            ariaLabel="One hundred forty plus fragrance houses"
+            ariaLabel="Eighty plus fragrance houses"
           />
         </m.div>
       </section>
