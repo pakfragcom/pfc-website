@@ -52,6 +52,13 @@ function accentColor(name) {
   for (let i = 0; i < (name || '').length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return ACCENTS[h % ACCENTS.length];
 }
+// Accents are tuned for backgrounds; as text on black several fail WCAG
+// contrast. Mix toward white for any text use so the house keeps its hue.
+function accentText(hex) {
+  const n = parseInt(hex.slice(1, 7), 16);
+  const mix = (c) => Math.round(c + (255 - c) * 0.55).toString(16).padStart(2, "0");
+  return "#" + mix(n >> 16) + mix((n >> 8) & 255) + mix(n & 255);
+}
 function initials(name) {
   const words = (name || '').trim().split(/\s+/);
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
@@ -180,7 +187,7 @@ function BannerCarousel({ sponsors }) {
                 className="w-full h-full flex items-center justify-center px-6 text-center"
                 style={{ background: `linear-gradient(135deg, ${accent}33, ${accent}11)` }}
               >
-                <span className="text-2xl sm:text-3xl font-bold" style={{ color: accent + 'ee' }}>
+                <span className="text-2xl sm:text-3xl font-bold" style={{ color: accentText(accent) }}>
                   {current.house}
                 </span>
               </div>
@@ -266,7 +273,7 @@ function DiamondCard({ item }) {
             >
               {item.logo_url
                 ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-2" />
-                : <span style={{ color: accent + 'ee' }} className="text-xl">{initials(item.house)}</span>
+                : <span style={{ color: accentText(accent) }} className="text-xl">{initials(item.house)}</span>
               }
             </div>
           </CardWrapper>
@@ -345,7 +352,7 @@ function PlatinumCard({ item }) {
           >
             {item.logo_url
               ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-1.5" />
-              : <span style={{ color: accent + 'ee' }}>{initials(item.house)}</span>
+              : <span style={{ color: accentText(accent) }}>{initials(item.house)}</span>
             }
           </div>
 
@@ -401,7 +408,7 @@ function GoldCard({ item }) {
           >
             {item.logo_url
               ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-1" />
-              : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
+              : <span style={{ color: accentText(accent) }}>{initials(item.house)}</span>
             }
           </div>
           <h3 className="font-semibold text-white text-xs leading-snug line-clamp-2 group-hover:text-amber-100 transition mb-1">
@@ -499,7 +506,7 @@ function SearchCard({ item }) {
         >
           {item.logo_url
             ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-1" />
-            : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
+            : <span style={{ color: accentText(accent) }}>{initials(item.house)}</span>
           }
         </div>
         <div className="flex-1 min-w-0">
