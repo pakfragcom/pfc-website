@@ -265,7 +265,7 @@ function DiamondCard({ item }) {
               style={{ backgroundColor: accent + '25', borderColor: accent + '50', ringColor: accent + '30' }}
             >
               {item.logo_url
-                ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-2" />
+                ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-2" />
                 : <span style={{ color: accent + 'ee' }} className="text-xl">{initials(item.house)}</span>
               }
             </div>
@@ -498,7 +498,7 @@ function SearchCard({ item }) {
           style={{ backgroundColor: accent + '22', border: `1px solid ${accent}44` }}
         >
           {item.logo_url
-            ? <img src={item.logo_url} alt={item.house} className="w-full h-full object-contain p-1" />
+            ? <img src={item.logo_url} alt={item.house} loading="lazy" className="w-full h-full object-contain p-1" />
             : <span style={{ color: accent + 'dd' }}>{initials(item.house)}</span>
           }
         </div>
