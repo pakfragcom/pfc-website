@@ -43,6 +43,13 @@ export default async function handler(req, res) {
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+
+    // Refresh the cached pages that show this house so a new logo or
+    // description appears right away instead of after the hourly revalidate.
+    const paths = ['/', '/mbp'];
+    if (data?.slug) paths.push(`/houses/${data.slug}`);
+    await Promise.allSettled(paths.map(p => res.revalidate(p)));
+
     return res.status(200).json(data);
   }
 

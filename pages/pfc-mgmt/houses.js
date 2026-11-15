@@ -62,6 +62,9 @@ function EditModal({ house, onClose, onSuccess }) {
   const [bannerUploading, setBannerUploading] = useState(false);
   const [bannerError, setBannerError] = useState('');
   const bannerFileRef = useRef(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoUploadError, setLogoUploadError] = useState('');
+  const logoFileRef = useRef(null);
 
   async function handleBannerFile(e) {
     const file = e.target.files?.[0];
@@ -91,6 +94,39 @@ function EditModal({ house, onClose, onSuccess }) {
     } finally {
       setBannerUploading(false);
       if (bannerFileRef.current) bannerFileRef.current.value = '';
+    }
+  }
+
+  async function handleLogoFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploadError('');
+    setLogoUploading(true);
+    try {
+      if (!file.type.startsWith('image/')) throw new Error('Please choose an image file (jpg, png or webp).');
+      if (file.size > 2 * 1024 * 1024) throw new Error('Logo must be under 2MB.');
+
+      const urlRes = await fetch('/api/admin/houses/upload-logo-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ house_id: house.id, filename: file.name }),
+      });
+      if (!urlRes.ok) {
+        const d = await urlRes.json();
+        throw new Error(d.error || 'Could not start upload');
+      }
+      const { signedUrl, publicUrl } = await urlRes.json();
+
+      const putRes = await fetch(signedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!putRes.ok) throw new Error('Upload failed');
+
+      setForm(f => ({ ...f, logo_url: publicUrl }));
+      setLogoError(false);
+    } catch (err) {
+      setLogoUploadError(err.message || 'Upload failed. Please try again.');
+    } finally {
+      setLogoUploading(false);
+      if (logoFileRef.current) logoFileRef.current.value = '';
     }
   }
 
@@ -190,7 +226,7 @@ function EditModal({ house, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Logo URL <span className="text-gray-400">(paste any image URL — shown on MBP page &amp; house profile)</span></label>
+            <label className="text-xs text-gray-400 block mb-1">Logo <span className="text-gray-400">(upload a file, or paste an image URL. Shown on the homepage, MBP page and house profile)</span></label>
             <input
               type="url"
               value={form.logo_url}
@@ -198,6 +234,21 @@ function EditModal({ house, onClose, onSuccess }) {
               placeholder="https://example.com/logo.png"
               className="w-full bg-black/40 ring-1 ring-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-white/25"
             />
+            <div className="mt-2 flex items-center gap-3">
+              <label className={`inline-flex items-center gap-2 rounded-lg border border-dashed px-3 py-1.5 text-xs cursor-pointer transition ${logoUploading ? 'border-white/10 text-gray-500' : 'border-white/20 text-gray-200 hover:border-white/40'}`}>
+                {logoUploading ? 'Uploading logo...' : 'Upload logo file'}
+                <input
+                  ref={logoFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleLogoFile}
+                  disabled={logoUploading}
+                  className="hidden"
+                />
+              </label>
+              <span className="text-xs text-gray-500">jpg, png or webp, under 2MB</span>
+            </div>
+            {logoUploadError && <p className="text-xs text-red-400 mt-1">{logoUploadError}</p>}
             {form.logo_url && (
               <div className="mt-2 flex items-center gap-3">
                 <div className="w-16 h-16 rounded-xl bg-white/5 ring-1 ring-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
