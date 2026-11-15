@@ -1,5 +1,6 @@
 // pages/tools/verify-seller.js
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import { trackEvent } from "../../lib/analytics";
 import Header from "../../components/layout/Header";
@@ -62,6 +63,14 @@ export default function VerifySellerPage() {
   const [blacklistFetched, setBlacklistFetched] = useState(false);
   const inputRef = useRef(null);
   const debounceRef = useRef(null);
+  const router = useRouter();
+
+  // Deep link from the homepage search card: /tools/verify-seller?q=term
+  useEffect(() => {
+    if (!router.isReady) return;
+    const q = router.query.q;
+    if (typeof q === "string" && q.trim()) setQuery(q.trim().slice(0, 100));
+  }, [router.isReady, router.query.q]);
 
   useEffect(() => {
     if (copied) {

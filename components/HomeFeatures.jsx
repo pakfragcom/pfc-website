@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/router'
 import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ShieldCheck, Building2, Droplets, Ruler, FlaskConical, ArrowRight } from 'lucide-react'
 
@@ -22,6 +23,7 @@ export default function HomeFeatures() {
           href="/tools/verify-seller"
           visual={<VerifyCard />}
           halo="#2a5c4f"
+          interactive
         />
         <Feature
           eyebrow="Made in Pakistan"
@@ -47,7 +49,7 @@ export default function HomeFeatures() {
   )
 }
 
-function Feature({ eyebrow, title, body, cta, href, visual, halo, flip = false }) {
+function Feature({ eyebrow, title, body, cta, href, visual, halo, flip = false, interactive = false }) {
   const reduce = useReducedMotion()
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
@@ -88,7 +90,7 @@ function Feature({ eyebrow, title, body, cta, href, visual, halo, flip = false }
           </m.div>
         </m.div>
 
-        <m.div style={{ y: visualY, scale: visualScale }} className="will-change-transform" aria-hidden="true">
+        <m.div style={{ y: visualY, scale: visualScale }} className="will-change-transform" aria-hidden={interactive ? undefined : 'true'}>
           {visual}
         </m.div>
       </div>
@@ -98,16 +100,70 @@ function Feature({ eyebrow, title, body, cta, href, visual, halo, flip = false }
 
 /* ---------- Visual cards (decorative, aria-hidden by the wrapper) ---------- */
 
+const DEMO_SEARCHES = ['Abdullah', 'AN-K9C7', 'Zakir']
+const IDLE_PLACEHOLDER = 'Seller name or code'
+
 function VerifyCard() {
+  const router = useRouter()
+  const reduce = useReducedMotion()
+  const [q, setQ] = useState('')
+  const [focused, setFocused] = useState(false)
+  const [demo, setDemo] = useState(IDLE_PLACEHOLDER)
+
+  // While the field is empty and untouched, the placeholder types out
+  // example searches so the card reads as live. Stops on focus or input.
+  useEffect(() => {
+    if (reduce || focused || q) { setDemo(IDLE_PLACEHOLDER); return }
+    let word = 0, i = 0, deleting = false, t
+    const tick = () => {
+      const target = DEMO_SEARCHES[word]
+      if (!deleting) {
+        i += 1; setDemo(target.slice(0, i) + '|')
+        if (i === target.length) { deleting = true; t = setTimeout(tick, 1500); return }
+        t = setTimeout(tick, 95)
+      } else {
+        i -= 1; setDemo(target.slice(0, i) + '|')
+        if (i === 0) { deleting = false; word = (word + 1) % DEMO_SEARCHES.length; t = setTimeout(tick, 350); return }
+        t = setTimeout(tick, 45)
+      }
+    }
+    t = setTimeout(tick, 700)
+    return () => clearTimeout(t)
+  }, [reduce, focused, q])
+
+  function submit(e) {
+    e.preventDefault()
+    const term = q.trim()
+    router.push(term ? `/tools/verify-seller?q=${encodeURIComponent(term)}` : '/tools/verify-seller')
+  }
+
   return (
     <div className="mx-auto w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/40 backdrop-blur">
-      <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-gray-500">
-        <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0" aria-hidden="true">
+      <form onSubmit={submit} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 transition focus-within:border-white/30">
+        <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true">
           <path d="M21 21l-4.2-4.2M5 11a6 6 0 1012 0 6 6 0 00-12 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
-        Abdullah
-      </div>
-      <div className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-5">
+        <label htmlFor="home-verify-q" className="sr-only">Seller name or code</label>
+        <input
+          id="home-verify-q"
+          type="text"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder={demo}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          maxLength={100}
+          autoComplete="off"
+          className="w-full bg-transparent text-sm text-white placeholder-gray-500 outline-none"
+        />
+        <button
+          type="submit"
+          className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-black transition hover:bg-[#e6ebe9] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+        >
+          Check
+        </button>
+      </form>
+      <div className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-5" aria-hidden="true">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
             <ShieldCheck className="h-4 w-4" />
