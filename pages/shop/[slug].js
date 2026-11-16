@@ -5,9 +5,8 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import ProductFrame from '../../components/shop/ProductFrame';
 import { useCart } from '../../lib/cart';
-import {
-  isShopEnabled, fetchProductBySlug, formatPKR, variantLabel, BADGE_LABEL,
-} from '../../lib/shop';
+import { isShopEnabled, fetchProductBySlug } from '../../lib/shop';
+import { formatPKR, variantLabel, BADGE_LABEL } from '../../lib/shop-format';
 
 export async function getStaticPaths() {
   return { paths: [], fallback: 'blocking' };

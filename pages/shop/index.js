@@ -5,9 +5,8 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import ProductFrame from '../../components/shop/ProductFrame';
 import { useCart } from '../../lib/cart';
-import {
-  isShopEnabled, fetchOffers, groupOffersByFragrance, formatPKR, BADGE_LABEL,
-} from '../../lib/shop';
+import { isShopEnabled, fetchOffers, groupOffersByFragrance } from '../../lib/shop';
+import { formatPKR, BADGE_LABEL } from '../../lib/shop-format';
 
 export async function getStaticProps() {
   if (!(await isShopEnabled())) return { notFound: true, revalidate: 600 };
