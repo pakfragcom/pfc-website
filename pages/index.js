@@ -6,12 +6,13 @@ import Hero from '../components/Hero';
 import Intro from '../components/Intro';
 import SplitBlock from '../components/SplitBlock';
 import { supabase } from '../lib/supabase';
+import { getInstagramFeed } from '../lib/instagram';
 
 // Server-rendered for SEO, but split into its own chunk so the scroll-motion
 // code only ships with the homepage.
 const HomeFeatures = dynamic(() => import('../components/HomeFeatures'), { ssr: true });
 
-export default function Home({ houses = [], housesTotal = 0 }) {
+export default function Home({ houses = [], housesTotal = 0, instagram = null }) {
   return (
     <>
       <Head>
@@ -34,7 +35,7 @@ export default function Home({ houses = [], housesTotal = 0 }) {
         <Hero />
         <HomeFeatures houses={houses} housesTotal={housesTotal} />
         <Intro />
-        <SplitBlock />
+        <SplitBlock instagram={instagram} />
         <Footer />
       </div>
     </>
@@ -46,7 +47,7 @@ const TIER_RANK = { platinum: 0, gold: 1, silver: 2 };
 // Six houses for the homepage, best-presented first: logo + description,
 // then sponsors and higher tiers. One bounded query, revalidated hourly.
 export async function getStaticProps() {
-  const [{ data: rows, error }, { count }] = await Promise.all([
+  const [{ data: rows, error }, { count }, instagram] = await Promise.all([
     supabase
       .from('fragrance_houses')
       .select('house, slug, logo_url, description, tier, is_sponsor')
@@ -58,6 +59,7 @@ export async function getStaticProps() {
       .from('fragrance_houses')
       .select('id', { count: 'exact', head: true })
       .in('status', ['active', 'grace']),
+    getInstagramFeed(),
   ]);
   if (error) console.error('[home] houses fetch error:', error.message);
 
@@ -75,5 +77,5 @@ export async function getStaticProps() {
       description: description ? description.trim().slice(0, 140) : null,
     }));
 
-  return { props: { houses, housesTotal: count || 0 }, revalidate: 3600 };
+  return { props: { houses, housesTotal: count || 0, instagram }, revalidate: 3600 };
 }

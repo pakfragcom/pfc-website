@@ -18,7 +18,79 @@ function MiniStars({ value }) {
   );
 }
 
-export default function SplitBlock({ topRated = [] }) {
+function TrustedPill() {
+  return (
+    <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[11px] uppercase tracking-wider text-white/90 backdrop-blur-sm">
+      <span
+        className="inline-block h-1.5 w-1.5 rounded-full animate-pulse-slow"
+        style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-3))' }}
+      />
+      Trusted Community
+    </div>
+  );
+}
+
+// Latest Instagram posts (fetched server-side, hourly). Plain links and
+// lazy images: no Instagram script, so nothing for the CSP to block.
+function InstagramGrid({ username, posts }) {
+  const profile = username ? `https://www.instagram.com/${username}/` : 'https://www.instagram.com/';
+  return (
+    <div className="flex h-full flex-col rounded-3xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur sm:p-4">
+      <div className="mb-3 flex items-center justify-between gap-3 px-1">
+        <TrustedPill />
+        <a
+          href={profile}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs text-white/70 transition hover:text-white"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+          </svg>
+          {username ? `@${username}` : 'Instagram'}
+        </a>
+      </div>
+      <ul className="grid flex-1 grid-cols-3 gap-1.5 sm:gap-2">
+        {posts.map((p) => (
+          <li key={p.id} className="relative aspect-square overflow-hidden rounded-xl bg-white/5">
+            <a
+              href={p.permalink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block h-full w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              aria-label={p.caption ? `Instagram post: ${p.caption}` : 'Open this post on Instagram'}
+            >
+              <img
+                src={p.image}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+              />
+              {p.isVideo && (
+                <svg viewBox="0 0 24 24" className="absolute right-1.5 top-1.5 h-4 w-4 text-white drop-shadow" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <a
+        href={profile}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 inline-flex items-center justify-center rounded-full border border-white/15 px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/40 hover:text-white"
+      >
+        Follow us on Instagram
+      </a>
+    </div>
+  );
+}
+
+export default function SplitBlock({ topRated = [], instagram = null }) {
   return (
     <section
       style={{
@@ -49,6 +121,9 @@ export default function SplitBlock({ topRated = [] }) {
       <div className="flex flex-col items-stretch gap-8 md:flex-row md:gap-10">
         {/* Visual card */}
         <Reveal delay={0} className="w-full md:w-1/2">
+          {instagram?.posts?.length ? (
+            <InstagramGrid username={instagram.username} posts={instagram.posts} />
+          ) : (
           <div className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/40 backdrop-blur">
             <Image
               src="/hero.jpg"
@@ -60,14 +135,11 @@ export default function SplitBlock({ topRated = [] }) {
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#2a5c4f]/20 via-transparent to-transparent" />
-            <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[11px] uppercase tracking-wider text-white/90 backdrop-blur-sm">
-              <span
-                className="inline-block h-1.5 w-1.5 rounded-full animate-pulse-slow"
-                style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-3))' }}
-              />
-              Trusted Community
+            <div className="absolute left-4 top-4">
+              <TrustedPill />
             </div>
           </div>
+          )}
         </Reveal>
 
         {/* Content card */}
