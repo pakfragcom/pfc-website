@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { ShieldCheck, Building2, Droplets, Ruler, FlaskConical } from 'lucide-react'
+import { ShieldCheck, Building2, Droplets, Ruler, FlaskConical, ArrowRight } from 'lucide-react'
 
 const EASE = [0.25, 0.46, 0.45, 0.94]
 
@@ -17,8 +17,9 @@ export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
     <LazyMotion features={domAnimation}>
       <div className="relative overflow-hidden">
         <Feature
-          title="Verify a seller before you pay"
-          body="Every PFC seller has a code. Search a name or code and check the public blacklist, so you know who you are dealing with before money changes hands."
+          eyebrow="Buy safely"
+          title={<>Verify before <span className="text-[#94aea7]">you pay.</span></>}
+          body="Every PFC seller has a code. Search a name or code, check the public blacklist, and know exactly who you're dealing with — in seconds."
           cta="Verify a seller"
           href="/tools/verify-seller"
           visual={<VerifyCard />}
@@ -26,8 +27,9 @@ export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
           interactive
         />
         <Feature
-          title={`${housesLabel} Pakistani fragrance houses in one directory`}
-          body="Find local perfumers and brands, see who is behind them, and browse what they make."
+          eyebrow="Made in Pakistan"
+          title={<>{housesLabel} fragrance houses, <span className="text-[#94aea7]">one directory.</span></>}
+          body="Explore Pakistani perfumers and local brands — creative directors, catalogues and community reviews, all in one place."
           cta="Explore the houses"
           href="/mbp"
           visual={<HousesMosaic houses={houses} total={housesTotal} />}
@@ -36,8 +38,9 @@ export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
           interactive
         />
         <Feature
-          title="Free tools for the hobby"
-          body="Plan decants, estimate how much is left in a bottle, and work out the cost of an indie batch."
+          eyebrow="Free tools"
+          title={<>Tools for <span className="text-[#94aea7]">the hobby.</span></>}
+          body="Plan decants, estimate how much is left in a bottle, and cost an indie batch — built for the community, and free."
           cta="Open the tools"
           href="/tools/decant"
           visual={<ToolsStack />}
@@ -48,7 +51,7 @@ export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
   )
 }
 
-function Feature({ title, body, cta, href, visual, halo, flip = false, interactive = false }) {
+function Feature({ eyebrow, title, body, cta, href, visual, halo, flip = false, interactive = false }) {
   const reduce = useReducedMotion()
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
@@ -69,7 +72,10 @@ function Feature({ title, body, cta, href, visual, halo, flip = false, interacti
       />
       <div className={`grid items-center gap-12 md:grid-cols-2 md:gap-16 ${flip ? 'md:[&>*:first-child]:order-2' : ''}`}>
         <m.div initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }}>
-          <m.h2 custom={1} variants={text} className="max-w-xl text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <m.p custom={0} variants={text} className="mb-4 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50">
+            {eyebrow}
+          </m.p>
+          <m.h2 custom={1} variants={text} className="text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
             {title}
           </m.h2>
           <m.p custom={2} variants={text} className="mt-6 max-w-md text-base leading-relaxed text-gray-400 sm:text-lg">
@@ -78,9 +84,10 @@ function Feature({ title, body, cta, href, visual, halo, flip = false, interacti
           <m.div custom={3} variants={text} className="mt-8">
             <Link
               href={href}
-              className="inline-flex items-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition hover:bg-[#e6ebe9] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-[#e6ebe9] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
               {cta}
+              <ArrowRight className="h-4 w-4 transition-transform motion-safe:duration-300 group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>
           </m.div>
         </m.div>
@@ -164,7 +171,7 @@ function VerifyCard() {
             <ShieldCheck className="h-4 w-4" />
           </span>
           <div className="min-w-0">
-            <p className="text-xs font-medium text-emerald-400">Verified seller</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-500">Verified</p>
             <p className="truncate text-lg font-bold text-[#F5F5F7]">Abdullah Nazir</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-[#F5F5F7]">AN-K9C7</span>

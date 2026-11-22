@@ -19,6 +19,7 @@ export async function getStaticProps({ params }) {
   return { props: product, revalidate: 600 };
 }
 
+const CATEGORY_LABEL = { designer: 'Designer', middle_eastern: 'Middle Eastern', niche: 'Niche', local: 'Pakistani brand' };
 
 export default function ProductPage({ fragrance, offers = [] }) {
   const [selectedId, setSelectedId] = useState(offers[0]?.id);
@@ -75,6 +76,7 @@ export default function ProductPage({ fragrance, offers = [] }) {
               {fragrance.house_slug
                 ? <Link href={`/houses/${fragrance.house_slug}`} className="underline underline-offset-2 decoration-white/30 hover:text-white">{fragrance.house}</Link>
                 : fragrance.house}
+              {fragrance.category && <span className="text-gray-500"> · {CATEGORY_LABEL[fragrance.category] || fragrance.category}</span>}
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#F5F5F7] sm:text-4xl">{fragrance.name}</h1>
 
@@ -86,7 +88,7 @@ export default function ProductPage({ fragrance, offers = [] }) {
             )}
 
             <fieldset className="mt-8">
-              <legend className="mb-3 text-sm font-medium text-gray-300">Choose a size</legend>
+              <legend className="mb-3 text-xs font-medium uppercase tracking-widest text-white/50">Size</legend>
               <div className="flex flex-col gap-2">
                 {offers.map((o) => {
                   const active = o.id === selected?.id;
@@ -136,7 +138,7 @@ export default function ProductPage({ fragrance, offers = [] }) {
 
             {fragrance.description && (
               <div className="mt-10 border-t border-white/10 pt-6">
-                <h2 className="text-base font-semibold text-[#F5F5F7]">About this fragrance</h2>
+                <h2 className="text-xs font-medium uppercase tracking-widest text-white/50">About</h2>
                 <p className="mt-3 text-sm leading-relaxed text-gray-300">{fragrance.description}</p>
               </div>
             )}

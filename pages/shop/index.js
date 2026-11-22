@@ -45,7 +45,8 @@ export default function ShopPage({ items = [], houses = [] }) {
       <main className="mx-auto max-w-6xl px-4 py-20 sm:py-24">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-semibold tracking-tight text-[#F5F5F7] sm:text-5xl">Shop fragrances</h1>
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50">PFC shop</p>
+            <h1 className="text-4xl font-semibold tracking-tight text-[#F5F5F7] sm:text-5xl">Fragrances</h1>
             <p className="mt-3 max-w-xl text-sm text-gray-400">
               Sealed bottles and decants, sourced through PFC-verified sellers. Pay by bank transfer once we confirm your order.
             </p>

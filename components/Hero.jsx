@@ -47,11 +47,11 @@ export default function Hero() {
           </m.div>
         </m.div>
 
-        {/* Depth overlays */}
+        {/* Depth overlays — slightly deeper for more pop */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/50 to-black/90" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_65%)] md:bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.09),transparent_70%)]" aria-hidden="true" />
 
-        {/* Brand halos */}
+        {/* Brand halos — richer and more visible */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
           <div className="absolute -top-32 left-0 h-96 w-96 -translate-x-1/2 rounded-full bg-[#2a5c4f]/25 blur-3xl sm:translate-x-0" />
           <div className="absolute -bottom-32 right-0 h-96 w-96 translate-x-1/2 rounded-full bg-[#94aea7]/22 blur-3xl sm:translate-x-0" />
@@ -69,42 +69,58 @@ export default function Hero() {
           transition={{ duration: reduce ? 0 : 0.6, ease: 'easeOut', delay: 0.1 }}
           className="max-w-4xl px-6 text-center"
         >
+          <m.span
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.2 }}
+            className="mb-5 inline-block rounded-full border border-white/15 bg-white/8 px-4 py-1 text-xs uppercase tracking-[0.25em] text-gray-200 backdrop-blur-sm"
+          >
+            Pakistan Fragrance Community
+          </m.span>
+
           <m.h1
             id="hero-heading"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.2 }}
-            className="text-4xl font-semibold leading-[1.05] tracking-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl"
+            transition={{ duration: reduce ? 0 : 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.32 }}
+            className="text-4xl font-extrabold leading-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            The home of fragrance enthusiasts in Pakistan
+            The Home of{' '}
+            <span className="bg-gradient-to-r from-[#3d8b76] via-[#6b9e94] to-[#a8c4be] bg-clip-text text-transparent">
+              Fragrance Enthusiasts
+            </span>
           </m.h1>
 
           <m.p
             id="hero-subheading"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.34 }}
-            className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gray-300 md:text-lg"
+            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.46 }}
+            className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
           >
-            Over 100,000 collectors and perfume lovers. Check a seller before you pay,
-            find local fragrance houses, and trade with people the community trusts.
+            Where collectors, reviewers, and perfume lovers unite to share passion, discover rare scents,
+            and celebrate the timeless art of fragrance.
           </m.p>
 
           <m.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.46 }}
-            className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
+            transition={{ duration: reduce ? 0 : 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.58 }}
+            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap"
           >
             {/* Primary */}
             <a
               href="https://www.facebook.com/groups/pkfragcom"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition hover:bg-[#e6ebe9] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:w-auto"
+              aria-label="Join the Community — our Facebook group (opens in new tab)"
+              className="group inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#2a5c4f] via-[#4a7a6e] to-[#94aea7] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-[#2a5c4f]/30 transition-all motion-safe:duration-300 hover:shadow-[#2a5c4f]/50 hover:shadow-xl hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
-              Join the community
-              <span className="sr-only"> on Facebook (opens in new tab)</span>
+              Join the Community
+              <svg className="ml-2 h-4 w-4 motion-safe:transition-transform group-hover:translate-x-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M12.293 3.293a1 1 0 011.414 0l4.999 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" />
+              </svg>
+              <span className="sr-only"> (opens in new tab)</span>
             </a>
 
             {/* Secondary */}
@@ -112,10 +128,10 @@ export default function Hero() {
               href="https://www.facebook.com/groups/pakfragcom1.2"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-full border border-white/30 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/60 hover:bg-white/10 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:w-auto"
+              aria-label="Explore Pakistan's Perfumery (opens in new tab)"
+              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/5 px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition-all motion-safe:duration-300 hover:border-white/60 hover:bg-white/12 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
-              Explore Pakistan&apos;s perfumery
-              <span className="sr-only"> (opens in new tab)</span>
+              Explore Pakistan&apos;s Perfumery
             </a>
           </m.div>
         </m.div>

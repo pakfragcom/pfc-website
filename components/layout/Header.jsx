@@ -27,7 +27,7 @@ export default function Header() {
   const lastFocusRef  = useRef(null)
 
   const TOOL_LINKS = [
-    { href: '/tools/verify-seller', label: 'Verify a seller' },
+    { href: '/tools/verify-seller', label: 'Verify Seller Check' },
     { href: '/tools/decant',        label: 'Decant Calculator' },
     { href: '/tools/bottle-level',  label: 'Bottle Level Estimator' },
     { href: '/tools/indie-lab',     label: 'Indie Lab Helper' },
@@ -224,30 +224,36 @@ export default function Header() {
                     </div>
                     <Link href={`/u/${user.user_metadata?.username || 'me'}`} onClick={handleLinkClick}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
-                      My profile
+                      My Profile
                     </Link>
                     <Link href="/log-transaction" onClick={handleLinkClick}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition">
-                      Log a transaction
+                      Log a Transaction
                     </Link>
                     <div className="border-t border-white/10 mt-1 pt-1">
                       <Link href="/sellers/dashboard" onClick={handleLinkClick}
                         className="flex items-center gap-2 px-3 py-2 text-sm text-[#94aea7] hover:text-white hover:bg-white/10 transition">
-                        Seller dashboard
+                        Seller Dashboard
                       </Link>
                     </div>
                     <button onClick={handleSignOut}
                       className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition border-t border-white/10 mt-1">
-                      Sign out
+                      Sign Out
                     </button>
                   </div>
                 </div>
               ) : (
-                /* Logged out: one sign-in button (both old buttons went to the same page) */
-                <Link href="/auth/login"
-                  className="inline-flex items-center rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-black transition hover:bg-[#e6ebe9] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
-                  Sign in
-                </Link>
+                /* Logged out — Sign In + Get Started */
+                <>
+                  <Link href="/auth/login"
+                    className="px-3 py-1.5 text-sm text-gray-300 hover:text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-lg">
+                    Sign In
+                  </Link>
+                  <Link href="/auth/login"
+                    className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-[#2a5c4f] to-[#557d72] text-sm font-semibold text-white shadow-md shadow-[#2a5c4f]/20 hover:brightness-110 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+                    Get Started
+                  </Link>
+                </>
               )}
             </div>
 
@@ -283,29 +289,34 @@ export default function Header() {
                 </div>
               </div>
             ) : (
-              <Link href="/auth/login" onClick={handleLinkClick}
-                className="block w-full rounded-full bg-white py-3 text-center text-sm font-semibold text-black transition hover:bg-[#e6ebe9]">
-                Sign in
-              </Link>
+              <div className="flex flex-col gap-3">
+                <Link href="/auth/login" onClick={handleLinkClick}
+                  className="w-full text-center rounded-xl bg-gradient-to-r from-[#2a5c4f] to-[#557d72] py-2.5 text-sm font-semibold text-white">
+                  Get Started
+                </Link>
+                <Link href="/auth/login" onClick={handleLinkClick}
+                  className="w-full text-center rounded-xl border border-white/15 py-2.5 text-sm text-gray-300 hover:text-white transition">
+                  Sign In
+                </Link>
+              </div>
             )}
           </div>
 
-          <div className="space-y-1 text-center text-base">
-            <Link href="/" onClick={handleLinkClick} className="block py-2.5 hover:text-gray-300 transition">Home</Link>
-            <Link href="/tools/verify-seller" onClick={handleLinkClick} className="block py-2.5 hover:text-gray-300 transition">Verify a seller</Link>
-            <Link href="/mbp" onClick={handleLinkClick} className="block py-2.5 hover:text-gray-300 transition">MBP</Link>
-            <Link href="/iso" onClick={handleLinkClick} className="block py-2.5 hover:text-gray-300 transition">ISO</Link>
+          <div className="space-y-4 text-center text-sm uppercase tracking-wide">
+            <Link href="/" onClick={handleLinkClick} className="block hover:text-gray-300 transition">Home</Link>
+            <Link href="/mbp" onClick={handleLinkClick} className="block hover:text-gray-300 transition">MBP</Link>
+            <Link href="/iso" onClick={handleLinkClick} className="block hover:text-gray-300 transition">ISO</Link>
             {user && (
               <>
-                <Link href="/log-transaction" onClick={handleLinkClick} className="block py-2.5 text-[#94aea7] hover:text-white transition">Log a transaction</Link>
-                <Link href="/sellers/dashboard" onClick={handleLinkClick} className="block py-2.5 text-[#94aea7] hover:text-white transition">Seller dashboard</Link>
+                <Link href="/log-transaction" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Log a Transaction</Link>
+                <Link href="/sellers/dashboard" onClick={handleLinkClick} className="block text-[#94aea7] hover:text-white transition">Seller Dashboard</Link>
               </>
             )}
 
             {/* Tools */}
             <div className="pt-2">
               <button id={toolsMobileBtnId} onClick={() => setMobileToolsOpen(v => !v)}
-                className="mx-auto flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+                className="mx-auto flex items-center justify-center gap-2 rounded-md px-4 py-2 text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                 aria-expanded={mobileToolsOpen} aria-controls={toolsMobileMenuId}>
                 Tools <ChevronDown className={`h-4 w-4 transition-transform ${mobileToolsOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -314,10 +325,10 @@ export default function Header() {
                   'transition-[max-height,opacity] motion-safe:duration-300 ease-out',
                   mobileToolsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'].join(' ')}
                 role="menu" aria-labelledby={toolsMobileBtnId}>
-                <div className="p-2 text-left text-sm">
+                <div className="p-2 text-left text-xs normal-case">
                   {TOOL_LINKS.map(item => (
                     <Link key={item.href} href={item.href} onClick={handleLinkClick} role="menuitem"
-                      className="block rounded-md px-3 py-2.5 hover:bg-white/10">{item.label}</Link>
+                      className="block rounded-md px-3 py-2 hover:bg-white/10">{item.label}</Link>
                   ))}
                 </div>
               </div>
@@ -339,12 +350,12 @@ export default function Header() {
             </div>
             {user && (
               <button onClick={handleSignOut}
-                className="px-4 py-2.5 text-sm text-red-400 hover:text-red-300 transition">
-                Sign out
+                className="text-xs text-red-400 hover:text-red-300 transition">
+                Sign Out
               </button>
             )}
             <button onClick={() => setMobileMenuOpen(false)}
-              className="rounded-full px-5 py-2.5 text-sm bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30">
+              className="rounded-md px-4 py-2 text-xs tracking-wider uppercase bg-white/10 hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30">
               Close
             </button>
           </div>

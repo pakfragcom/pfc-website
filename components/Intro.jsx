@@ -17,16 +17,16 @@ export default function Intro() {
         <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-[#2a5c4f]/15 blur-3xl" />
         <GridDither />
 
-        {/* Heading */}
+        {/* Heading — removed duplicate eyebrow badge */}
         <m.h2
           id="intro-heading"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: reduce ? 0 : 0.65, ease: [0.2, 0.8, 0.2, 1] }}
-          className="mx-auto mb-5 max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl"
+          className="mx-auto mb-5 bg-gradient-to-b from-white via-white to-white/60 bg-clip-text text-2xl font-extrabold uppercase tracking-wide text-transparent sm:text-3xl"
         >
-          Pakistan&apos;s fragrance community, all in one place
+          Welcome to the Premier Fragrance Community in Pakistan
         </m.h2>
 
         {/* Body copy */}
@@ -37,8 +37,8 @@ export default function Intro() {
           transition={{ duration: reduce ? 0 : 0.55, ease: 'easeOut', delay: 0.08 }}
           className="mx-auto max-w-3xl text-base leading-relaxed text-gray-300 sm:text-lg"
         >
-          Collectors, reviewers, decanters and local houses, together. Every seller in our
-          registry is checked by PFC admins, and scammers go on a public blacklist.
+          Connecting perfume lovers, collectors, reviewers, and decanters under one trusted platform.
+          Our mission is to elevate scent culture, build trust, and inspire the next generation of fragrance enthusiasts.
         </m.p>
 
         {/* Divider */}
@@ -51,7 +51,7 @@ export default function Intro() {
           aria-hidden="true"
         />
 
-        {/* Stats */}
+        {/* Stats — premium glass card */}
         <m.div
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -70,7 +70,7 @@ export default function Intro() {
           <div className="border-x border-white/10">
             <Stat
               icon={<ShieldIcon className="h-5 w-5 text-[#94aea7]" />}
-              label="Verified sellers"
+              label="Verified Sellers"
               valueEnd={170}
               suffix="+"
               reduce={reduce}
@@ -79,7 +79,7 @@ export default function Intro() {
           </div>
           <Stat
             icon={<StarIcon className="h-5 w-5 text-[#94aea7]" />}
-            label="Fragrance houses"
+            label="Fragrance Houses"
             valueEnd={80}
             suffix="+"
             reduce={reduce}
@@ -117,7 +117,7 @@ function Stat({ icon, label, valueEnd, suffix = '', reduce, ariaLabel }) {
       <div className="text-xl font-bold leading-none text-white tabular-nums" aria-label={ariaLabel}>
         {formatNumber(value)}{suffix}
       </div>
-      <div className="text-xs text-white/55">{label}</div>
+      <div className="text-[10px] uppercase tracking-widest text-white/45">{label}</div>
     </div>
   )
 }

@@ -79,7 +79,7 @@ export default function OrderPage({ order, bank, whatsapp }) {
         {payable && (
           <section className="mt-8 rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
             <div className="flex items-baseline justify-between">
-              <h2 className="text-base font-semibold text-[#F5F5F7]">Amount to pay</h2>
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-white/50">Amount to pay</h2>
               <span className="text-2xl font-semibold text-[#F5F5F7]">{formatPKR(due)}</span>
             </div>
             {order.quote_note && <p className="mt-3 text-sm text-gray-300">{order.quote_note}</p>}
@@ -94,7 +94,7 @@ export default function OrderPage({ order, bank, whatsapp }) {
         )}
 
         <section className="mt-8">
-          <h2 className="text-base font-semibold text-[#F5F5F7]">Items</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/50">Items</h2>
           <ul className="mt-2 divide-y divide-white/10">
             {(order.items || []).map((it) => {
               const f = it.variant?.fragrance || {};
@@ -104,7 +104,7 @@ export default function OrderPage({ order, bank, whatsapp }) {
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-gray-400">{f.house}</p>
                     <p className="truncate text-sm font-semibold text-[#F5F5F7]">{f.name}</p>
-                    <p className="text-xs text-gray-400">{it.variant ? variantLabel(it.variant) : ''}, qty {it.quantity}</p>
+                    <p className="text-xs text-gray-400">{it.variant ? variantLabel(it.variant) : ''} · Qty {it.quantity}</p>
                   </div>
                   <p className="text-sm">{formatPKR(it.line_subtotal_pkr)}</p>
                 </li>
@@ -120,7 +120,7 @@ export default function OrderPage({ order, bank, whatsapp }) {
         </section>
 
         <section className="mt-8 rounded-2xl bg-white/5 p-5 text-sm ring-1 ring-white/10">
-          <h2 className="text-base font-semibold text-[#F5F5F7]">Delivery to</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/50">Delivery to</h2>
           <p className="mt-2 text-[#F5F5F7]">{order.customer_name}</p>
           <p className="text-gray-300">{order.shipping_address}, {order.shipping_city}</p>
           <p className="text-gray-400">{order.contact_whatsapp}</p>

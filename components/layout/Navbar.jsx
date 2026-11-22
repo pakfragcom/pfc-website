@@ -9,7 +9,6 @@ export default function Navbar({ onLinkClick }) {
   const ITEMS = useMemo(
     () => [
       { label: 'Home',          href: '/',             external: false },
-      { label: 'Verify a seller', href: '/tools/verify-seller', external: false },
       { label: 'MBP',           href: '/mbp',          external: false },
       { label: 'ISO',           href: '/iso',          external: false },
     ],
@@ -57,7 +56,7 @@ export default function Navbar({ onLinkClick }) {
       role="navigation"
     >
       <ul
-        className="flex items-center gap-6 text-sm"
+        className="flex items-center gap-6 text-sm uppercase tracking-wide"
         role="list"
       >
         {ITEMS.map((item, idx) => {
