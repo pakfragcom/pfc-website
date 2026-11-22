@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
-import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ShieldCheck, Building2, Droplets, Ruler, FlaskConical, ArrowRight } from 'lucide-react'
 
 const EASE = [0.25, 0.46, 0.45, 0.94]
@@ -179,20 +179,30 @@ function VerifyCard({ sellers = [] }) {
           <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
             <ShieldCheck className="h-4 w-4" />
           </span>
-          <m.div
-            key={seller.code}
-            initial={reduce ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="min-w-0"
-          >
+          <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-500">Verified</p>
-            <p className="truncate text-lg font-bold text-[#F5F5F7]">{seller.name}</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-[#F5F5F7]">{seller.code}</span>
-              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">{seller.type}</span>
+            {/* Crossfade: outgoing and incoming seller share one grid cell, so the
+                card keeps its size while one dissolves into the other. */}
+            <div className="grid">
+              <AnimatePresence initial={false}>
+                <m.div
+                  key={seller.code}
+                  style={{ gridArea: '1 / 1' }}
+                  initial={reduce ? false : { opacity: 0, y: 4, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, filter: 'blur(4px)' }}
+                  transition={{ duration: reduce ? 0 : 0.7, ease: [0.4, 0, 0.2, 1] }}
+                  className="min-w-0"
+                >
+                  <p className="truncate text-lg font-bold text-[#F5F5F7]">{seller.name}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-[#F5F5F7]">{seller.code}</span>
+                    <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">{seller.type}</span>
+                  </div>
+                </m.div>
+              </AnimatePresence>
             </div>
-          </m.div>
+          </div>
         </div>
       </div>
     </div>
