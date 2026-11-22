@@ -41,7 +41,7 @@ export default function MyOrders({ orders }) {
                     <div>
                       <p className="font-mono text-sm text-[#F5F5F7]">{o.order_number}</p>
                       <p className="text-xs text-gray-500">
-                        {new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · {qty} item{qty === 1 ? '' : 's'}
+                        {new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}, {qty} item{qty === 1 ? '' : 's'}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">

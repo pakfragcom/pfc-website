@@ -119,7 +119,7 @@ export default function CheckoutPage({ email, saved, shippingFee }) {
         ) : (
           <div className="mt-8 grid gap-10 md:grid-cols-[1fr_380px]">
             <form onSubmit={submit} className="space-y-5" noValidate>
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-white/50">Delivery details</h2>
+              <h2 className="text-base font-semibold text-[#F5F5F7]">Delivery details</h2>
               <Field label="Full name">
                 <input className={input} value={form.name} onChange={set('name')} autoComplete="name" required maxLength={80} />
               </Field>
@@ -144,7 +144,7 @@ export default function CheckoutPage({ email, saved, shippingFee }) {
                 disabled={submitting}
                 className="inline-flex w-full items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-[#e6ebe9] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-60"
               >
-                {submitting ? 'Placing order…' : needsQuote ? 'Send quote request' : `Place order · ${formatPKR(total)}`}
+                {submitting ? 'Placing order…' : needsQuote ? 'Send quote request' : `Place order for ${formatPKR(total)}`}
               </button>
               <p className="text-xs text-gray-500">
                 {needsQuote
@@ -154,7 +154,7 @@ export default function CheckoutPage({ email, saved, shippingFee }) {
             </form>
 
             <aside className="h-fit rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-white/50">Your order</h2>
+              <h2 className="text-base font-semibold text-[#F5F5F7]">Your order</h2>
               <CartLines items={items} />
               <dl className="mt-2 space-y-2 border-t border-white/10 pt-4 text-sm">
                 <div className="flex justify-between"><dt className="text-gray-400">{needsQuote ? 'Estimated subtotal' : 'Subtotal'}</dt><dd>{formatPKR(subtotal)}</dd></div>

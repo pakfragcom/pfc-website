@@ -2,7 +2,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
-import Reveal from '../ui/Reveal'
+
+
+// Footer links: 44px-tall tap targets on phones, normal sentence case.
+const FOOTER_LINK =
+  'inline-block py-2.5 text-gray-400 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm md:py-1.5'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -46,7 +50,7 @@ export default function Footer() {
 
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
           {/* Brand */}
-          <Reveal delay={0}>
+          <div>
             <Link
               href="/"
               className="inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"
@@ -71,15 +75,15 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                aria-label="Join Our Community on Facebook (opens in new tab)"
+                aria-label="Join the community on Facebook (opens in new tab)"
               >
-                Join Our Community
+                Join the community
               </a>
             </div>
-          </Reveal>
+          </div>
 
           {/* Navigation */}
-          <Reveal delay={0.1}>
+          <div>
             <nav
               aria-label="Footer Navigation"
               className="grid grid-cols-2 gap-8 sm:grid-cols-3"
@@ -87,64 +91,57 @@ export default function Footer() {
               itemType="https://schema.org/SiteNavigationElement"
             >
               <div>
-                <h3 className="mb-4 font-semibold text-[#F5F5F7]">Explore</h3>
-                <ul className="space-y-2 text-sm uppercase tracking-wide">
+                <h3 className="mb-3 font-semibold text-[#F5F5F7]">Explore</h3>
+                <ul className="text-sm">
+                  {[
+                    ['/tools/verify-seller', 'Verify a seller'],
+                    ['/mbp', 'Fragrance houses'],
+                    ['/iso', 'In Search Of'],
+                    ['/tools/decant', 'Tools'],
+                  ].map(([href, label]) => (
+                    <li key={href}>
+                      <Link href={href} className={FOOTER_LINK} itemProp="url">
+                        <span itemProp="name">{label}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="mb-3 font-semibold text-[#F5F5F7]">Community</h3>
+                <ul className="text-sm">
                   <li>
-                    <Link href="/" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5" itemProp="url">
-                      <span itemProp="name">Home</span>
-                    </Link>
+                    <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer" className={FOOTER_LINK}>
+                      Facebook group<span className="sr-only"> (opens in new tab)</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.instagram.com/pakfragcom/" target="_blank" rel="noopener noreferrer" className={FOOTER_LINK}>
+                      Instagram<span className="sr-only"> (opens in new tab)</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://discord.gg/c7zAXTzxph" target="_blank" rel="noopener noreferrer" className={FOOTER_LINK}>
+                      Discord<span className="sr-only"> (opens in new tab)</span>
+                    </a>
                   </li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="mb-4 font-semibold text-[#F5F5F7]">Community</h3>
-                <ul className="space-y-2 text-sm uppercase tracking-wide">
-                  <li>
-                    <a
-                      href="https://www.facebook.com/groups/pkfragcom"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                      aria-label="Facebook Group (opens in new tab)"
-                    >
-                      Facebook Group
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.instagram.com/pakfragcom/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5"
-                      aria-label="Instagram (opens in new tab)"
-                    >
-                      Instagram
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="mb-4 font-semibold text-[#F5F5F7]">Legal</h3>
-                <ul className="space-y-2 text-sm uppercase tracking-wide">
-                  <li>
-                    <Link href="/legal/terms" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
-                      Terms
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/legal/privacy" className="hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm px-1 py-0.5">
-                      Privacy
-                    </Link>
-                  </li>
+                <h3 className="mb-3 font-semibold text-[#F5F5F7]">Legal</h3>
+                <ul className="text-sm">
+                  <li><Link href="/legal/terms" className={FOOTER_LINK}>Terms</Link></li>
+                  <li><Link href="/legal/privacy" className={FOOTER_LINK}>Privacy</Link></li>
+                  <li><Link href="/contact" className={FOOTER_LINK}>Contact</Link></li>
                 </ul>
               </div>
             </nav>
-          </Reveal>
+          </div>
 
           {/* Newsletter */}
-          <Reveal delay={0.2} className="md:col-span-3 lg:col-span-1 md:order-last lg:order-none">
+          <div className="md:col-span-3 lg:col-span-1 md:order-last lg:order-none">
           <div>
             <form
               className="rounded-xl border border-white/10 bg-black/60 p-4 backdrop-blur"
@@ -155,7 +152,7 @@ export default function Footer() {
                 Stay in the loop
               </h3>
               <p className="mt-1 text-xs text-gray-400">
-                News, reviews &amp; tools &mdash; no spam.
+                New houses, seller updates and community news. No spam.
               </p>
 
               {status === 'success' ? (
@@ -194,7 +191,7 @@ export default function Footer() {
               )}
             </form>
           </div>
-          </Reveal>
+          </div>
         </div>
 
         {/* Bottom bar */}
@@ -238,7 +235,7 @@ function SocialLink({ href, label, title, children }) {
       rel="noopener noreferrer"
       aria-label={`${label} (opens in new tab)`}
       title={title || label}
-      className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-md p-1 transition"
+      className="text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-md p-2.5 transition"
     >
       {children}
       <span className="sr-only">{label}</span>

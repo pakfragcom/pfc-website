@@ -2,30 +2,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Reveal from './ui/Reveal'
 
-const CATEGORY_LABELS = {
-  designer: 'Designer', middle_eastern: 'Middle Eastern', niche: 'Niche', local: 'Local Brand',
-};
-
-function MiniStars({ value }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg key={i} className={`h-2.5 w-2.5 ${i < Math.round(value) ? 'text-[#94aea7]' : 'text-white/12'}`} fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-        </svg>
-      ))}
-    </div>
-  );
-}
-
 function TrustedPill() {
   return (
-    <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[11px] uppercase tracking-wider text-white/90 backdrop-blur-sm">
+    <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-xs text-white/90 backdrop-blur-sm">
       <span
         className="inline-block h-1.5 w-1.5 rounded-full animate-pulse-slow"
         style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-3))' }}
       />
-      Trusted Community
+      Trusted community
     </div>
   );
 }
@@ -90,7 +74,7 @@ function InstagramGrid({ username, posts }) {
   );
 }
 
-export default function SplitBlock({ topRated = [], instagram = null }) {
+export default function SplitBlock({ instagram = null }) {
   return (
     <section
       style={{
@@ -151,91 +135,29 @@ export default function SplitBlock({ topRated = [], instagram = null }) {
               aria-hidden="true"
             />
 
-            {topRated.length > 0 ? (
-              /* Dynamic: top rated this month */
-              <>
-                <p className="relative mb-1 text-[11px] font-medium uppercase tracking-[0.22em] text-white/50">
-                  Pakistan Fragrance Community
-                </p>
-                <h3 id="splitblock-title" className="relative mb-5 text-2xl font-semibold leading-tight text-white md:text-3xl">
-                  Top Rated{' '}
-                  <span className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: 'linear-gradient(90deg, var(--brand-2), var(--brand-3))' }}>
-                    This Month
-                  </span>
-                </h3>
-
-                <div className="relative space-y-3 mb-6">
-                  {topRated.map((f, i) => (
-                    <Link key={f.slug || i} href={f.slug ? `/fragrances/${f.slug}` : '/fragrances'}
-                      className="group flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.06] p-3 transition-all duration-300">
-                      <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden border border-white/10 bg-white/5">
-                        {f.image_url
-                          ? <img src={f.image_url} alt={f.name} className="w-full h-full object-cover" />
-                          : <div className="w-full h-full flex items-center justify-center text-white/15 text-base">◈</div>
-                        }
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white leading-snug truncate group-hover:text-white transition">{f.name}</p>
-                        <p className="text-[10px] text-gray-400 truncate">{f.house}</p>
-                      </div>
-                      <div className="flex-shrink-0 text-right">
-                        <MiniStars value={f.avg_rating} />
-                        <p className="text-[9px] text-gray-400 mt-0.5">{f.review_count} review{f.review_count !== 1 ? 's' : ''}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-
-                <div className="relative flex flex-col gap-3 sm:flex-row">
-                  <Link href="/fragrances"
-                    className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-[#2a5c4f]/25 transition-all hover:brightness-110"
-                    style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3))' }}>
-                    Browse Directory
-                  </Link>
-                  <Link href="/reviews"
-                    className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/10">
-                    Read Reviews
-                  </Link>
-                </div>
-              </>
-            ) : (
-              /* Static fallback */
-              <>
-                <p className="relative mb-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/50">
-                  Pakistan Fragrance Community
-                </p>
-                <h3 id="splitblock-title" className="relative mb-4 text-3xl font-semibold leading-tight text-white md:text-4xl">
-                  <span>Discover.</span>{' '}
-                  <span>Verify.</span>{' '}
-                  <span className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: 'linear-gradient(90deg, var(--brand-2), var(--brand-3))' }}>
-                    Trade.
-                  </span>
-                </h3>
-                <p className="relative mb-8 text-base leading-relaxed text-white/70">
-                  Whether you&apos;re searching for a signature scent or sharing your experience,
-                  <span className="text-white/90"> PFC</span> is the trusted hub for perfume enthusiasts across Pakistan.
-                  Join our community, verify sellers before you buy, and get ready for our upcoming marketplace.
-                </p>
-                <ul className="relative mb-8 space-y-3.5 text-sm text-white/80">
-                  <Bullet>Curated discussions &amp; real-world wear tests</Bullet>
-                  <Bullet>Seller verification &amp; safer trading guidelines</Bullet>
-                  <Bullet>Marketplace (coming soon) with dispute support</Bullet>
-                </ul>
-                <div className="relative flex flex-col gap-3 sm:flex-row">
-                  <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-[#2a5c4f]/25 transition-all hover:brightness-110 hover:shadow-[#2a5c4f]/40"
-                    style={{ background: 'linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3))' }}>
-                    Join the Community
-                  </a>
-                  <Link href="/tools/verify-seller"
-                    className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/10">
-                    Verify a Seller
-                  </Link>
-                </div>
-              </>
-            )}
+            <h3 id="splitblock-title" className="relative mb-4 text-3xl font-semibold leading-tight tracking-tight text-white md:text-4xl">
+              Buy, sell and talk fragrance with people you can trust
+            </h3>
+            <p className="relative mb-8 text-base leading-relaxed text-white/70">
+              The PFC Facebook group is where members ask questions, share wear tests and find
+              bottles. This site adds the tools that keep trading safe.
+            </p>
+            <ul className="relative mb-8 space-y-3.5 text-sm text-white/80">
+              <Bullet>A registry of verified sellers and a public scam blacklist</Bullet>
+              <Bullet>A directory of Pakistani fragrance houses</Bullet>
+              <Bullet>An In Search Of board for hard-to-find bottles</Bullet>
+            </ul>
+            <div className="relative flex flex-col gap-3 sm:flex-row">
+              <a href="https://www.facebook.com/groups/pkfragcom" target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-black transition hover:bg-[#e6ebe9] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+                Join the community
+                <span className="sr-only"> on Facebook (opens in new tab)</span>
+              </a>
+              <Link href="/iso"
+                className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white transition hover:border-white/50 hover:bg-white/10 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+                Browse the ISO board
+              </Link>
+            </div>
           </div>
         </Reveal>
       </div>
