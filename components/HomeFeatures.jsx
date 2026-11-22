@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ShieldCheck, Building2, Droplets, Ruler, FlaskConical, ArrowRight } from 'lucide-react'
@@ -11,7 +11,7 @@ const EASE = [0.25, 0.46, 0.45, 0.94]
 // a visual card on the other, alternating. Text lifts in on view; the card
 // drifts on scroll (transform only, no layout shift). All motion collapses to
 // zero under prefers-reduced-motion.
-export default function HomeFeatures({ houses = [], housesTotal = 0, sellers = [] }) {
+export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
   const housesLabel = housesTotal >= 10 ? `${Math.floor(housesTotal / 10) * 10}+` : '80+'
   return (
     <LazyMotion features={domAnimation}>
@@ -22,7 +22,7 @@ export default function HomeFeatures({ houses = [], housesTotal = 0, sellers = [
           body="Every PFC seller has a code. Search a name or code, check the public blacklist, and know exactly who you're dealing with — in seconds."
           cta="Verify a seller"
           href="/tools/verify-seller"
-          visual={<VerifyCard sellers={sellers} />}
+          visual={<VerifyCard />}
           halo="#2a5c4f"
           interactive
         />
@@ -102,39 +102,9 @@ function Feature({ eyebrow, title, body, cta, href, visual, halo, flip = false, 
 
 /* ---------- Visual cards (decorative, aria-hidden by the wrapper) ---------- */
 
-// Used only if the homepage could not load real sellers.
-const FALLBACK_SELLERS = [{ name: 'Abdullah Nazir', code: 'AN-K9C7', type: 'BNIB Seller' }]
-const IDLE_PLACEHOLDER = 'Seller name or code'
-
-function VerifyCard({ sellers = [] }) {
+function VerifyCard() {
   const router = useRouter()
-  const reduce = useReducedMotion()
-  const list = sellers.length ? sellers : FALLBACK_SELLERS
   const [q, setQ] = useState('')
-  const [focused, setFocused] = useState(false)
-  const [demo, setDemo] = useState(IDLE_PLACEHOLDER)
-
-  // While the field is empty and untouched, the placeholder types out real
-  // active sellers' names so the box reads as live. The result card below
-  // stays generic and still. Stops on focus or input and under reduced motion.
-  useEffect(() => {
-    if (reduce || focused || q) { setDemo(IDLE_PLACEHOLDER); return }
-    let word = 0, i = 0, deleting = false, t
-    const tick = () => {
-      const target = list[word].name
-      if (!deleting) {
-        i += 1; setDemo(target.slice(0, i) + '|')
-        if (i === target.length) { deleting = true; t = setTimeout(tick, 1800); return }
-        t = setTimeout(tick, 85)
-      } else {
-        i -= 1; setDemo(target.slice(0, i) + '|')
-        if (i === 0) { deleting = false; word = (word + 1) % list.length; t = setTimeout(tick, 350); return }
-        t = setTimeout(tick, 35)
-      }
-    }
-    t = setTimeout(tick, 700)
-    return () => clearTimeout(t)
-  }, [reduce, focused, q, list])
 
   function submit(e) {
     e.preventDefault()
@@ -154,9 +124,7 @@ function VerifyCard({ sellers = [] }) {
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder={demo}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          placeholder="Seller name or seller code"
           maxLength={100}
           autoComplete="off"
           className="w-full bg-transparent text-sm text-white placeholder-gray-500 outline-none"
