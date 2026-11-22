@@ -7,12 +7,13 @@ import Intro from '../components/Intro';
 import SplitBlock from '../components/SplitBlock';
 import { supabase } from '../lib/supabase';
 import { getInstagramFeed } from '../lib/instagram';
+import { pickShowcaseSellers } from '../lib/home-sellers';
 
 // Server-rendered for SEO, but split into its own chunk so the scroll-motion
 // code only ships with the homepage.
 const HomeFeatures = dynamic(() => import('../components/HomeFeatures'), { ssr: true });
 
-export default function Home({ houses = [], housesTotal = 0, instagram = null }) {
+export default function Home({ houses = [], housesTotal = 0, instagram = null, sellers = [] }) {
   return (
     <>
       <Head>
@@ -33,7 +34,7 @@ export default function Home({ houses = [], housesTotal = 0, instagram = null })
       <div className="bg-black text-white font-sans">
         <Header />
         <Hero />
-        <HomeFeatures houses={houses} housesTotal={housesTotal} />
+        <HomeFeatures houses={houses} housesTotal={housesTotal} sellers={sellers} />
         <Intro />
         <SplitBlock instagram={instagram} />
         <Footer />
@@ -47,7 +48,7 @@ const TIER_RANK = { platinum: 0, gold: 1, silver: 2 };
 // Six houses for the homepage, best-presented first: logo + description,
 // then sponsors and higher tiers. One bounded query, revalidated hourly.
 export async function getStaticProps() {
-  const [{ data: rows, error }, { count }, instagram] = await Promise.all([
+  const [{ data: rows, error }, { count }, instagram, { data: sellerRows }] = await Promise.all([
     supabase
       .from('fragrance_houses')
       .select('house, slug, logo_url, description, tier, is_sponsor')
@@ -60,6 +61,12 @@ export async function getStaticProps() {
       .select('id', { count: 'exact', head: true })
       .in('status', ['active', 'grace']),
     getInstagramFeed(),
+    // Active sellers for the rotating verify card (public data, same as the search).
+    supabase
+      .from('sellers')
+      .select('name, code, seller_type')
+      .eq('status', 'active')
+      .limit(300),
   ]);
   if (error) console.error('[home] houses fetch error:', error.message);
 
@@ -77,5 +84,8 @@ export async function getStaticProps() {
       description: description ? description.trim().slice(0, 140) : null,
     }));
 
-  return { props: { houses, housesTotal: count || 0, instagram }, revalidate: 3600 };
+  return {
+    props: { houses, housesTotal: count || 0, instagram, sellers: pickShowcaseSellers(sellerRows, 8) },
+    revalidate: 3600,
+  };
 }

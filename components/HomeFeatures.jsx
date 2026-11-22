@@ -11,7 +11,7 @@ const EASE = [0.25, 0.46, 0.45, 0.94]
 // a visual card on the other, alternating. Text lifts in on view; the card
 // drifts on scroll (transform only, no layout shift). All motion collapses to
 // zero under prefers-reduced-motion.
-export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
+export default function HomeFeatures({ houses = [], housesTotal = 0, sellers = [] }) {
   const housesLabel = housesTotal >= 10 ? `${Math.floor(housesTotal / 10) * 10}+` : '80+'
   return (
     <LazyMotion features={domAnimation}>
@@ -22,7 +22,7 @@ export default function HomeFeatures({ houses = [], housesTotal = 0 }) {
           body="Every PFC seller has a code. Search a name or code, check the public blacklist, and know exactly who you're dealing with — in seconds."
           cta="Verify a seller"
           href="/tools/verify-seller"
-          visual={<VerifyCard />}
+          visual={<VerifyCard sellers={sellers} />}
           halo="#2a5c4f"
           interactive
         />
@@ -102,36 +102,45 @@ function Feature({ eyebrow, title, body, cta, href, visual, halo, flip = false, 
 
 /* ---------- Visual cards (decorative, aria-hidden by the wrapper) ---------- */
 
-const DEMO_SEARCHES = ['Abdullah', 'AN-K9C7', 'Zakir']
+// Used only if the homepage could not load real sellers.
+const FALLBACK_SELLERS = [{ name: 'Abdullah Nazir', code: 'AN-K9C7', type: 'BNIB Seller' }]
 const IDLE_PLACEHOLDER = 'Seller name or code'
 
-function VerifyCard() {
+function VerifyCard({ sellers = [] }) {
   const router = useRouter()
   const reduce = useReducedMotion()
+  const list = sellers.length ? sellers : FALLBACK_SELLERS
   const [q, setQ] = useState('')
   const [focused, setFocused] = useState(false)
   const [demo, setDemo] = useState(IDLE_PLACEHOLDER)
+  const [shown, setShown] = useState(0)
 
-  // While the field is empty and untouched, the placeholder types out
-  // example searches so the card reads as live. Stops on focus or input.
+  // While the field is empty and untouched, the placeholder types out a real
+  // active seller's name; when the name is complete the result card below
+  // switches to that seller. Stops on focus or input, and under reduced
+  // motion the card simply shows one seller.
   useEffect(() => {
     if (reduce || focused || q) { setDemo(IDLE_PLACEHOLDER); return }
-    let word = 0, i = 0, deleting = false, t
+    let word = shown, i = 0, deleting = false, t
     const tick = () => {
-      const target = DEMO_SEARCHES[word]
+      const target = list[word].name
       if (!deleting) {
         i += 1; setDemo(target.slice(0, i) + '|')
-        if (i === target.length) { deleting = true; t = setTimeout(tick, 1500); return }
-        t = setTimeout(tick, 95)
+        if (i === target.length) { setShown(word); deleting = true; t = setTimeout(tick, 2200); return }
+        t = setTimeout(tick, 85)
       } else {
         i -= 1; setDemo(target.slice(0, i) + '|')
-        if (i === 0) { deleting = false; word = (word + 1) % DEMO_SEARCHES.length; t = setTimeout(tick, 350); return }
-        t = setTimeout(tick, 45)
+        if (i === 0) { deleting = false; word = (word + 1) % list.length; t = setTimeout(tick, 350); return }
+        t = setTimeout(tick, 35)
       }
     }
     t = setTimeout(tick, 700)
     return () => clearTimeout(t)
-  }, [reduce, focused, q])
+    // `shown` is read only to resume where the rotation left off.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduce, focused, q, list])
+
+  const seller = list[shown] || list[0]
 
   function submit(e) {
     e.preventDefault()
@@ -170,14 +179,20 @@ function VerifyCard() {
           <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
             <ShieldCheck className="h-4 w-4" />
           </span>
-          <div className="min-w-0">
+          <m.div
+            key={seller.code}
+            initial={reduce ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: EASE }}
+            className="min-w-0"
+          >
             <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-500">Verified</p>
-            <p className="truncate text-lg font-bold text-[#F5F5F7]">Abdullah Nazir</p>
+            <p className="truncate text-lg font-bold text-[#F5F5F7]">{seller.name}</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-[#F5F5F7]">AN-K9C7</span>
-              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">BNIB Seller</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-[#F5F5F7]">{seller.code}</span>
+              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">{seller.type}</span>
             </div>
-          </div>
+          </m.div>
         </div>
       </div>
     </div>
