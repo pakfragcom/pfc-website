@@ -320,9 +320,12 @@ export async function getStaticProps({ params }) {
     .eq('slug', slug)
     .single()
 
-  if (houseError) console.error('[houses/[slug]] house fetch error:', houseError.message)
+  // A real DB error keeps the last good page (Next serves the old copy when
+  // getStaticProps throws); "no row" (PGRST116) is a genuine 404, cached for
+  // 10 min so crawler hits on bad links don't re-render every time.
+  if (houseError && houseError.code !== 'PGRST116') throw new Error(`[houses/[slug]] house fetch error: ${houseError.message}`)
   if (!house || !['active', 'grace'].includes(house.status)) {
-    return { notFound: true }
+    return { notFound: true, revalidate: 600 }
   }
 
   // Fetch approved reviews for this house

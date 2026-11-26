@@ -326,8 +326,9 @@ export async function getStaticProps({ params }) {
     .in('status', ['active', 'grace'])
     .maybeSingle();
 
-  if (sellerError) console.error('[sellers/[slug]] seller fetch error:', sellerError.message);
-  if (!seller) return { notFound: true };
+  // DB error keeps the last good page; a real miss is a 404 cached for 10 min.
+  if (sellerError) throw new Error(`[sellers/[slug]] seller fetch error: ${sellerError.message}`);
+  if (!seller) return { notFound: true, revalidate: 600 };
 
   const { data: txStats, error: txStatsError } = await supabase
     .from('seller_transaction_stats')

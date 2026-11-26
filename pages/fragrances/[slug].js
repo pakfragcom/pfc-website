@@ -869,8 +869,9 @@ export async function getStaticProps({ params }) {
     .eq('status', 'approved')
     .maybeSingle();
 
-  if (fragranceError) console.error('[fragrances/[slug]] fragrance fetch error:', fragranceError.message);
-  if (!fragrance) return { notFound: true };
+  // DB error keeps the last good page; a real miss is a 404 cached for 10 min.
+  if (fragranceError) throw new Error(`[fragrances/[slug]] fragrance fetch error: ${fragranceError.message}`);
+  if (!fragrance) return { notFound: true, revalidate: 600 };
 
   const [
     { data: reviewRows, error: reviewsError },

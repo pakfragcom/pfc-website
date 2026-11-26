@@ -281,8 +281,10 @@ export async function getStaticProps({ params }) {
     .eq('status', 'active')
     .maybeSingle();
 
-  if (error) console.error('[marketplace/[id]] listing fetch error:', error.message);
-  if (!listing) return { notFound: true };
+  // DB error keeps the last good page; a real miss is a 404 cached for 10 min.
+  // 22P02 = the id isn't a valid uuid (bad link / bot), which is just a 404.
+  if (error && error.code !== '22P02') throw new Error(`[marketplace/[id]] listing fetch error: ${error.message}`);
+  if (!listing) return { notFound: true, revalidate: 600 };
 
   return {
     props: { listing },

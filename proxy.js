@@ -32,11 +32,6 @@ export async function proxy(request) {
 
   // Block scraper bots — but never block API routes called from our own pages
   if (isBlockedBot(ua)) {
-    // API routes get 403
-    if (pathname.startsWith('/api/')) {
-      return new NextResponse('Forbidden', { status: 403 });
-    }
-    // Pages get a minimal 403 (no content worth scraping)
     return new NextResponse('Forbidden', { status: 403 });
   }
 
@@ -67,8 +62,13 @@ export async function proxy(request) {
   return NextResponse.next();
 }
 
+// API routes only. Since Next 16, Proxy runs on the Node.js runtime, so every
+// request it matches is billed as Fluid Active CPU. Matching every page view
+// (it used to, back when Middleware ran on the Edge) used up the Hobby plan's
+// 4 CPU-hour month in Nov 2026. Pages are served from the CDN cache, so
+// screening them protected nothing; the API is where scrapers could pull data
+// (e.g. the seller list behind /tools/verify-seller). lib/proxy-scope.test.js
+// keeps this from widening again.
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
-  ],
+  matcher: ['/api/:path*'],
 };

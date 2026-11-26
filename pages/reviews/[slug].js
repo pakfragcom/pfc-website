@@ -424,14 +424,16 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { data: review } = await supabase
+  const { data: review, error: reviewError } = await supabase
     .from('reviews')
     .select('*, profiles(display_name, city, username), fragrance_houses!reviews_house_id_fkey(slug)')
     .eq('slug', params.slug)
     .eq('status', 'approved')
     .single();
 
-  if (!review) return { notFound: true };
+  // DB error keeps the last good page; "no row" (PGRST116) is a 404 cached for 10 min.
+  if (reviewError && reviewError.code !== 'PGRST116') throw new Error(`[reviews/[slug]] review fetch error: ${reviewError.message}`);
+  if (!review) return { notFound: true, revalidate: 600 };
 
   let fragrance = null;
   let relatedReviews = [];

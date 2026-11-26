@@ -17,10 +17,11 @@ There is no ESLint config. There is a small Vitest suite under `lib/**/*.test.js
 
 In 2026-08, an API route (`/api/recommendations`) ran two unbounded full-table Supabase fetches plus O(n×m) scoring on every homepage view for every logged-in visitor, uncached — it quietly burned through the Vercel Hobby plan's 4 CPU-hour monthly allowance over several weeks. Fixed by caching the shared (non-per-user) part of the computation in-memory with a TTL (`lib/recommendation-cache.js`), the same pattern `lib/rate-limit.js` already used.
 
-Two conventions came out of that incident, both enforced by `lib/query-safety.test.js` in CI:
+Conventions that came out of that incident (and the 2026-11 one), enforced by `lib/query-safety.test.js` in CI:
 
 1. **Every Supabase read in `pages/api/**` must be bounded** — `.limit()`, `.single()`, `.maybeSingle()`, `.range()`, `count:'exact',head:true`, or scoped to one owner's rows via `.eq('*_id', ...)`. A page that fetches an entire table and filters by status client-side (the exact shape of the original `reviews.js`/`orders.js` bug, later also found in `fragrances.js`) is the pattern to avoid — fetch one status server-side, get counts for the others via a parallel `head:true` count query instead. A handful of small, genuinely admin-only tables are allowlisted in that test file with a one-line reason; add to the allowlist only after checking the table's real size and traffic shape, not as a way to silence a failing test.
 2. **Anything computed identically for every visitor must not be recomputed per-request** — especially on high-traffic pages. If it can't be ISR-cached (e.g. because it's gated by session auth), cache it in-memory with a TTL instead, matching `lib/recommendation-cache.js`.
+3. **`proxy.js` matches `/api/:path*` only** (`lib/proxy-scope.test.js`). Since Next 16 the proxy runs on the Node.js runtime, so every request it matches is billed as Fluid Active CPU; matching every page view used up the Hobby month in 2026-11. Dynamic ISR pages return `{ notFound: true, revalidate: 600 }` for a real miss so crawler hits on bad links are cached, and **throw** on a real DB error so Next keeps serving the last good copy instead of caching a 404.
 
 ## Stack
 
@@ -170,7 +171,7 @@ A `200` from curl is not proof the site works — on 2026-11-15 every page retur
 
 1. **CSP-blockable inline scripts must be 0**: count `<script>` tags with no `src` whose type is not `application/json` / `application/ld+json`.
 2. **Every `/_next/…` script the HTML references must return 200.**
-3. **verify-seller API baseline**: `/api/sellers/search?q=an&type=ALL` returns 15 results (first "Abdullah Nazir AN-K9C7"); `/api/sellers/blacklist` returns the current count; proxy returns 403 for scraper user-agents.
+3. **verify-seller API baseline**: `/api/sellers/search?q=an&type=ALL` returns 15 results (first "Abdullah Nazir AN-K9C7"); `/api/sellers/blacklist` returns the current count; proxy returns 403 on `/api/*` for scraper user-agents (pages are not screened).
 4. **Load each page (plus any page the deploy touched) in headless Chrome and read the console**: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --user-data-dir=<tmp> --enable-logging=stderr --virtual-time-budget=10000 --dump-dom <url>` — the DOM must not contain "Application error" and stderr `CONSOLE` lines must show no errors. On 2026-11-16 /shop passed checks 1–3 but crashed in the browser because a server-only module (service-role client) leaked into its client bundle; only this check catches that.
 5. **Ask the owner to click-test in a real browser** (search on /verify, open the blacklist, log into /pfc-mgmt). There is no browser tool in this environment.
 

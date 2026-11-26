@@ -169,8 +169,9 @@ export async function getStaticProps({ params }) {
     .eq('username', params.username)
     .single();
 
-  if (profileError) console.error('[u/[username]] profile fetch error:', profileError.message);
-  if (!profile) return { notFound: true };
+  // DB error keeps the last good page; "no row" (PGRST116) is a 404 cached for 10 min.
+  if (profileError && profileError.code !== 'PGRST116') throw new Error(`[u/[username]] profile fetch error: ${profileError.message}`);
+  if (!profile) return { notFound: true, revalidate: 600 };
 
   const { data: reviews, error: reviewsError } = await supabase
     .from('reviews')
